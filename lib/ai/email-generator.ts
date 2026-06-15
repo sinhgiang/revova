@@ -13,9 +13,11 @@ const DECLINE_CONTEXT: Record<string, string> = {
 }
 
 const SEQUENCE_CONTEXT: Record<number, string> = {
-  1: 'This is the first gentle reminder. Be warm, understanding, and helpful.',
-  2: 'This is the second follow-up. Be friendly but slightly more direct. Mention access may be interrupted.',
-  3: 'This is the final notice. Be professional and clear that access will be suspended soon unless updated.',
+  1: 'This is the first gentle reminder (Day 1). Be warm, understanding, and helpful. No urgency.',
+  2: 'This is the second follow-up (Day 3). Be friendly but slightly more direct. Mention their access may be affected.',
+  3: 'This is the third reminder (Day 7). Be professional and clear. Mention access will be suspended soon if not updated.',
+  4: 'This is the fourth notice (Day 14). Be firm but respectful. Access is now suspended or about to be. Create urgency to act now.',
+  5: 'This is the final notice (Day 21). This is the last email. Be direct and clear that the subscription will be permanently cancelled unless they act today.',
 }
 
 export async function generateRecoveryEmail(params: {

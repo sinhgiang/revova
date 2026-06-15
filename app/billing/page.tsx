@@ -11,7 +11,7 @@ const PLANS = [
     limit: 'Up to 50 recoveries/month',
     features: [
       'Up to 50 failed payment recoveries/mo',
-      'AI-personalized 3-email sequence',
+      'AI-personalized 4-email sequence (Day 1,3,7,14)',
       'Real-time dashboard',
       '1-click Stripe Connect',
       '14-day free trial',
@@ -27,7 +27,7 @@ const PLANS = [
     limit: 'Unlimited recoveries',
     features: [
       'Unlimited failed payment recoveries',
-      'AI-personalized 3-email + Day 7 follow-up',
+      'AI-personalized 5-email sequence (Day 1,3,7,14,21)',
       'Advanced analytics & revenue insights',
       '1-click Stripe Connect',
       'Priority support',

@@ -438,7 +438,7 @@ export default function LandingPage() {
               <ul className="space-y-3 mb-8">
                 {[
                   'Up to 50 failed payment recoveries/mo',
-                  'AI-personalized 3-email sequence',
+                  'AI-personalized 4-email sequence (Day 1,3,7,14)',
                   'Real-time dashboard',
                   '1-click Stripe Connect',
                   '14-day free trial',
@@ -478,7 +478,7 @@ export default function LandingPage() {
               <ul className="space-y-3 mb-8">
                 {[
                   'Unlimited failed payment recoveries',
-                  'AI-personalized 3-email + Day 7 follow-up',
+                  'AI-personalized 5-email sequence (Day 1,3,7,14,21)',
                   'Advanced analytics & revenue insights',
                   '1-click Stripe Connect',
                   'Priority support',
