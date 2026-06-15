@@ -105,12 +105,14 @@ export function WebhookSettings({ webhookUrl, hasSecret }: Props) {
         {saved && <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Saved! Webhook is now verified.</p>}
       </div>
 
-      <div className="flex items-start gap-2 bg-indigo-50 rounded-lg p-3">
-        <Shield className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-indigo-700">
-          Subscribe to <strong>invoice.payment_failed</strong> and <strong>invoice.payment_succeeded</strong> events in Stripe.
-        </p>
-      </div>
+      {!hasSecret && !saved && (
+        <div className="flex items-start gap-2 bg-indigo-50 rounded-lg p-3">
+          <Shield className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-indigo-700">
+            Subscribe to <strong>invoice.payment_failed</strong> and <strong>invoice.payment_succeeded</strong> events in Stripe.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

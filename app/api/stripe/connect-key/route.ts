@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiKey } = await request.json()
+    const { apiKey, businessName: inputBusinessName } = await request.json()
 
     if (!apiKey || !apiKey.startsWith('sk_')) {
       return NextResponse.json({ error: 'Invalid Stripe API key' }, { status: 400 })
@@ -12,11 +12,25 @@ export async function POST(request: NextRequest) {
 
     // Verify the key by fetching balance (works for any Stripe account)
     const stripeClient = new Stripe(apiKey)
-    let balance
     try {
-      balance = await stripeClient.balance.retrieve()
+      await stripeClient.balance.retrieve()
     } catch {
       return NextResponse.json({ error: 'Invalid Stripe key — could not connect to Stripe' }, { status: 400 })
+    }
+
+    // Try to get business name from Stripe account info
+    let businessName: string | null = inputBusinessName?.trim() || null
+    let stripeEmail: string | null = null
+    if (!businessName) {
+      try {
+        const acct = await stripeClient.accounts.retrieve()
+        businessName = (acct as any).business_profile?.name ||
+                       (acct as any).settings?.dashboard?.display_name ||
+                       null
+        stripeEmail = (acct as any).email || null
+      } catch {
+        // accounts.retrieve() may not work for all key types — leave null
+      }
     }
 
     // Get current user
@@ -38,8 +52,8 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         stripe_account_id: accountId,
         access_token: apiKey,
-        business_name: null,
-        email: user.email ?? null,
+        business_name: businessName,
+        email: stripeEmail ?? user.email ?? null,
         connected_at: new Date().toISOString(),
       })
 

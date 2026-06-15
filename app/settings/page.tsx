@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { formatDate } from '@/lib/utils'
 import { CheckCircle } from 'lucide-react'
 import { WebhookSettings } from '@/components/settings/webhook-settings'
+import { BusinessNameSettings } from '@/components/settings/business-name-settings'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -42,6 +43,7 @@ export default async function SettingsPage() {
                   <span className="text-sm text-gray-500">Member since</span>
                   <span className="text-sm font-medium text-gray-900">{formatDate(user.created_at)}</span>
                 </div>
+                <BusinessNameSettings currentName={stripeAccount?.business_name ?? null} />
               </div>
             </div>
 

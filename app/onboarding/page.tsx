@@ -11,6 +11,7 @@ export default function OnboardingPage() {
 
   // Step 1 state
   const [apiKey, setApiKey] = useState('')
+  const [businessName, setBusinessName] = useState('')
   const [showKey, setShowKey] = useState(false)
   const [step1Loading, setStep1Loading] = useState(false)
   const [step1Error, setStep1Error] = useState('')
@@ -34,7 +35,7 @@ export default function OnboardingPage() {
       const res = await fetch('/api/stripe/connect-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey }),
+        body: JSON.stringify({ apiKey, businessName: businessName.trim() || null }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to connect')
@@ -220,6 +221,18 @@ export default function OnboardingPage() {
           </div>
 
           <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                Business Name <span className="text-gray-400 font-normal">(appears in recovery emails)</span>
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g. Acme Inc."
+                value={businessName}
+                onChange={e => setBusinessName(e.target.value)}
+                className="text-sm"
+              />
+            </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">
                 Stripe Secret Key
