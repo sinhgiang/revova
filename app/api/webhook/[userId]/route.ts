@@ -56,7 +56,7 @@ export async function POST(
 
     // Fetch customer email/name from Stripe if not in invoice (common with test events)
     let customerEmail = invoice.customer_email ?? ''
-    let customerName = (invoice.customer_name as string) ?? null
+    let customerName: string | null = (invoice.customer_name as string) ?? null
     if ((!customerEmail || !customerName) && invoice.customer) {
       try {
         const stripeClient = new Stripe(accountData.access_token)
