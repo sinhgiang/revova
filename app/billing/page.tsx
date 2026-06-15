@@ -16,7 +16,7 @@ const PLANS = [
       '1-click Stripe Connect',
       '14-day free trial',
     ],
-    polar_url: process.env.NEXT_PUBLIC_POLAR_STARTER_URL ?? '#',
+    polar_env: 'NEXT_PUBLIC_POLAR_STARTER_URL',
     popular: false,
   },
   {
@@ -33,10 +33,17 @@ const PLANS = [
       'Priority support',
       '14-day free trial',
     ],
-    polar_url: process.env.NEXT_PUBLIC_POLAR_PRO_URL ?? '#',
+    polar_env: 'NEXT_PUBLIC_POLAR_PRO_URL',
     popular: true,
   },
 ]
+
+function buildPolarUrl(baseUrl: string, customerEmail: string): string {
+  if (!baseUrl || baseUrl === '#') return '#'
+  const url = new URL(baseUrl)
+  if (customerEmail) url.searchParams.set('customer_email', customerEmail)
+  return url.toString()
+}
 
 export default async function BillingPage() {
   const supabase = await createClient()
@@ -51,6 +58,17 @@ export default async function BillingPage() {
     .single()
 
   const isActive = subscription?.status === 'active'
+
+  // Build Polar URLs with customer email so webhook can identify the user
+  const starterUrl = buildPolarUrl(
+    process.env.NEXT_PUBLIC_POLAR_STARTER_URL ?? '#',
+    user.email ?? ''
+  )
+  const proUrl = buildPolarUrl(
+    process.env.NEXT_PUBLIC_POLAR_PRO_URL ?? '#',
+    user.email ?? ''
+  )
+  const planUrls: Record<string, string> = { starter: starterUrl, pro: proUrl }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -123,7 +141,7 @@ export default async function BillingPage() {
               </div>
             ) : (
               <a
-                href={plan.polar_url}
+                href={planUrls[plan.id]}
                 className={`block w-full text-center font-semibold py-3 px-6 rounded-xl transition-all ${
                   plan.popular
                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-90'
