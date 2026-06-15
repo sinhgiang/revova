@@ -20,6 +20,47 @@ const SEQUENCE_CONTEXT: Record<number, string> = {
   5: 'This is the final notice (Day 21). This is the last email. Be direct and clear that the subscription will be permanently cancelled unless they act today.',
 }
 
+function fallbackEmail(params: {
+  customerName: string
+  businessName: string
+  formattedAmount: string
+  updateCardUrl: string
+  emailSequence: number
+}): EmailTemplate {
+  const { customerName, businessName, formattedAmount, updateCardUrl, emailSequence } = params
+  const name = customerName && customerName !== 'there' ? customerName : 'there'
+
+  const subjects = [
+    `Action needed: Your ${businessName} payment of ${formattedAmount} didn't go through`,
+    `Reminder: Please update your payment details for ${businessName}`,
+    `Your ${businessName} access may be affected — quick fix needed`,
+    `Final reminder: Update your ${businessName} payment to keep access`,
+    `Last chance: Your ${businessName} subscription will be cancelled today`,
+  ]
+  const subject = subjects[Math.min(emailSequence - 1, subjects.length - 1)]
+
+  const body = `Hi ${name},
+
+We weren't able to process your recent payment of ${formattedAmount} for ${businessName}.
+
+This can happen for a few common reasons — an expired card, a temporary bank hold, or updated card details. It's an easy fix and only takes 30 seconds.
+
+Please click the link below to update your payment information and keep your access uninterrupted:
+
+${updateCardUrl}
+
+If you have any questions, just reply to this email — we're happy to help.
+
+Best,
+The ${businessName} Team`
+
+  return {
+    subject,
+    previewText: `Please update your payment of ${formattedAmount} to keep your access.`,
+    body,
+  }
+}
+
 export async function generateRecoveryEmail(params: {
   customerName: string
   customerEmail: string
@@ -41,6 +82,19 @@ export async function generateRecoveryEmail(params: {
     style: 'currency',
     currency: params.currency.toUpperCase(),
   }).format(params.amount / 100)
+
+  const fallback = fallbackEmail({
+    customerName: params.customerName,
+    businessName: params.businessName,
+    formattedAmount,
+    updateCardUrl: params.updateCardUrl,
+    emailSequence: params.emailSequence,
+  })
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.warn('[AI] No ANTHROPIC_API_KEY — using fallback template')
+    return fallback
+  }
 
   const prompt = `You are a professional customer success email writer for ${params.businessName}.
 
@@ -69,23 +123,28 @@ Respond in this exact JSON format:
   "body": "full email body in plain text with \\n for line breaks"
 }`
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
-  })
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
 
-  const content = message.content[0]
-  if (content.type !== 'text') throw new Error('Unexpected AI response type')
+    const content = message.content[0]
+    if (content.type !== 'text') throw new Error('Unexpected AI response type')
 
-  // Strip markdown code fences if AI wraps response in ```json ... ```
-  const rawText = content.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
-  const parsed = JSON.parse(rawText)
-  return {
-    subject: parsed.subject,
-    previewText: parsed.previewText,
-    body: parsed.body,
+    // Strip markdown code fences if AI wraps response in ```json ... ```
+    const rawText = content.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+    const parsed = JSON.parse(rawText)
+    return {
+      subject: parsed.subject,
+      previewText: parsed.previewText,
+      body: parsed.body,
+    }
+  } catch (err) {
+    console.error('[AI] generateRecoveryEmail failed — using fallback template:', err)
+    return fallback
   }
 }
