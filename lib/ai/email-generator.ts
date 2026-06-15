@@ -1,8 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { DeclineCode, EmailTemplate } from '@/types'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
 const DECLINE_CONTEXT: Record<string, string> = {
   insufficient_funds: 'The card was declined due to insufficient funds.',
   expired_card: 'The card has expired.',
@@ -68,6 +66,8 @@ Respond in this exact JSON format:
   "previewText": "preview text here (max 90 chars)",
   "body": "full email body in plain text with \\n for line breaks"
 }`
+
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
