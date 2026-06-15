@@ -74,7 +74,10 @@ export default async function DashboardPage() {
           </div>
 
           <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-4">Recent Failed Payments</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-gray-900">Recent Failed Payments</h2>
+              <a href="/payments" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View all →</a>
+            </div>
             {allPayments.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mx-auto mb-3">
@@ -105,8 +108,9 @@ export default async function DashboardPage() {
                             ${p.status === 'recovered' ? 'bg-emerald-50 text-emerald-700' :
                               p.status === 'email_sent' ? 'bg-blue-50 text-blue-700' :
                               p.status === 'failed' ? 'bg-red-50 text-red-700' :
+                              p.status === 'max_emails_reached' || p.status === 'cancelled' ? 'bg-gray-50 text-gray-600' :
                               'bg-yellow-50 text-yellow-700'}`}>
-                            {p.status.replace('_', ' ')}
+                            {p.status === 'max_emails_reached' ? 'Max Emails' : p.status.replace(/_/g, ' ')}
                           </span>
                         </td>
                       </tr>

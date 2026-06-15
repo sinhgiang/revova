@@ -74,17 +74,22 @@ export default async function SettingsPage() {
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-2">Recovery Email Sequence</h2>
               <p className="text-sm text-gray-500 mb-4">
-                Revova automatically sends up to 3 AI-personalized recovery emails:
+                Revova automatically sends AI-personalized recovery emails. Starter: 4 emails, Pro: 5 emails.
               </p>
               <div className="space-y-2">
                 {[
-                  { day: 'Immediately', label: 'Email 1 — Gentle reminder sent right after failure' },
-                  { day: 'Day 3', label: 'Email 2 — Follow-up with update card link' },
-                  { day: 'Day 7', label: 'Email 3 — Final notice before access suspension' },
-                ].map(({ day, label }) => (
+                  { day: 'Immediately', label: 'Email 1 — AI-crafted reminder sent right after failure', pro: false },
+                  { day: 'Day 3',       label: 'Email 2 — Gentle follow-up with payment update link',   pro: false },
+                  { day: 'Day 7',       label: 'Email 3 — Value reminder to re-engage the customer',     pro: false },
+                  { day: 'Day 14',      label: 'Email 4 — Urgency notice about account access',          pro: false },
+                  { day: 'Day 21',      label: 'Email 5 — Final notice before cancellation',             pro: true  },
+                ].map(({ day, label, pro }) => (
                   <div key={day} className="flex items-center gap-3 text-sm">
                     <span className="w-24 font-medium text-indigo-600 flex-shrink-0">{day}</span>
-                    <span className="text-gray-600">{label}</span>
+                    <span className="text-gray-600 flex-1">{label}</span>
+                    {pro && (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 flex-shrink-0">Pro</span>
+                    )}
                   </div>
                 ))}
               </div>

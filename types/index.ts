@@ -1,4 +1,4 @@
-export type FailedPaymentStatus = 'pending' | 'email_sent' | 'recovered' | 'failed'
+export type FailedPaymentStatus = 'pending' | 'email_sent' | 'recovered' | 'failed' | 'max_emails_reached' | 'cancelled'
 
 export type DeclineCode =
   | 'insufficient_funds'
