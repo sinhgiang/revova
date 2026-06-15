@@ -102,31 +102,66 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section className="px-6 py-24 bg-gray-50">
-        <div className="max-w-md mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Simple, flat pricing</h2>
-          <p className="text-gray-500 mb-10">No percentage fees. No surprises.</p>
-          <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
-            <p className="text-5xl font-bold text-gray-900">$49<span className="text-xl font-normal text-gray-400">/mo</span></p>
-            <p className="text-gray-500 mt-2 mb-8">Everything included</p>
-            <ul className="space-y-3 text-left mb-8">
-              {[
-                'Unlimited failed payment recovery',
-                'AI-personalized recovery emails',
-                'Smart timezone scheduling',
-                '3-email recovery sequences',
-                'Analytics dashboard',
-                '1-click Stripe Connect',
-              ].map(item => (
-                <li key={item} className="flex items-center gap-3 text-sm text-gray-700">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity text-center">
-              Start free 14-day trial
-            </Link>
+          <p className="text-gray-500 mb-12">No percentage fees. No surprises. Cancel anytime.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Starter */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm text-left">
+              <p className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">Starter</p>
+              <p className="text-4xl font-bold text-gray-900 mb-1">$29<span className="text-lg font-normal text-gray-400">/mo</span></p>
+              <p className="text-gray-500 text-sm mb-6">Perfect for indie hackers just starting out</p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Up to 50 failed payment recoveries/mo',
+                  'AI-personalized 3-email sequence',
+                  'Real-time dashboard',
+                  '1-click Stripe Connect',
+                  '14-day free trial',
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/signup" className="block w-full bg-gray-900 text-white font-semibold py-3 rounded-xl hover:bg-gray-800 transition-colors text-center">
+                Start free trial
+              </Link>
+            </div>
+
+            {/* Pro */}
+            <div className="bg-white rounded-2xl border-2 border-indigo-500 p-8 shadow-lg text-left relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-indigo-500 text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span>
+              </div>
+              <p className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">Pro</p>
+              <p className="text-4xl font-bold text-gray-900 mb-1">$79<span className="text-lg font-normal text-gray-400">/mo</span></p>
+              <p className="text-gray-500 text-sm mb-6">For SaaS companies growing fast</p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Unlimited failed payment recoveries',
+                  'AI-personalized 3-email + Day 7 follow-up',
+                  'Advanced analytics & revenue insights',
+                  '1-click Stripe Connect',
+                  'Priority support',
+                  '14-day free trial',
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm text-gray-700">
+                    <CheckCircle className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/signup" className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity text-center">
+                Start free trial
+              </Link>
+            </div>
           </div>
+
+          <p className="mt-8 text-sm text-gray-400">
+            Recover just 1 payment and Revova pays for itself. Average customer recovers 8–12 payments/month.
+          </p>
         </div>
       </section>
 
