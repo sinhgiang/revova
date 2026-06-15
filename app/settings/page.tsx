@@ -6,6 +6,8 @@ import { formatDate } from '@/lib/utils'
 import { CheckCircle } from 'lucide-react'
 import { WebhookSettings } from '@/components/settings/webhook-settings'
 import { BusinessNameSettings } from '@/components/settings/business-name-settings'
+import { SlackSettings } from '@/components/settings/slack-settings'
+import { WidgetSettings } from '@/components/settings/widget-settings'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -72,6 +74,10 @@ export default async function SettingsPage() {
               webhookUrl={webhookUrl}
               hasSecret={!!stripeAccount?.webhook_secret}
             />
+
+            <SlackSettings currentWebhookUrl={stripeAccount?.slack_webhook_url ?? null} />
+
+            <WidgetSettings userId={user.id} appUrl={appUrl} />
 
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-2">Recovery Email Sequence</h2>

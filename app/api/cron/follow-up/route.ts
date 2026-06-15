@@ -4,7 +4,16 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { generateRecoveryEmail } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
+import { sendSlackNotification } from '@/lib/slack'
 import { DeclineCode } from '@/types'
+
+// Decline codes where auto-retrying the charge is worth attempting
+const RETRYABLE_CODES = new Set([
+  'insufficient_funds',
+  'processing_error',
+  'generic_decline',
+  'card_velocity_exceeded',
+])
 
 // How many days to wait after the PREVIOUS email before sending the next one
 // Email 1 = Day 1  (sent by webhook immediately)
@@ -89,6 +98,38 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (!account?.access_token) { skipped++; continue }
+
+    // Smart retry: attempt to charge again for retryable decline codes
+    if (RETRYABLE_CODES.has(payment.decline_code)) {
+      try {
+        const stripe = new Stripe(account.access_token)
+        await stripe.invoices.pay(payment.stripe_invoice_id)
+        // Charge succeeded — mark recovered and notify Slack
+        await db
+          .from('failed_payments')
+          .update({ status: 'recovered', recovered_at: now.toISOString() })
+          .eq('id', payment.id)
+
+        if (account.slack_webhook_url) {
+          try {
+            await sendSlackNotification(account.slack_webhook_url, {
+              type: 'retry_success',
+              customerEmail: payment.customer_email,
+              customerName: payment.customer_name,
+              amount: payment.amount,
+              currency: payment.currency,
+              businessName: account.business_name,
+            })
+          } catch { /* non-critical */ }
+        }
+
+        sent++ // count as a recovery action
+        console.log(`[Cron] ✓ Auto-retry succeeded → ${payment.customer_email}`)
+        continue // no email needed
+      } catch {
+        // Retry failed — fall through to send the follow-up email
+      }
+    }
 
     // Retrieve the hosted invoice URL from Stripe so customer can update card
     let updateCardUrl = '#'

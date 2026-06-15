@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { generateRecoveryEmail } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
+import { sendSlackNotification } from '@/lib/slack'
 import { DeclineCode } from '@/types'
 
 export async function POST(
@@ -149,11 +150,29 @@ export async function POST(
 
   if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object as Stripe.Invoice
-    await db
+
+    const { data: recovered } = await db
       .from('failed_payments')
       .update({ status: 'recovered', recovered_at: new Date().toISOString() })
       .eq('stripe_invoice_id', invoice.id)
       .eq('user_id', userId)
+      .select('customer_email, customer_name, amount, currency')
+      .maybeSingle()
+
+    if (recovered && accountData.slack_webhook_url) {
+      try {
+        await sendSlackNotification(accountData.slack_webhook_url, {
+          type: 'recovered',
+          customerEmail: recovered.customer_email,
+          customerName: recovered.customer_name,
+          amount: recovered.amount,
+          currency: recovered.currency,
+          businessName: accountData.business_name,
+        })
+      } catch (e) {
+        console.error('[Webhook] Slack notification failed:', e)
+      }
+    }
   }
 
   return NextResponse.json({ received: true })
