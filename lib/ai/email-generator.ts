@@ -44,12 +44,14 @@ Write a payment recovery email with these details:
 
 Rules:
 1. Write in English only
-2. Subject line must be compelling and personal (not spammy)
+2. Subject line must be personal and conversational — never use words like FREE, URGENT, ACT NOW, CLICK HERE, WINNER, GUARANTEED, OFFER, DEAL, LIMITED TIME, or excessive punctuation like !!! or ALL CAPS
 3. Body should be 3-4 short paragraphs max
-4. Include the update card link as a clear CTA
+4. Include the update card link as a clear CTA but do not use "click here" — use natural language like "update your payment details"
 5. Never be rude or threatening
-6. Sound human, not automated
-7. Preview text should make them want to open the email
+6. Sound like a human colleague, not an automated system
+7. Preview text should make them want to open the email — be specific, not generic
+8. Never mention money-back guarantees, discounts, or promotional offers
+9. Keep sentences short and conversational — avoid corporate jargon
 
 Respond in this exact JSON format:
 {
@@ -80,11 +82,11 @@ function fallbackEmail(params: {
   const name = customerName && customerName !== 'there' ? customerName : 'there'
 
   const subjects = [
-    `Action needed: Your ${businessName} payment of ${formattedAmount} didn't go through`,
-    `Reminder: Please update your payment details for ${businessName}`,
-    `Your ${businessName} access may be affected — quick fix needed`,
-    `Final reminder: Update your ${businessName} payment to keep access`,
-    `Last chance: Your ${businessName} subscription will be cancelled today`,
+    `Your ${businessName} payment of ${formattedAmount} didn't go through`,
+    `Quick update needed for your ${businessName} account`,
+    `Your ${businessName} access — payment update required`,
+    `${businessName}: your subscription payment is still pending`,
+    `${businessName} subscription update needed`,
   ]
   const subject = subjects[Math.min(emailSequence - 1, subjects.length - 1)]
 
