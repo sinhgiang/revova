@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X } from 'lucide-react'
+import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3 } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 
 export default function LandingPage() {
@@ -257,9 +257,10 @@ export default function LandingPage() {
               {[
                 'Expired card → empathetic, "it happens to everyone" tone',
                 'Insufficient funds → gentle, non-judgmental wording',
-                'Bank decline → actionable "call your bank" guidance',
+                'Lost/stolen card → fast 3-email cadence, new card guidance',
                 'Sent at 8:30am in the customer\'s local timezone',
                 '5-email sequence over 21 days — not just one attempt',
+                'Write in 8 languages: English, French, Spanish, German + more',
               ].map(item => (
                 <li key={item} className="flex items-start gap-3 text-gray-700 text-sm">
                   <CheckCircle className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5"/>
@@ -306,10 +307,13 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { icon: Zap, title: 'AI writes every email from scratch', desc: 'Unique copy for every failure reason. Expired card ≠ insufficient funds. No templates, ever.', badge: 'Core feature' },
+              { icon: Zap, title: 'AI writes every email from scratch', desc: 'Unique copy for every failure reason. Expired card ≠ insufficient funds ≠ stolen card. No templates, ever.', badge: 'Core feature' },
               { icon: Clock, title: 'Lands at 8:30am in their timezone', desc: 'Emails feel natural because they arrive at a natural time — not 3am. Higher open rate = more revenue back.', badge: 'Smart timing' },
-              { icon: Mail, title: '5-email sequence over 21 days', desc: 'Day 1, 3, 7, 14, 21. Each email escalates appropriately. Most competitors stop at 3.', badge: 'Pro: 5 emails' },
-              { icon: TrendingUp, title: 'See exactly what you recovered', desc: 'Real-time dashboard shows every failed payment, email sent, and dollar recovered. No guessing.', badge: 'Live dashboard' },
+              { icon: Mail, title: '5-email sequence over 21 days', desc: 'Day 1, 3, 7, 14, 21. Hard bank declines get a faster 3-email track. Most competitors send the same email to everyone.', badge: 'Pro: 5 emails' },
+              { icon: Globe, title: 'Emails in 8 languages', desc: 'Serve global customers in their native language. English, French, Spanish, German, Portuguese, Dutch, Italian, Japanese.', badge: 'Multi-language' },
+              { icon: RotateCcw, title: 'Winback campaigns for cancellations', desc: 'When a customer cancels, Revova automatically sends AI-personalized re-engagement emails on Day 3, 14, and 30.', badge: 'Pro feature' },
+              { icon: BarChart3, title: 'Weekly recovery digest', desc: 'Every Monday, get a clean summary: failures, recoveries, revenue saved, and your week-over-week rate.', badge: 'Auto-reports' },
+              { icon: TrendingUp, title: 'At-risk customer alerts', desc: 'Dashboard flags customers who\'ve received 3+ emails without resolving — so you know when to reach out personally.', badge: 'Live dashboard' },
               { icon: Shield, title: 'Read-only Stripe — fully secure', desc: 'Revova never touches card data or processes money. Read-only API access. SOC2 compliant.', badge: 'Enterprise security' },
               { icon: DollarSign, title: '3-minute setup, no engineers', desc: 'Paste your Stripe key. Done. No webhooks, no code, no Zapier. Any non-technical founder can do it.', badge: 'No-code' },
             ].map(({ icon: Icon, title, desc, badge }) => (
@@ -440,11 +444,14 @@ export default function LandingPage() {
                 {[
                   { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
                   { feature: 'Smart payment retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
+                  { feature: 'Hard vs. soft decline routing', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Multi-language emails (8 langs)', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Winback campaigns (post-cancel)', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Weekly digest email reports', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Pre-dunning (expiry alerts)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'In-app payment banner', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'Slack notifications', revova: true, churnkey: false, stunning: true, churnbuster: false },
                   { feature: '5-email sequence', revova: true, churnkey: true, stunning: false, churnbuster: true },
-                  { feature: 'Real-time analytics', revova: true, churnkey: true, stunning: true, churnbuster: true },
                   { feature: '3-minute setup (no code)', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: '30-day money-back', revova: true, churnkey: false, stunning: true, churnbuster: false },
                 ].map(({ feature, revova, churnkey, stunning, churnbuster }, i) => (
@@ -543,6 +550,10 @@ export default function LandingPage() {
                   'Unlimited failed payment recoveries',
                   'AI-personalized 5-email sequence',
                   'Day 1 → 3 → 7 → 14 → 21 cadence',
+                  'Hard/soft decline smart routing',
+                  'Emails in 8 languages',
+                  'Winback campaigns (Day 3, 14, 30)',
+                  'Weekly digest performance report',
                   'Advanced analytics & revenue insights',
                   '1-click Stripe Connect',
                   'Priority support (reply within 4h)',
@@ -599,7 +610,7 @@ export default function LandingPage() {
               },
               {
                 q: 'What\'s the difference between Starter ($29) and Pro ($79)?',
-                a: 'Starter: up to 50 recoveries/month with a 4-email sequence (Day 1,3,7,14). Pro: unlimited recoveries with a 5-email sequence (Day 1,3,7,14,21) plus advanced analytics and priority support. If you have more than 50 failed payments per month, Pro pays for itself many times over.',
+                a: 'Starter: up to 50 recoveries/month with a 4-email sequence (Day 1,3,7,14). Pro: unlimited recoveries with a 5-email sequence, hard/soft decline smart routing, emails in 8 languages, winback campaigns for cancelled customers, weekly digest reports, and priority support. If you have more than 50 failed payments per month or global customers, Pro pays for itself many times over.',
               },
               {
                 q: 'I have less than $1K MRR. Is Revova worth it?',
@@ -616,6 +627,14 @@ export default function LandingPage() {
               {
                 q: 'Does Revova work outside the US?',
                 a: 'Yes. Revova works anywhere Stripe is available. We send emails in your customer\'s local timezone regardless of where they are. Full multi-currency support.',
+              },
+              {
+                q: 'Can Revova write recovery emails in languages other than English?',
+                a: 'Yes — Pro plan supports 8 languages: English, French, Spanish, German, Portuguese, Dutch, Italian, and Japanese. Simply select your customers\' language in Settings and every recovery email will be AI-written in that language.',
+              },
+              {
+                q: 'What happens when a customer cancels? Can Revova win them back?',
+                a: 'Yes. Pro plan includes Winback Campaigns. When a customer cancels their subscription, Revova automatically enrolls them in a 3-email AI re-engagement sequence — sent on Day 3, Day 14, and Day 30. You can optionally add a comeback discount code to the Day 30 email.',
               },
             ].map(({ q, a }) => (
               <details key={q} className="group bg-white rounded-xl border border-gray-200 overflow-hidden">
