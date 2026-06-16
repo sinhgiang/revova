@@ -30,6 +30,7 @@ function buildPrompt(params: {
   sequenceContext: string
   updateCardUrl: string
   emailSequence: number
+  customNote?: string
 }): string {
   return `You are a professional customer success email writer for ${params.businessName}.
 
@@ -50,8 +51,8 @@ Rules:
 5. Never be rude or threatening
 6. Sound like a human colleague, not an automated system
 7. Preview text should make them want to open the email — be specific, not generic
-8. Never mention money-back guarantees, discounts, or promotional offers
-9. Keep sentences short and conversational — avoid corporate jargon
+8. Never mention money-back guarantees, discounts, or promotional offers unless explicitly instructed below
+9. Keep sentences short and conversational — avoid corporate jargon${params.customNote ? `\n10. Special instructions from the business (follow these carefully): "${params.customNote}"` : ''}
 
 Respond in this exact JSON format:
 {
@@ -146,6 +147,7 @@ export async function generateRecoveryEmail(params: {
   emailSequence: number
   updateCardUrl: string
   country?: string
+  customNote?: string
 }): Promise<EmailTemplate> {
   const declineInfo = params.declineCode
     ? DECLINE_CONTEXT[params.declineCode] ?? DECLINE_CONTEXT.generic_decline
@@ -166,6 +168,7 @@ export async function generateRecoveryEmail(params: {
     sequenceContext,
     updateCardUrl: params.updateCardUrl,
     emailSequence: params.emailSequence,
+    customNote: params.customNote,
   })
 
   const fallback = fallbackEmail({

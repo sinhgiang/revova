@@ -119,6 +119,7 @@ export async function POST(
         declineCode,
         emailSequence: 1,
         updateCardUrl: invoice.hosted_invoice_url ?? '#',
+        customNote: accountData.email_custom_note ?? undefined,
       })
 
       await sendRecoveryEmail({

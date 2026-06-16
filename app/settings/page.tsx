@@ -8,6 +8,8 @@ import { WebhookSettings } from '@/components/settings/webhook-settings'
 import { BusinessNameSettings } from '@/components/settings/business-name-settings'
 import { SlackSettings } from '@/components/settings/slack-settings'
 import { WidgetSettings } from '@/components/settings/widget-settings'
+import { EmailToneSettings } from '@/components/settings/email-tone-settings'
+import { CancelFlowSettings } from '@/components/settings/cancel-flow-settings'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -77,7 +79,17 @@ export default async function SettingsPage() {
 
             <SlackSettings currentWebhookUrl={stripeAccount?.slack_webhook_url ?? null} />
 
+            <EmailToneSettings currentNote={stripeAccount?.email_custom_note ?? null} />
+
             <WidgetSettings userId={user.id} appUrl={appUrl} />
+
+            <CancelFlowSettings
+              userId={user.id}
+              appUrl={appUrl}
+              currentEnabled={stripeAccount?.cancel_flow_enabled ?? false}
+              currentDiscountCode={stripeAccount?.cancel_flow_discount_code ?? null}
+              currentPauseMonths={stripeAccount?.cancel_flow_pause_months ?? 1}
+            />
 
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-2">Recovery Email Sequence</h2>

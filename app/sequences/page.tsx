@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Mail, Clock, CheckCircle, Zap, AlertTriangle } from 'lucide-react'
+import { EmailPreviewButton } from '@/components/sequences/email-preview-button'
 
 const sequence = [
   {
@@ -168,16 +169,19 @@ export default async function SequencesPage() {
                     </div>
 
                     {/* Status */}
-                    <div className="flex-shrink-0 flex items-center">
+                    <div className="flex-shrink-0 flex flex-col items-end gap-2">
                       {isLocked ? (
                         <a href="/billing" className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full hover:bg-purple-100 transition-colors">
                           Upgrade to Pro
                         </a>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          Active
-                        </span>
+                        <>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Active
+                          </span>
+                          <EmailPreviewButton sequence={step.step} />
+                        </>
                       )}
                     </div>
                   </div>

@@ -153,6 +153,7 @@ export async function GET(request: NextRequest) {
         declineCode: payment.decline_code as DeclineCode,
         emailSequence: nextEmailNum,
         updateCardUrl,
+        customNote: account.email_custom_note ?? undefined,
       })
 
       await sendRecoveryEmail({
