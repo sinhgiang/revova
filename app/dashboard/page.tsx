@@ -3,8 +3,12 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { StatsCard } from '@/components/dashboard/stats-card'
-import { DollarSign, TrendingUp, Mail, AlertCircle } from 'lucide-react'
+import { DollarSign, TrendingUp, Mail, AlertCircle, CheckCircle, Circle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Dashboard — Revova' }
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -79,12 +83,31 @@ export default async function DashboardPage() {
               <a href="/payments" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View all →</a>
             </div>
             {allPayments.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-emerald-600" />
+              <div className="py-8">
+                <div className="text-center mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <p className="font-semibold text-gray-900">Revova is live and watching</p>
+                  <p className="text-gray-500 text-sm mt-1">No failed payments yet. Complete setup below to ensure everything is ready.</p>
                 </div>
-                <p className="font-medium text-gray-900">All clear!</p>
-                <p className="text-gray-500 text-sm mt-1">No failed payments detected yet. Revova is watching.</p>
+                <div className="max-w-sm mx-auto space-y-3">
+                  {[
+                    { done: true, label: 'Connect your Stripe account', href: null },
+                    { done: !!stripeAccount.webhook_secret, label: 'Configure Stripe webhook', href: '/settings' },
+                    { done: !!stripeAccount.business_name, label: 'Set your business name', href: '/settings' },
+                    { done: !!stripeAccount.slack_webhook_url, label: 'Add Slack notifications (optional)', href: '/settings' },
+                  ].map(({ done, label, href }) => (
+                    <div key={label} className="flex items-center gap-3">
+                      {done
+                        ? <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                        : <Circle className="w-5 h-5 text-gray-300 flex-shrink-0" />}
+                      {href && !done
+                        ? <Link href={href} className="text-sm text-indigo-600 hover:underline">{label}</Link>
+                        : <span className={`text-sm ${done ? 'text-gray-500 line-through' : 'text-gray-700'}`}>{label}</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="overflow-x-auto">

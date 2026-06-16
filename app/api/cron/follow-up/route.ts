@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { generateRecoveryEmail } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
 import { sendSlackNotification } from '@/lib/slack'
+import { sendMerchantRecoveryNotification } from '@/lib/email/notifications'
 import { DeclineCode } from '@/types'
 
 // Decline codes where auto-retrying the charge is worth attempting
@@ -159,6 +160,20 @@ export async function GET(request: NextRequest) {
                 },
               }),
               signal: AbortSignal.timeout(8000),
+            })
+          } catch { /* non-critical */ }
+        }
+
+        // Merchant email notification
+        if (account.notify_on_recovery !== false && account.email) {
+          try {
+            await sendMerchantRecoveryNotification({
+              merchantEmail: account.email,
+              businessName: account.business_name ?? 'Your Business',
+              customerEmail: payment.customer_email,
+              customerName: payment.customer_name ?? null,
+              amount: payment.amount,
+              currency: payment.currency,
             })
           } catch { /* non-critical */ }
         }

@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { generateRecoveryEmail } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
 import { sendSlackNotification } from '@/lib/slack'
+import { sendMerchantRecoveryNotification } from '@/lib/email/notifications'
 import { DeclineCode } from '@/types'
 
 export async function POST(
@@ -225,6 +226,20 @@ export async function POST(
           })
         } catch (e) {
           console.error('[Webhook] Outbound webhook failed:', e)
+        }
+      }
+      // Merchant email notification
+      if (accountData.notify_on_recovery !== false) {
+        const merchantEmail = accountData.email
+        if (merchantEmail) {
+          await sendMerchantRecoveryNotification({
+            merchantEmail,
+            businessName: accountData.business_name ?? 'Your Business',
+            customerEmail: recovered.customer_email,
+            customerName: recovered.customer_name ?? null,
+            amount: recovered.amount,
+            currency: recovered.currency,
+          })
         }
       }
     }

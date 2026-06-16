@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut } from 'lucide-react'
+import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut, Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -12,6 +12,7 @@ const nav = [
   { href: '/sequences', label: 'Email Sequences', icon: Mail },
   { href: '/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/billing', label: 'Billing', icon: Receipt },
 ]
 
 export function Sidebar() {

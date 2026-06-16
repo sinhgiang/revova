@@ -14,6 +14,7 @@ import { CancelFlowSettings } from '@/components/settings/cancel-flow-settings'
 import { SmtpSettings } from '@/components/settings/smtp-settings'
 import { OutboundWebhookSettings } from '@/components/settings/outbound-webhook-settings'
 import { EmailBlacklistSettings } from '@/components/settings/email-blacklist-settings'
+import { NotificationSettings } from '@/components/settings/notification-settings'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -107,6 +108,8 @@ export default async function SettingsPage() {
             <OutboundWebhookSettings currentUrl={stripeAccount?.outbound_webhook_url ?? null} />
 
             <EmailBlacklistSettings />
+
+            <NotificationSettings enabled={stripeAccount?.notify_on_recovery !== false} />
 
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-2">Recovery Email Sequence</h2>

@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { CheckCircle, Zap, Shield, TrendingUp, Star } from 'lucide-react'
+import { Sidebar } from '@/components/layout/sidebar'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Billing — Revova' }
 
 const PLANS = [
   {
@@ -71,6 +75,9 @@ export default async function BillingPage() {
   const planUrls: Record<string, string> = { starter: starterUrl, pro: proUrl }
 
   return (
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar />
+      <main className="flex-1 overflow-auto">
     <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Billing & Plans</h1>
@@ -176,6 +183,8 @@ export default async function BillingPage() {
       <p className="text-center text-xs text-gray-400 mt-6">
         Recover just 1 payment and Revova pays for itself. Average customer recovers 8–12 payments/month.
       </p>
+    </div>
+      </main>
     </div>
   )
 }
