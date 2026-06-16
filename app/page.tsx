@@ -671,6 +671,8 @@ export default function LandingPage() {
           </div>
           <p className="text-sm text-gray-400">© 2026 Revova · AI-powered payment recovery for indie hackers</p>
           <div className="flex items-center gap-6">
+            <Link href="/privacy" className="text-sm text-gray-400 hover:text-gray-600">Privacy</Link>
+            <Link href="/terms" className="text-sm text-gray-400 hover:text-gray-600">Terms</Link>
             <Link href="/login" className="text-sm text-gray-400 hover:text-gray-600">Sign in</Link>
             <Link href="/signup" className="text-sm text-gray-400 hover:text-gray-600">Sign up</Link>
           </div>

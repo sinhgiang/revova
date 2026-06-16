@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import nodemailer from 'nodemailer'
+import { buildUnsubscribeUrl } from '@/lib/email/unsubscribe'
 
 export const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -48,7 +49,11 @@ export async function sendRecoveryEmail(params: {
     ? `<img src="${appUrl}/api/track/open?u=${encodeURIComponent(params.tracking.userId)}&e=${encodeURIComponent(params.tracking.recipientEmail)}&s=${params.tracking.sequence}" width="1" height="1" style="display:none" alt="" />`
     : ''
 
-  const plainText = params.body + `\n\nUpdate your payment details here:\n${params.updateCardUrl}\n\n---\nThis is a billing notification from ${params.businessName}. If you have questions, reply to this email.`
+  const unsubscribeUrl = params.tracking
+    ? buildUnsubscribeUrl(params.tracking.userId, params.tracking.recipientEmail)
+    : null
+
+  const plainText = params.body + `\n\nUpdate your payment details here:\n${params.updateCardUrl}\n\n---\nThis is a billing notification from ${params.businessName}. If you have questions, reply to this email.${unsubscribeUrl ? `\n\nTo stop receiving these emails: ${unsubscribeUrl}` : ''}`
 
   const html = `<!DOCTYPE html>
 <html>
@@ -74,9 +79,9 @@ export async function sendRecoveryEmail(params: {
       <p style="margin:0 0 8px;color:#9ca3af;font-size:12px">
         This is a billing notification for your ${params.businessName} subscription.
       </p>
-      <p style="margin:0;color:#9ca3af;font-size:12px">
-        If you no longer have an account, please reply to this email and we will remove you immediately.
-      </p>
+      ${unsubscribeUrl
+        ? `<p style="margin:0;color:#9ca3af;font-size:12px">Don't want these emails? <a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline">Unsubscribe</a></p>`
+        : `<p style="margin:0;color:#9ca3af;font-size:12px">If you have questions, reply to this email.</p>`}
     </div>
   </div>
   ${trackingPixel}
