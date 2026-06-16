@@ -314,6 +314,9 @@ export default function LandingPage() {
               { icon: RotateCcw, title: 'Winback campaigns for cancellations', desc: 'When a customer cancels, Revova automatically sends AI-personalized re-engagement emails on Day 3, 14, and 30.', badge: 'Pro feature' },
               { icon: BarChart3, title: 'Weekly recovery digest', desc: 'Every Monday, get a clean summary: failures, recoveries, revenue saved, and your week-over-week rate.', badge: 'Auto-reports' },
               { icon: TrendingUp, title: 'At-risk customer alerts', desc: 'Dashboard flags customers who\'ve received 3+ emails without resolving — so you know when to reach out personally.', badge: 'Live dashboard' },
+              { icon: BarChart3, title: 'Email open & click analytics', desc: 'See open rate and click rate for every email in your sequence. Know exactly which email drives the most payments back.', badge: 'Email analytics' },
+              { icon: DollarSign, title: 'Revenue forecast', desc: 'Analytics page projects how much you\'ll recover from in-progress payments, based on your historical recovery rate.', badge: 'Forecasting' },
+              { icon: Shield, title: 'Cancellation survey + smart deflection', desc: 'When a customer tries to cancel, Revova asks why — then offers the most relevant retention offer (discount or pause) based on their answer.', badge: 'Cancel flow' },
               { icon: Shield, title: 'Read-only Stripe — fully secure', desc: 'Revova never touches card data or processes money. Read-only API access. SOC2 compliant.', badge: 'Enterprise security' },
               { icon: DollarSign, title: '3-minute setup, no engineers', desc: 'Paste your Stripe key. Done. No webhooks, no code, no Zapier. Any non-technical founder can do it.', badge: 'No-code' },
             ].map(({ icon: Icon, title, desc, badge }) => (
@@ -448,6 +451,9 @@ export default function LandingPage() {
                   { feature: 'Multi-language emails (8 langs)', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Winback campaigns (post-cancel)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'Weekly digest email reports', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Email open & click analytics', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Revenue recovery forecast', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Cancellation survey (reason tracking)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'Pre-dunning (expiry alerts)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'In-app payment banner', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'Slack notifications', revova: true, churnkey: false, stunning: true, churnbuster: false },
@@ -554,6 +560,9 @@ export default function LandingPage() {
                   'Emails in 8 languages',
                   'Winback campaigns (Day 3, 14, 30)',
                   'Weekly digest performance report',
+                  'Email open & click rate analytics',
+                  'Revenue recovery forecast',
+                  'Cancellation survey + smart deflection',
                   'Advanced analytics & revenue insights',
                   '1-click Stripe Connect',
                   'Priority support (reply within 4h)',
@@ -627,6 +636,14 @@ export default function LandingPage() {
               {
                 q: 'Does Revova work outside the US?',
                 a: 'Yes. Revova works anywhere Stripe is available. We send emails in your customer\'s local timezone regardless of where they are. Full multi-currency support.',
+              },
+              {
+                q: 'Can I see which recovery email performs best?',
+                a: 'Yes — the Analytics page shows open rate and click rate for each email in your sequence (Email #1 through #5). You can see exactly which email drives the most customers to update their card. Industry average is ~35% open rate and ~15% click rate.',
+              },
+              {
+                q: 'Does Revova help reduce voluntary cancellations too?',
+                a: 'Yes. When a customer clicks "Cancel" in your app, Revova can intercept with a cancellation survey — asking why they\'re leaving, then showing the most relevant retention offer. "Too expensive" → shows a discount. "Not using it" → offers a pause. This turns voluntary cancellations into data and saves customers at the same time.',
               },
               {
                 q: 'Can Revova write recovery emails in languages other than English?',
