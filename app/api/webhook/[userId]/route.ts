@@ -133,6 +133,7 @@ export async function POST(
         declineCode,
         emailSequence: 1,
         updateCardUrl: invoice.hosted_invoice_url ?? '#',
+        language: accountData.email_language ?? 'en',
         customNote: accountData.email_custom_note ?? undefined,
       })
 
@@ -241,6 +242,36 @@ export async function POST(
             currency: recovered.currency,
           })
         }
+      }
+    }
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription
+    const customerId = subscription.customer as string
+
+    if (accountData.winback_enabled && customerId) {
+      try {
+        const stripeClient = new Stripe(accountData.access_token)
+        const customer = await stripeClient.customers.retrieve(customerId)
+        if (customer && !customer.deleted) {
+          const c = customer as Stripe.Customer
+          const email = c.email
+          if (email) {
+            await db.from('winback_contacts').upsert({
+              user_id: userId,
+              customer_email: email,
+              customer_name: c.name ?? null,
+              stripe_customer_id: customerId,
+              cancelled_at: new Date().toISOString(),
+              status: 'active',
+              emails_sent: 0,
+            }, { onConflict: 'user_id,customer_email' })
+            console.log(`[Webhook] Enrolled ${email} in winback campaign`)
+          }
+        }
+      } catch (e) {
+        console.error('[Webhook] Winback enrollment error:', e)
       }
     }
   }

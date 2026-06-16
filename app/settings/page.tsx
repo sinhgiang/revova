@@ -15,6 +15,8 @@ import { SmtpSettings } from '@/components/settings/smtp-settings'
 import { OutboundWebhookSettings } from '@/components/settings/outbound-webhook-settings'
 import { EmailBlacklistSettings } from '@/components/settings/email-blacklist-settings'
 import { NotificationSettings } from '@/components/settings/notification-settings'
+import { EmailLanguageSettings } from '@/components/settings/email-language-settings'
+import { WinbackSettings } from '@/components/settings/winback-settings'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -110,6 +112,13 @@ export default async function SettingsPage() {
             <EmailBlacklistSettings />
 
             <NotificationSettings enabled={stripeAccount?.notify_on_recovery !== false} />
+
+            <EmailLanguageSettings currentLanguage={stripeAccount?.email_language ?? null} />
+
+            <WinbackSettings
+              enabled={stripeAccount?.winback_enabled ?? false}
+              discountCode={stripeAccount?.winback_discount_code ?? null}
+            />
 
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-2">Recovery Email Sequence</h2>

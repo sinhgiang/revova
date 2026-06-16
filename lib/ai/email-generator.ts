@@ -21,6 +21,23 @@ const SEQUENCE_CONTEXT: Record<number, string> = {
   5: 'This is the final notice (Day 21). This is the last email. Be direct and clear that the subscription will be permanently cancelled unless they act today.',
 }
 
+const HARD_DECLINE_CODES = new Set([
+  'lost_card', 'stolen_card', 'pickup_card', 'restricted_card',
+  'security_violation', 'transaction_not_allowed', 'do_not_honor',
+  'fraudulent', 'card_declined',
+])
+
+export function getDeclineSeverity(code: string | null): 'hard' | 'soft' {
+  return HARD_DECLINE_CODES.has(code ?? '') ? 'hard' : 'soft'
+}
+
+// Hard declines: max 3 emails, faster cadence (days 1, 3, 7)
+const HARD_SEQUENCE_CONTEXT: Record<number, string> = {
+  1: 'First email (Day 1) for a hard bank decline. Be warm but clear: the card was blocked and they need to use a different card. Emphasize how quick the fix is.',
+  2: 'Second email (Day 3) for a hard decline. Their card was blocked by the bank. Gently urge them to add a new card so they don\'t lose access.',
+  3: 'Final email (Day 7) for a hard bank decline. This is the last attempt. Be respectful but clear that this may be their last chance to keep their account active.',
+}
+
 function buildPrompt(params: {
   customerName: string
   businessName: string
@@ -30,8 +47,14 @@ function buildPrompt(params: {
   sequenceContext: string
   updateCardUrl: string
   emailSequence: number
+  language?: string
   customNote?: string
 }): string {
+  const lang = params.language && params.language !== 'en' ? params.language : null
+  const langInstruction = lang
+    ? `1. Write entirely in ${lang}. Every word — subject, preview, body — must be in ${lang}. Do NOT use English.`
+    : '1. Write in English only.'
+
   return `You are a professional customer success email writer for ${params.businessName}.
 
 Write a payment recovery email with these details:
@@ -44,7 +67,7 @@ Write a payment recovery email with these details:
 - Card update link: ${params.updateCardUrl}
 
 Rules:
-1. Write in English only
+${langInstruction}
 2. Subject line must be personal and conversational — never use words like FREE, URGENT, ACT NOW, CLICK HERE, WINNER, GUARANTEED, OFFER, DEAL, LIMITED TIME, or excessive punctuation like !!! or ALL CAPS
 3. Body should be 3-4 short paragraphs max
 4. Include the update card link as a clear CTA but do not use "click here" — use natural language like "update your payment details"
@@ -53,6 +76,57 @@ Rules:
 7. Preview text should make them want to open the email — be specific, not generic
 8. Never mention money-back guarantees, discounts, or promotional offers unless explicitly instructed below
 9. Keep sentences short and conversational — avoid corporate jargon${params.customNote ? `\n10. Special instructions from the business (follow these carefully): "${params.customNote}"` : ''}
+
+Respond in this exact JSON format:
+{
+  "subject": "email subject line here",
+  "previewText": "preview text here (max 90 chars)",
+  "body": "full email body in plain text with \\n for line breaks"
+}`
+}
+
+function buildWinbackPrompt(params: {
+  customerName: string
+  businessName: string
+  productName: string
+  emailSequence: number
+  discountCode?: string | null
+  language?: string
+  customNote?: string
+}): string {
+  const lang = params.language && params.language !== 'en' ? params.language : null
+  const langInstruction = lang
+    ? `1. Write entirely in ${lang}. Every word must be in ${lang}.`
+    : '1. Write in English only.'
+
+  const winbackContext: Record<number, string> = {
+    1: 'First winback email (3 days after cancellation). Warm, empathetic tone. Express genuine sadness that they left. Ask if there was something the company could improve. No hard sell — just authentic human care.',
+    2: 'Second winback email (14 days after cancellation). Highlight improvements or value they are missing without the product. Friendly reminder of benefits. Mention support is available. Still no pressure.',
+    3: `Final winback email (30 days after cancellation). Last attempt. ${params.discountCode ? `Offer them a special comeback discount: use code "${params.discountCode}" to get a discount when they reactivate.` : 'Make reactivation as frictionless as possible.'} Be direct but warm — this is the last email.`,
+  }
+  const ctx = winbackContext[Math.min(params.emailSequence, 3)]
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://revova.io'
+  const reactivateUrl = `${appUrl}/signup`
+
+  return `You are a customer success expert writing a winback email for ${params.businessName}.
+
+The customer recently cancelled their ${params.productName} subscription. Write an email to win them back.
+
+Details:
+- Customer name: ${params.customerName || 'there'}
+- Product: ${params.productName}
+- Winback sequence: Email #${params.emailSequence} of 3
+- Tone guidance: ${ctx}
+- Reactivation link: ${reactivateUrl}
+
+Rules:
+${langInstruction}
+2. Do NOT mention payment failures or billing problems
+3. Focus on the value they are missing, or genuine care for why they left
+4. Subject line must be personal, not spammy — no ALL CAPS, no excessive punctuation
+5. Body: 3 short paragraphs max
+6. Sound like it comes from a real human being at the company
+7. Keep it warm and brief — do not be pushy${params.customNote ? `\n8. Special instructions: "${params.customNote}"` : ''}
 
 Respond in this exact JSON format:
 {
@@ -136,6 +210,31 @@ async function tryGemini(prompt: string): Promise<EmailTemplate> {
   return parseAIResponse(text)
 }
 
+export async function generateWinbackEmail(params: {
+  customerName: string
+  businessName: string
+  productName: string
+  emailSequence: number
+  discountCode?: string | null
+  language?: string
+  customNote?: string
+}): Promise<EmailTemplate> {
+  const prompt = buildWinbackPrompt(params)
+  const fallback: EmailTemplate = {
+    subject: `We miss you at ${params.businessName}`,
+    previewText: `It's been a while — we'd love to have you back.`,
+    body: `Hi ${params.customerName || 'there'},\n\nWe noticed you're no longer subscribed to ${params.productName}.\n\nIf there's anything we could have done better, we'd genuinely love to hear it. And if you're ever ready to come back, we'll be here.\n\nBest,\nThe ${params.businessName} Team`,
+  }
+
+  if (process.env.ANTHROPIC_API_KEY) {
+    try { return await tryAnthropic(prompt) } catch {}
+  }
+  if (process.env.GEMINI_API_KEY) {
+    try { return await tryGemini(prompt) } catch {}
+  }
+  return fallback
+}
+
 export async function generateRecoveryEmail(params: {
   customerName: string
   customerEmail: string
@@ -147,13 +246,19 @@ export async function generateRecoveryEmail(params: {
   emailSequence: number
   updateCardUrl: string
   country?: string
+  language?: string
   customNote?: string
 }): Promise<EmailTemplate> {
+  const severity = getDeclineSeverity(params.declineCode)
   const declineInfo = params.declineCode
     ? DECLINE_CONTEXT[params.declineCode] ?? DECLINE_CONTEXT.generic_decline
     : DECLINE_CONTEXT.generic_decline
 
-  const sequenceContext = SEQUENCE_CONTEXT[params.emailSequence] ?? SEQUENCE_CONTEXT[1]
+  const isHard = severity === 'hard'
+  const sequenceContext = isHard
+    ? (HARD_SEQUENCE_CONTEXT[params.emailSequence] ?? HARD_SEQUENCE_CONTEXT[3])
+    : (SEQUENCE_CONTEXT[params.emailSequence] ?? SEQUENCE_CONTEXT[1])
+
   const formattedAmount = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: params.currency.toUpperCase(),
@@ -168,6 +273,7 @@ export async function generateRecoveryEmail(params: {
     sequenceContext,
     updateCardUrl: params.updateCardUrl,
     emailSequence: params.emailSequence,
+    language: params.language,
     customNote: params.customNote,
   })
 

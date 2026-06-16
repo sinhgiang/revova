@@ -11,6 +11,14 @@
     {
       "path": "/api/cron/trial-conversion",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/winback",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-summary",
+      "schedule": "0 9 * * 1"
     }
   ]
 }

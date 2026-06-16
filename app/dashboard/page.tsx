@@ -38,6 +38,12 @@ export default async function DashboardPage() {
   const emailsSent = allPayments.reduce((sum, p) => sum + (p.emails_sent ?? 0), 0)
   const currency = allPayments[0]?.currency ?? 'usd'
 
+  // At-risk: pending payments that have received 3+ emails without resolving
+  const atRisk = allPayments.filter(p =>
+    (p.emails_sent ?? 0) >= 3 &&
+    !['recovered', 'cancelled', 'max_emails_reached'].includes(p.status)
+  )
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -76,6 +82,31 @@ export default async function DashboardPage() {
               icon={<AlertCircle className="w-6 h-6" />}
             />
           </div>
+
+          {atRisk.length > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <h2 className="font-semibold text-amber-900">At-Risk Customers ({atRisk.length})</h2>
+              </div>
+              <p className="text-sm text-amber-700 mb-3">
+                These customers have received 3+ recovery emails without paying. Consider reaching out manually.
+              </p>
+              <div className="space-y-2">
+                {atRisk.slice(0, 5).map(p => (
+                  <div key={p.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-amber-100">
+                    <span className="font-medium text-gray-900">{p.customer_email}</span>
+                    <span className="text-gray-500">{formatCurrency(p.amount, p.currency)} · {p.emails_sent} emails sent</span>
+                  </div>
+                ))}
+                {atRisk.length > 5 && (
+                  <Link href="/payments" className="block text-center text-xs text-amber-700 hover:underline pt-1">
+                    +{atRisk.length - 5} more — view all →
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">

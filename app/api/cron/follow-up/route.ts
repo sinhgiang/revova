@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
-import { generateRecoveryEmail } from '@/lib/ai/email-generator'
+import { generateRecoveryEmail, getDeclineSeverity } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
 import { sendSlackNotification } from '@/lib/slack'
 import { sendMerchantRecoveryNotification } from '@/lib/email/notifications'
@@ -22,6 +22,12 @@ const DEFAULT_DAYS_AFTER_PREV: Record<number, number> = {
   3: 4,
   4: 7,
   5: 7,
+}
+
+// Hard decline: max 3 emails, faster cadence
+const HARD_DAYS_AFTER_PREV: Record<number, number> = {
+  2: 1,
+  3: 3,
 }
 
 function getDaysAfterPrev(account: any, emailNum: number): number {
@@ -78,8 +84,21 @@ export async function GET(request: NextRequest) {
 
     if (!account?.access_token) { skipped++; continue }
 
-    // Custom or default timing
-    const daysToWait = getDaysAfterPrev(account, nextEmailNum)
+    // Hard declines: max 3 emails, faster cadence
+    const severity = getDeclineSeverity(payment.decline_code)
+    if (severity === 'hard' && nextEmailNum > 3) {
+      await db
+        .from('failed_payments')
+        .update({ status: 'max_emails_reached' })
+        .eq('id', payment.id)
+      skipped++
+      continue
+    }
+
+    // Custom or default timing (hard declines use faster schedule, skip custom timing)
+    const daysToWait = severity === 'hard'
+      ? (HARD_DAYS_AFTER_PREV[nextEmailNum] ?? 3)
+      : getDaysAfterPrev(account, nextEmailNum)
 
     // Check if enough time has passed since the last email
     const lastEmailAt = new Date(payment.last_email_at ?? payment.created_at)
@@ -208,6 +227,7 @@ export async function GET(request: NextRequest) {
         declineCode: payment.decline_code as DeclineCode,
         emailSequence: nextEmailNum,
         updateCardUrl,
+        language: account.email_language ?? 'en',
         customNote: account.email_custom_note ?? undefined,
       })
 
