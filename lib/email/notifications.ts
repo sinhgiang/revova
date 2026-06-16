@@ -64,8 +64,10 @@ export async function sendMerchantRecoveryNotification(params: {
 </html>`
 
   try {
+    const fromEmail = process.env.RESEND_FROM_EMAIL
+    if (!fromEmail) throw new Error('RESEND_FROM_EMAIL env var is not configured')
     await resend.emails.send({
-      from: `Revova <${process.env.RESEND_FROM_EMAIL!}>`,
+      from: `Revova <${fromEmail}>`,
       to: params.merchantEmail,
       subject: `💰 ${formatted} recovered from ${params.customerName ?? params.customerEmail}`,
       html,

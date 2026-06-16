@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const { data: accounts } = await db
     .from('stripe_accounts')
     .select('*')
-    .neq('weekly_summary_enabled', false)
+    .or('weekly_summary_enabled.eq.true,weekly_summary_enabled.is.null')
 
   let sent = 0
 
@@ -107,8 +107,10 @@ export async function GET(request: NextRequest) {
 </html>`
 
     try {
+      const fromEmail = process.env.RESEND_FROM_EMAIL
+      if (!fromEmail) throw new Error('RESEND_FROM_EMAIL env var is not configured')
       await resend.emails.send({
-        from: `Revova <${process.env.RESEND_FROM_EMAIL!}>`,
+        from: `Revova <${fromEmail}>`,
         to: merchantEmail,
         subject: newFailures === 0
           ? `✅ Clean week for ${account.business_name ?? 'your business'} — no failed payments`

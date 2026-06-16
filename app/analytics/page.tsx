@@ -160,7 +160,7 @@ export default async function AnalyticsPage() {
               ) : (
                 <div className="space-y-2.5">
                   {[
-                    { label: 'No email yet', n: funnel[0] },
+                    { label: 'Email send failed', n: funnel[0] },
                     { label: 'Email 1 sent', n: funnel[1] },
                     { label: 'Email 2 sent', n: funnel[2] },
                     { label: 'Email 3 sent', n: funnel[3] },

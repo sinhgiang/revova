@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { generateWinbackEmail } from '@/lib/ai/email-generator'
-import { sendRecoveryEmail } from '@/lib/email/resend'
+import { sendWinbackEmail } from '@/lib/email/resend'
 
 // Days after cancellation to send each winback email
 const WINBACK_DAYS = [3, 14, 30]
@@ -87,12 +87,12 @@ export async function GET(request: NextRequest) {
 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://revova.io'
 
-      await sendRecoveryEmail({
+      await sendWinbackEmail({
         to: contact.customer_email,
         subject: emailContent.subject,
         body: emailContent.body,
         previewText: emailContent.previewText,
-        updateCardUrl: `${appUrl}/signup`,
+        reactivateUrl: `${appUrl}/signup`,
         businessName: account.business_name ?? 'Our Team',
         smtp,
         tracking: {
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       }).eq('id', contact.id)
 
       await db.from('email_logs').insert({
-        failed_payment_id: null,
+        // failed_payment_id intentionally omitted — winback emails are not tied to a failed payment
         user_id: contact.user_id,
         email_type: `winback_${emailSequence}`,
         recipient_email: contact.customer_email,

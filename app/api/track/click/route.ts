@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         .update({ clicked_at: new Date().toISOString() })
         .eq('user_id', userId)
         .eq('recipient_email', email)
-        .like('email_type', `%${seq}%`)
+        .eq('email_type', `sequence_${seq}`)
         .is('clicked_at', null)
     } catch { /* non-critical */ }
   }
