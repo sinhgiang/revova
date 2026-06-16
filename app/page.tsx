@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
-import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock } from 'lucide-react'
+import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X } from 'lucide-react'
+import { RoiCalculator } from '@/components/landing/roi-calculator'
 
 export default function LandingPage() {
   return (
@@ -17,7 +18,7 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How it works</a>
-            <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
+            <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
             <a href="#faq" className="hover:text-gray-900 transition-colors">FAQ</a>
           </div>
           <div className="flex items-center gap-3">
@@ -179,6 +180,20 @@ export default function LandingPage() {
               <ArrowRight className="w-4 h-4"/>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ── ROI CALCULATOR ── */}
+      <section className="px-6 py-24 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-3">Calculate your ROI</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            How much will <em>you</em> recover?
+          </h2>
+          <p className="text-xl text-gray-500 mb-12 max-w-xl mx-auto">
+            Move the slider to see exactly how much Revova puts back in your pocket every month.
+          </p>
+          <RoiCalculator />
         </div>
       </section>
 
@@ -380,6 +395,82 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── COMPETITOR COMPARISON ── */}
+      <section className="px-6 py-24 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-3">Why Revova?</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Same results. 85% cheaper.
+            </h2>
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+              Competitors charge enterprise prices for the same features. Revova is built for indie hackers and small SaaS teams.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-left px-6 py-4 font-semibold text-gray-700">Feature</th>
+                  <th className="px-6 py-4 font-bold text-indigo-600 bg-indigo-50 border-x border-indigo-100">
+                    <div className="flex flex-col items-center gap-1">
+                      <span>Revova</span>
+                      <span className="text-2xl font-black">$29<span className="text-sm font-normal text-gray-500">/mo</span></span>
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-500 text-center">
+                    <div>Churnkey</div>
+                    <div className="text-gray-400 font-normal">$199/mo</div>
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-500 text-center">
+                    <div>Stunning</div>
+                    <div className="text-gray-400 font-normal">$120/mo</div>
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-gray-500 text-center">
+                    <div>ChurnBuster</div>
+                    <div className="text-gray-400 font-normal">$149/mo</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: 'Smart payment retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
+                  { feature: 'Pre-dunning (expiry alerts)', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'In-app payment banner', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Slack notifications', revova: true, churnkey: false, stunning: true, churnbuster: false },
+                  { feature: '5-email sequence', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: 'Real-time analytics', revova: true, churnkey: true, stunning: true, churnbuster: true },
+                  { feature: '3-minute setup (no code)', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: '30-day money-back', revova: true, churnkey: false, stunning: true, churnbuster: false },
+                ].map(({ feature, revova, churnkey, stunning, churnbuster }, i) => (
+                  <tr key={feature} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                    <td className="px-6 py-3.5 font-medium text-gray-700">{feature}</td>
+                    <td className="px-6 py-3.5 text-center bg-indigo-50/40 border-x border-indigo-100">
+                      {revova ? <CheckCircle className="w-5 h-5 text-indigo-600 mx-auto" /> : <X className="w-5 h-5 text-gray-300 mx-auto" />}
+                    </td>
+                    <td className="px-6 py-3.5 text-center">
+                      {churnkey ? <CheckCircle className="w-5 h-5 text-gray-400 mx-auto" /> : <X className="w-5 h-5 text-gray-200 mx-auto" />}
+                    </td>
+                    <td className="px-6 py-3.5 text-center">
+                      {stunning ? <CheckCircle className="w-5 h-5 text-gray-400 mx-auto" /> : <X className="w-5 h-5 text-gray-200 mx-auto" />}
+                    </td>
+                    <td className="px-6 py-3.5 text-center">
+                      {churnbuster ? <CheckCircle className="w-5 h-5 text-gray-400 mx-auto" /> : <X className="w-5 h-5 text-gray-200 mx-auto" />}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="text-center text-gray-400 text-sm mt-6">
+            Revova has more features than competitors at 85% lower cost. <Link href="/pricing" className="text-indigo-600 hover:underline">See full pricing →</Link>
+          </p>
         </div>
       </section>
 
