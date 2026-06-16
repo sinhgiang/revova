@@ -58,11 +58,11 @@ ALTER TABLE cancel_events
   ADD COLUMN IF NOT EXISTS merchant_user_id_fk UUID REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- Backfill FK column from existing rows (if merchant_user_id is already a valid auth.users UUID)
-UPDATE cancel_events SET merchant_user_id_fk = merchant_user_id WHERE merchant_user_id_fk IS NULL;
+UPDATE cancel_events SET merchant_user_id_fk = merchant_user_id::uuid WHERE merchant_user_id_fk IS NULL;
 
 ALTER TABLE cancel_events ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Merchants manage their own cancel events"
   ON cancel_events FOR ALL
-  USING (auth.uid() = merchant_user_id)
-  WITH CHECK (auth.uid() = merchant_user_id);
+  USING (auth.uid() = merchant_user_id::uuid)
+  WITH CHECK (auth.uid() = merchant_user_id::uuid);
