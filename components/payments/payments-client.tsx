@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { StatusBadge } from '@/components/payments/status-badge'
 import { formatCurrency, formatDate, getDeclineMessage } from '@/lib/utils'
 import { FailedPaymentStatus } from '@/types'
@@ -154,8 +154,8 @@ export function PaymentsClient({ payments: initial }: Props) {
         </thead>
         <tbody className="divide-y divide-gray-50">
           {payments.map(p => (
-            <>
-              <tr key={p.id} className={`hover:bg-gray-50 transition-colors ${selected.has(p.id) ? 'bg-indigo-50/50' : ''}`}>
+            <Fragment key={p.id}>
+              <tr className={`hover:bg-gray-50 transition-colors ${selected.has(p.id) ? 'bg-indigo-50/50' : ''}`}>
                 <td className="px-4 py-4">
                   <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggleSelect(p.id)}
                     className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
@@ -217,7 +217,7 @@ export function PaymentsClient({ payments: initial }: Props) {
               </tr>
               {/* Note editor inline */}
               {editNote === p.id && (
-                <tr key={`${p.id}-note`}>
+                <tr>
                   <td colSpan={8} className="px-4 pb-3 bg-amber-50/50">
                     <div className="flex gap-2 items-center">
                       <input
@@ -240,7 +240,7 @@ export function PaymentsClient({ payments: initial }: Props) {
                   </td>
                 </tr>
               )}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>

@@ -96,7 +96,10 @@ export default async function SettingsPage() {
             />
 
             <EmailTimingSettings
-              currentTiming={stripeAccount?.email_timing_days ? JSON.parse(stripeAccount.email_timing_days) : null}
+              currentTiming={(() => {
+                try { return stripeAccount?.email_timing_days ? JSON.parse(stripeAccount.email_timing_days) : null }
+                catch { return null }
+              })()}
             />
 
             <SmtpSettings hasSmtp={!!stripeAccount?.smtp_host} />

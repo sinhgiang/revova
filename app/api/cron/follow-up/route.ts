@@ -141,6 +141,28 @@ export async function GET(request: NextRequest) {
           } catch { /* non-critical */ }
         }
 
+        // Outbound webhook — same trigger as in main webhook handler
+        if (account.outbound_webhook_url) {
+          try {
+            await fetch(account.outbound_webhook_url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-Revova-Event': 'payment.recovered' },
+              body: JSON.stringify({
+                event: 'payment.recovered',
+                data: {
+                  customerEmail: payment.customer_email,
+                  customerName: payment.customer_name,
+                  amount: payment.amount,
+                  currency: payment.currency,
+                  businessName: account.business_name,
+                  recoveredAt: now.toISOString(),
+                },
+              }),
+              signal: AbortSignal.timeout(8000),
+            })
+          } catch { /* non-critical */ }
+        }
+
         sent++ // count as a recovery action
         console.log(`[Cron] ✓ Auto-retry succeeded → ${payment.customer_email}`)
         continue // no email needed

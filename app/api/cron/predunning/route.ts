@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendRecoveryEmail } from '@/lib/email/resend'
-import { sendSlackNotification } from '@/lib/slack'
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
@@ -19,9 +18,10 @@ export async function GET(request: NextRequest) {
   const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1
   const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear
 
+  // Select ALL columns so we have SMTP, outbound webhook, etc.
   const { data: accounts } = await db
     .from('stripe_accounts')
-    .select('user_id, access_token, business_name, slack_webhook_url')
+    .select('*')
     .not('access_token', 'is', null)
 
   let sent = 0
@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
     try {
       const stripe = new Stripe(account.access_token)
 
-      // List active subscriptions with their default payment method
       const subs = await stripe.subscriptions.list({
         status: 'active',
         limit: 100,
@@ -54,7 +53,16 @@ export async function GET(request: NextRequest) {
         const email = customer.email
         if (!email) { skipped++; continue }
 
-        // Check if already sent pre-dunning this month
+        // Blacklist check
+        const { data: blacklisted } = await db
+          .from('email_blacklist')
+          .select('id')
+          .eq('user_id', account.user_id)
+          .eq('email', email.toLowerCase())
+          .maybeSingle()
+        if (blacklisted) { skipped++; continue }
+
+        // Dedup: already sent pre-dunning this month?
         const monthStart = new Date(currentYear, currentMonth - 1, 1).toISOString()
         const { data: already } = await db
           .from('email_logs')
@@ -65,7 +73,6 @@ export async function GET(request: NextRequest) {
           .gte('created_at', monthStart)
           .limit(1)
           .maybeSingle()
-
         if (already) { skipped++; continue }
 
         const expMonthName = new Date(exp_year, exp_month - 1).toLocaleString('default', { month: 'long' })
@@ -84,6 +91,16 @@ It only takes a moment — click the button below to update your card now.
 
 Thanks for being a customer!`
 
+        // Build SMTP config if merchant has custom SMTP
+        const smtp = account.smtp_host ? {
+          host: account.smtp_host,
+          port: account.smtp_port ?? 587,
+          user: account.smtp_user,
+          password: account.smtp_password,
+          fromEmail: account.smtp_from_email,
+          fromName: account.smtp_from_name ?? businessName,
+        } : null
+
         await sendRecoveryEmail({
           to: email,
           subject,
@@ -91,31 +108,25 @@ Thanks for being a customer!`
           previewText: `Your card expires in ${expMonthName} — update now to stay connected`,
           updateCardUrl: portalUrl,
           businessName,
+          smtp,
+          tracking: {
+            userId: account.user_id,
+            recipientEmail: email,
+            sequence: 0, // 0 = predunning (not a recovery sequence step)
+          },
         })
 
-        // Log the pre-dunning email (failed_payment_id may be null)
         try {
           await db.from('email_logs').insert({
-            failed_payment_id: null,
             user_id: account.user_id,
             email_type: 'predunning',
             recipient_email: email,
             subject,
           })
-        } catch { /* ignore if failed_payment_id is NOT NULL */ }
+        } catch { /* non-critical if failed_payment_id is required */ }
 
         sent++
         console.log(`[Pre-dunning] ✓ Sent to ${email} (expires ${expMonthName} ${exp_year})`)
-
-        // Slack notification about proactive action
-        if (account.slack_webhook_url && sent === 1) {
-          try {
-            await sendSlackNotification(account.slack_webhook_url, {
-              type: 'test',
-              businessName: account.business_name,
-            })
-          } catch { /* non-critical */ }
-        }
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)

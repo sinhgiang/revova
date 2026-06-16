@@ -85,6 +85,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createAdminClient()
   const db = supabase as any
 
+  // Select ALL columns so SMTP config is available
   const { data: accounts } = await db.from('stripe_accounts').select('*')
   if (!accounts?.length) return NextResponse.json({ ok: true, sent: 0 })
 
@@ -121,7 +122,17 @@ export async function GET(request: NextRequest) {
 
       if (!customerEmail) continue
 
+      // Blacklist check
+      const { data: blacklisted } = await db
+        .from('email_blacklist')
+        .select('id')
+        .eq('user_id', account.user_id)
+        .eq('email', customerEmail.toLowerCase())
+        .maybeSingle()
+      if (blacklisted) { skipped++; continue }
+
       // Dedup: don't send same email type to same address this week
+      // Use created_at (not sent_at which doesn't exist)
       const weekAgo = new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString()
       const { data: existing } = await db
         .from('email_logs')
@@ -129,7 +140,7 @@ export async function GET(request: NextRequest) {
         .eq('user_id', account.user_id)
         .eq('email_type', emailType)
         .eq('recipient_email', customerEmail)
-        .gte('sent_at', weekAgo)
+        .gte('created_at', weekAgo)
         .maybeSingle()
 
       if (existing) { skipped++; continue }
@@ -152,6 +163,16 @@ export async function GET(request: NextRequest) {
         updateCardUrl,
       })
 
+      // Build SMTP config if merchant has custom SMTP
+      const smtp = account.smtp_host ? {
+        host: account.smtp_host,
+        port: account.smtp_port ?? 587,
+        user: account.smtp_user,
+        password: account.smtp_password,
+        fromEmail: account.smtp_from_email,
+        fromName: account.smtp_from_name ?? account.business_name ?? 'Revova',
+      } : null
+
       try {
         await sendRecoveryEmail({
           to: customerEmail,
@@ -160,6 +181,12 @@ export async function GET(request: NextRequest) {
           previewText: email.previewText,
           updateCardUrl,
           businessName: account.business_name ?? 'Our Service',
+          smtp,
+          tracking: {
+            userId: account.user_id,
+            recipientEmail: customerEmail,
+            sequence: daysLeft === 7 ? 71 : daysLeft === 3 ? 73 : 71, // unique sequence codes for trial emails
+          },
         })
 
         await db.from('email_logs').insert({
