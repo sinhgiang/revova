@@ -8,7 +8,7 @@ export async function POST(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params
-  const { action, subscriptionId } = await request.json()
+  const { action, subscriptionId, reason } = await request.json()
 
   if (!action || !subscriptionId) {
     return NextResponse.json({ error: 'Missing action or subscriptionId' }, { status: 400 })
@@ -40,6 +40,9 @@ export async function POST(
       await stripe.subscriptions.update(subscriptionId, {
         pause_collection: { behavior: 'void', resumes_at: resumesAt },
       })
+      try {
+        await db.from('cancel_events').insert({ merchant_user_id: userId, subscription_id: subscriptionId, reason: reason ?? null, action_taken: 'paused' })
+      } catch { /* non-critical */ }
       return NextResponse.json({ ok: true, result: 'paused' })
     }
 
@@ -64,11 +67,23 @@ export async function POST(
           discounts: [{ coupon: code }],
         })
       }
+      try {
+        await db.from('cancel_events').insert({ merchant_user_id: userId, subscription_id: subscriptionId, reason: reason ?? null, action_taken: 'discounted' })
+      } catch { /* non-critical */ }
       return NextResponse.json({ ok: true, result: 'discounted' })
     }
 
     if (action === 'cancel') {
       await stripe.subscriptions.cancel(subscriptionId)
+      // Log cancel event with reason for merchant analytics
+      try {
+        await db.from('cancel_events').insert({
+          merchant_user_id: userId,
+          subscription_id: subscriptionId,
+          reason: reason ?? null,
+          action_taken: 'cancelled',
+        })
+      } catch { /* non-critical */ }
       return NextResponse.json({ ok: true, result: 'cancelled' })
     }
 

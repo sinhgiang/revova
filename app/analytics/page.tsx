@@ -56,6 +56,26 @@ export default async function AnalyticsPage() {
   })
   const maxWeek = Math.max(...weeks.map(w => w.amount), 1)
 
+  // Email performance: open rate + click rate per sequence number
+  const { data: emailLogs } = await (supabase as any)
+    .from('email_logs')
+    .select('email_type, opened_at, clicked_at')
+    .eq('user_id', user.id)
+    .like('email_type', 'sequence_%')
+
+  const emailStats = [1, 2, 3, 4, 5].map(seq => {
+    const logs = (emailLogs ?? []).filter((l: any) => l.email_type === `sequence_${seq}`)
+    const sent = logs.length
+    const opened = logs.filter((l: any) => l.opened_at).length
+    const clicked = logs.filter((l: any) => l.clicked_at).length
+    return { seq, sent, openRate: sent > 0 ? Math.round((opened / sent) * 100) : 0, clickRate: sent > 0 ? Math.round((clicked / sent) * 100) : 0 }
+  }).filter(s => s.sent > 0)
+
+  // Revenue forecast: based on historical recovery rate
+  const projectedRecovery = recoveryRate > 0 && inProgress.length > 0
+    ? Math.round(totalAtRisk * recoveryRate / 100)
+    : 0
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -159,6 +179,76 @@ export default async function AnalyticsPage() {
               )}
             </div>
           </div>
+
+          {/* Revenue forecast */}
+          {projectedRecovery > 0 && (
+            <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6 mb-6">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-indigo-900">Revenue Forecast</h3>
+                <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Based on your {recoveryRate}% rate</span>
+              </div>
+              <p className="text-sm text-indigo-600 mb-4">Projected outcome for your {inProgress.length} in-progress payments</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white rounded-lg p-4">
+                  <p className="text-xs text-gray-400 mb-1">Currently at risk</p>
+                  <p className="text-2xl font-bold text-amber-600">{formatCurrency(totalAtRisk, currency)}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{inProgress.length} payments in progress</p>
+                </div>
+                <div className="bg-white rounded-lg p-4">
+                  <p className="text-xs text-gray-400 mb-1">Projected to recover</p>
+                  <p className="text-2xl font-bold text-emerald-600">{formatCurrency(projectedRecovery, currency)}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">if your rate holds at {recoveryRate}%</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Email performance table */}
+          {emailStats.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-6">
+              <h3 className="font-semibold text-gray-900 mb-0.5">Email Performance</h3>
+              <p className="text-xs text-gray-400 mb-4">Open rate and click rate per email step — higher click rate = more customers updating their card</p>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left text-xs font-medium text-gray-400 pb-3">Email</th>
+                    <th className="text-right text-xs font-medium text-gray-400 pb-3">Sent</th>
+                    <th className="text-right text-xs font-medium text-gray-400 pb-3">Open Rate</th>
+                    <th className="text-right text-xs font-medium text-gray-400 pb-3">Click Rate</th>
+                    <th className="text-right text-xs font-medium text-gray-400 pb-3">Performance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {emailStats.map(({ seq, sent, openRate, clickRate }) => (
+                    <tr key={seq}>
+                      <td className="py-3 font-medium text-gray-700">Email #{seq}</td>
+                      <td className="py-3 text-right text-gray-500">{sent}</td>
+                      <td className="py-3 text-right">
+                        <span className={`font-semibold ${openRate >= 40 ? 'text-emerald-600' : openRate >= 20 ? 'text-amber-600' : 'text-gray-400'}`}>
+                          {openRate}%
+                        </span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <span className={`font-semibold ${clickRate >= 20 ? 'text-emerald-600' : clickRate >= 10 ? 'text-amber-600' : 'text-gray-400'}`}>
+                          {clickRate}%
+                        </span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          clickRate >= 20 ? 'bg-emerald-50 text-emerald-700' :
+                          clickRate >= 10 ? 'bg-amber-50 text-amber-700' :
+                          'bg-gray-50 text-gray-500'
+                        }`}>
+                          {clickRate >= 20 ? 'Strong' : clickRate >= 10 ? 'Average' : 'Low'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="text-xs text-gray-400 mt-3">Industry avg: ~35% open rate · ~15% click rate. Open/click tracking embedded in all emails automatically.</p>
+            </div>
+          )}
 
           {/* Weekly trend chart */}
           <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">

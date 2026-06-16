@@ -4,13 +4,30 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Loader2, CheckCircle, XCircle } from 'lucide-react'
 
-type Step = 'loading' | 'offers' | 'success' | 'cancelled' | 'error'
+type Step = 'loading' | 'survey' | 'offers' | 'success' | 'cancelled' | 'error'
 
 interface AccountInfo {
   businessName: string
   cancelFlowEnabled: boolean
   discountCode: string | null
   pauseMonths: number
+}
+
+const REASONS = [
+  { id: 'too_expensive', emoji: '💸', label: 'Too expensive', sub: 'The price doesn\'t fit my budget right now' },
+  { id: 'not_using', emoji: '😴', label: 'Not using it enough', sub: 'I\'m not getting enough value from it' },
+  { id: 'missing_features', emoji: '🔧', label: 'Missing features', sub: 'It doesn\'t do everything I need' },
+  { id: 'technical', emoji: '⚠️', label: 'Technical issues', sub: 'I\'ve experienced problems with the service' },
+  { id: 'switching', emoji: '↗️', label: 'Switching to another tool', sub: 'I\'ve found a better alternative' },
+]
+
+// Which offer to show most prominently based on reason
+const REASON_OFFER_PRIORITY: Record<string, 'discount' | 'pause'> = {
+  too_expensive: 'discount',
+  not_using: 'pause',
+  missing_features: 'discount',
+  technical: 'discount',
+  switching: 'discount',
 }
 
 export function CancelContent() {
@@ -22,6 +39,7 @@ export function CancelContent() {
 
   const [step, setStep] = useState<Step>('loading')
   const [account, setAccount] = useState<AccountInfo | null>(null)
+  const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -34,7 +52,7 @@ export function CancelContent() {
           return
         }
         setAccount(data)
-        setStep('offers')
+        setStep('survey')
       })
       .catch(() => setStep('error'))
   }, [userId, returnUrl])
@@ -45,7 +63,7 @@ export function CancelContent() {
       const res = await fetch(`/api/cancel/${userId}/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, subscriptionId }),
+        body: JSON.stringify({ action, subscriptionId, reason: selectedReason }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed')
@@ -103,9 +121,7 @@ export function CancelContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
-          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-            👋
-          </div>
+          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">👋</div>
           <h2 className="font-bold text-gray-900 text-xl mb-2">Subscription cancelled</h2>
           <p className="text-gray-500 text-sm mb-6">
             Your subscription has been cancelled. You&apos;re welcome back anytime.
@@ -121,89 +137,158 @@ export function CancelContent() {
     )
   }
 
+  // ── SURVEY STEP ──
+  if (step === 'survey') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+          <div className="text-center mb-7">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">🤔</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Before you go…</h1>
+            <p className="text-gray-500 text-sm">What&apos;s the main reason you&apos;re cancelling?</p>
+          </div>
+
+          <div className="space-y-2.5 mb-7">
+            {REASONS.map(({ id, emoji, label, sub }) => (
+              <button
+                key={id}
+                onClick={() => setSelectedReason(id)}
+                className={`w-full text-left border-2 rounded-xl p-4 transition-all ${
+                  selectedReason === id
+                    ? 'border-indigo-500 bg-indigo-50'
+                    : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl flex-shrink-0">{emoji}</span>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">{label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+                  </div>
+                  {selectedReason === id && (
+                    <CheckCircle className="w-4 h-4 text-indigo-500 ml-auto flex-shrink-0" />
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setStep('offers')}
+            disabled={!selectedReason}
+            className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mb-3"
+          >
+            Continue →
+          </button>
+
+          <button
+            onClick={() => handleAction('cancel')}
+            disabled={actionLoading !== null}
+            className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors py-1.5"
+          >
+            Skip and cancel immediately
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── OFFERS STEP ──
   const hasPause = account && account.pauseMonths > 0
   const hasDiscount = account && !!account.discountCode
+  const priority = selectedReason ? REASON_OFFER_PRIORITY[selectedReason] : 'discount'
+
+  // Order offers based on what's most relevant to their reason
+  const showPauseFirst = priority === 'pause' && hasPause && hasDiscount
+
+  const pauseButton = hasPause && (
+    <button
+      key="pause"
+      onClick={() => handleAction('pause')}
+      disabled={actionLoading !== null}
+      className="w-full text-left border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50 rounded-2xl p-5 transition-all group disabled:opacity-50"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors text-xl">⏸️</div>
+        <div>
+          <p className="font-semibold text-gray-900 text-sm">
+            Pause for {account?.pauseMonths} month{(account?.pauseMonths ?? 1) > 1 ? 's' : ''}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Take a break — your subscription resumes automatically after {account?.pauseMonths} month{(account?.pauseMonths ?? 1) > 1 ? 's' : ''}.
+          </p>
+          {actionLoading === 'pause' && (
+            <p className="text-xs text-indigo-600 mt-1 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Applying…</p>
+          )}
+        </div>
+      </div>
+    </button>
+  )
+
+  const discountButton = hasDiscount && (
+    <button
+      key="discount"
+      onClick={() => handleAction('discount')}
+      disabled={actionLoading !== null}
+      className="w-full text-left border-2 border-gray-100 hover:border-emerald-300 hover:bg-emerald-50 rounded-2xl p-5 transition-all group disabled:opacity-50"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-200 transition-colors text-xl">🎁</div>
+        <div>
+          <p className="font-semibold text-gray-900 text-sm">Get a special discount</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            We&apos;ll apply a special offer to your account so you can stay and save.
+          </p>
+          {actionLoading === 'discount' && (
+            <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Applying…</p>
+          )}
+        </div>
+      </div>
+    </button>
+  )
+
+  const orderedOffers = showPauseFirst ? [pauseButton, discountButton] : [discountButton, pauseButton]
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-            💙
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Before you go…</h1>
+          <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">💙</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">We hear you.</h1>
           <p className="text-gray-500 text-sm">
-            We&apos;d love to keep you around. Here&apos;s what we can offer:
+            {selectedReason === 'too_expensive' && 'Here\'s a special offer to make it more affordable:'}
+            {selectedReason === 'not_using' && 'No worries — take a break and come back when you\'re ready:'}
+            {selectedReason === 'missing_features' && 'Let us help — here\'s what we can offer in the meantime:'}
+            {selectedReason === 'technical' && 'We\'re sorry for the trouble — let us make it right:'}
+            {selectedReason === 'switching' && 'Before you go, here\'s what we can offer:'}
+            {!selectedReason && 'Here\'s what we can offer:'}
           </p>
         </div>
 
         <div className="space-y-3 mb-8">
-          {hasPause && (
-            <button
-              onClick={() => handleAction('pause')}
-              disabled={actionLoading !== null}
-              className="w-full text-left border-2 border-gray-100 hover:border-indigo-300 hover:bg-indigo-50 rounded-2xl p-5 transition-all group disabled:opacity-50"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors text-xl">
-                  ⏸️
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">
-                    Pause for {account?.pauseMonths} month{(account?.pauseMonths ?? 1) > 1 ? 's' : ''}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Take a break — your subscription resumes automatically after {account?.pauseMonths} month{(account?.pauseMonths ?? 1) > 1 ? 's' : ''}.
-                  </p>
-                  {actionLoading === 'pause' && (
-                    <p className="text-xs text-indigo-600 mt-1 flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Applying…
-                    </p>
-                  )}
-                </div>
-              </div>
-            </button>
-          )}
-
-          {hasDiscount && (
-            <button
-              onClick={() => handleAction('discount')}
-              disabled={actionLoading !== null}
-              className="w-full text-left border-2 border-gray-100 hover:border-emerald-300 hover:bg-emerald-50 rounded-2xl p-5 transition-all group disabled:opacity-50"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-200 transition-colors text-xl">
-                  🎁
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">Get a special discount</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    We&apos;ll apply a special offer to your account so you can stay and save.
-                  </p>
-                  {actionLoading === 'discount' && (
-                    <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Applying…
-                    </p>
-                  )}
-                </div>
-              </div>
-            </button>
-          )}
+          {orderedOffers}
         </div>
 
-        <button
-          onClick={() => handleAction('cancel')}
-          disabled={actionLoading !== null}
-          className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors py-2 disabled:opacity-50"
-        >
-          {actionLoading === 'cancel' ? (
-            <span className="flex items-center justify-center gap-1.5">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Cancelling…
-            </span>
-          ) : (
-            'No thanks, cancel my subscription →'
-          )}
-        </button>
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => setStep('survey')}
+            className="text-xs text-gray-400 hover:text-gray-600 underline"
+          >
+            ← Back
+          </button>
+          <div className="flex-1" />
+          <button
+            onClick={() => handleAction('cancel')}
+            disabled={actionLoading !== null}
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+          >
+            {actionLoading === 'cancel' ? (
+              <span className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Cancelling…</span>
+            ) : (
+              'No thanks, cancel my subscription →'
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )
