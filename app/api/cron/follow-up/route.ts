@@ -15,17 +15,24 @@ const RETRYABLE_CODES = new Set([
   'card_velocity_exceeded',
 ])
 
-// How many days to wait after the PREVIOUS email before sending the next one
-// Email 1 = Day 1  (sent by webhook immediately)
-// Email 2 = Day 3  (2 days after email 1)
-// Email 3 = Day 7  (4 days after email 2)
-// Email 4 = Day 14 (7 days after email 3)
-// Email 5 = Day 21 (7 days after email 4) — Pro plan only
-const DAYS_AFTER_PREV: Record<number, number> = {
+// Default days to wait after the PREVIOUS email
+const DEFAULT_DAYS_AFTER_PREV: Record<number, number> = {
   2: 2,
   3: 4,
   4: 7,
   5: 7,
+}
+
+function getDaysAfterPrev(account: any, emailNum: number): number {
+  if (account?.email_timing_days) {
+    try {
+      const timing: number[] = JSON.parse(account.email_timing_days)
+      // timing[0] = days before email 2, timing[1] = before email 3, etc.
+      const idx = emailNum - 2
+      if (idx >= 0 && idx < timing.length && timing[idx] > 0) return timing[idx]
+    } catch { /* fall through */ }
+  }
+  return DEFAULT_DAYS_AFTER_PREV[emailNum] ?? 7
 }
 
 export async function GET(request: NextRequest) {
@@ -59,9 +66,19 @@ export async function GET(request: NextRequest) {
 
   for (const payment of payments ?? []) {
     const nextEmailNum: number = payment.emails_sent + 1
-    const daysToWait = DAYS_AFTER_PREV[nextEmailNum]
+    if (nextEmailNum < 2 || nextEmailNum > 5) { skipped++; continue }
 
-    if (!daysToWait) { skipped++; continue }
+    // Fetch account first — needed for timing, SMTP, blacklist, retry, Slack
+    const { data: account } = await db
+      .from('stripe_accounts')
+      .select('*')
+      .eq('user_id', payment.user_id)
+      .single()
+
+    if (!account?.access_token) { skipped++; continue }
+
+    // Custom or default timing
+    const daysToWait = getDaysAfterPrev(account, nextEmailNum)
 
     // Check if enough time has passed since the last email
     const lastEmailAt = new Date(payment.last_email_at ?? payment.created_at)
@@ -71,6 +88,16 @@ export async function GET(request: NextRequest) {
       skipped++
       continue
     }
+
+    // Check blacklist
+    const { data: blacklisted } = await db
+      .from('email_blacklist')
+      .select('id')
+      .eq('user_id', payment.user_id)
+      .eq('email', payment.customer_email.toLowerCase())
+      .maybeSingle()
+
+    if (blacklisted) { skipped++; continue }
 
     // Email 5 is Pro plan only — check subscription
     if (nextEmailNum === 5) {
@@ -89,15 +116,6 @@ export async function GET(request: NextRequest) {
         continue
       }
     }
-
-    // Get the user's Stripe account
-    const { data: account } = await db
-      .from('stripe_accounts')
-      .select('*')
-      .eq('user_id', payment.user_id)
-      .single()
-
-    if (!account?.access_token) { skipped++; continue }
 
     // Smart retry: attempt to charge again for retryable decline codes
     if (RETRYABLE_CODES.has(payment.decline_code)) {
@@ -156,6 +174,15 @@ export async function GET(request: NextRequest) {
         customNote: account.email_custom_note ?? undefined,
       })
 
+      const smtp = account.smtp_host ? {
+        host: account.smtp_host,
+        port: account.smtp_port ?? 587,
+        user: account.smtp_user,
+        password: account.smtp_password,
+        fromEmail: account.smtp_from_email,
+        fromName: account.smtp_from_name ?? account.business_name ?? 'Revova',
+      } : null
+
       await sendRecoveryEmail({
         to: payment.customer_email,
         subject: emailContent.subject,
@@ -163,6 +190,12 @@ export async function GET(request: NextRequest) {
         previewText: emailContent.previewText,
         updateCardUrl,
         businessName: account.business_name ?? 'Our Service',
+        smtp,
+        tracking: {
+          userId: payment.user_id,
+          recipientEmail: payment.customer_email,
+          sequence: nextEmailNum,
+        },
       })
 
       // Update payment record

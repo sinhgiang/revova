@@ -9,7 +9,11 @@ import { BusinessNameSettings } from '@/components/settings/business-name-settin
 import { SlackSettings } from '@/components/settings/slack-settings'
 import { WidgetSettings } from '@/components/settings/widget-settings'
 import { EmailToneSettings } from '@/components/settings/email-tone-settings'
+import { EmailTimingSettings } from '@/components/settings/email-timing-settings'
 import { CancelFlowSettings } from '@/components/settings/cancel-flow-settings'
+import { SmtpSettings } from '@/components/settings/smtp-settings'
+import { OutboundWebhookSettings } from '@/components/settings/outbound-webhook-settings'
+import { EmailBlacklistSettings } from '@/components/settings/email-blacklist-settings'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -90,6 +94,16 @@ export default async function SettingsPage() {
               currentDiscountCode={stripeAccount?.cancel_flow_discount_code ?? null}
               currentPauseMonths={stripeAccount?.cancel_flow_pause_months ?? 1}
             />
+
+            <EmailTimingSettings
+              currentTiming={stripeAccount?.email_timing_days ? JSON.parse(stripeAccount.email_timing_days) : null}
+            />
+
+            <SmtpSettings hasSmtp={!!stripeAccount?.smtp_host} />
+
+            <OutboundWebhookSettings currentUrl={stripeAccount?.outbound_webhook_url ?? null} />
+
+            <EmailBlacklistSettings />
 
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-2">Recovery Email Sequence</h2>

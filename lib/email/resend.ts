@@ -1,6 +1,22 @@
 import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 export const resend = new Resend(process.env.RESEND_API_KEY)
+
+export interface SmtpConfig {
+  host: string
+  port: number
+  user: string
+  password: string
+  fromEmail: string
+  fromName: string
+}
+
+export interface TrackingParams {
+  userId: string
+  recipientEmail: string
+  sequence: number
+}
 
 export async function sendRecoveryEmail(params: {
   to: string
@@ -9,14 +25,29 @@ export async function sendRecoveryEmail(params: {
   previewText: string
   updateCardUrl: string
   businessName: string
+  smtp?: SmtpConfig | null
+  tracking?: TrackingParams | null
 }) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://revova.io'
+
+  // Build click-tracked URL
+  let ctaUrl = params.updateCardUrl
+  if (params.tracking) {
+    const { userId, recipientEmail, sequence } = params.tracking
+    ctaUrl = `${appUrl}/api/track/click?u=${encodeURIComponent(userId)}&e=${encodeURIComponent(recipientEmail)}&s=${sequence}&target=${encodeURIComponent(params.updateCardUrl)}`
+  }
+
   const htmlBody = params.body
     .split('\n')
     .filter(line => line.trim())
     .map(line => `<p style="margin:0 0 16px;color:#374151;font-size:16px;line-height:1.6">${line}</p>`)
     .join('')
 
-  // Plain text version — improves deliverability significantly
+  // Tracking pixel (1x1 transparent GIF)
+  const trackingPixel = params.tracking
+    ? `<img src="${appUrl}/api/track/open?u=${encodeURIComponent(params.tracking.userId)}&e=${encodeURIComponent(params.tracking.recipientEmail)}&s=${params.tracking.sequence}" width="1" height="1" style="display:none" alt="" />`
+    : ''
+
   const plainText = params.body + `\n\nUpdate your payment details here:\n${params.updateCardUrl}\n\n---\nThis is a billing notification from ${params.businessName}. If you have questions, reply to this email.`
 
   const html = `<!DOCTYPE html>
@@ -33,7 +64,7 @@ export async function sendRecoveryEmail(params: {
     <div style="padding:40px">
       ${htmlBody}
       <div style="margin-top:32px;text-align:center">
-        <a href="${params.updateCardUrl}"
+        <a href="${ctaUrl}"
            style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:16px">
           Update Payment Details
         </a>
@@ -48,9 +79,31 @@ export async function sendRecoveryEmail(params: {
       </p>
     </div>
   </div>
+  ${trackingPixel}
 </body>
 </html>`
 
+  // Use custom SMTP if configured
+  if (params.smtp) {
+    const { host, port, user, password, fromEmail, fromName } = params.smtp
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass: password },
+    })
+    await transporter.sendMail({
+      from: `"${fromName}" <${fromEmail}>`,
+      to: params.to,
+      subject: params.subject,
+      html,
+      text: plainText,
+    })
+    console.log('[SMTP] Sent via custom SMTP to', params.to)
+    return
+  }
+
+  // Default: use Resend
   const fromName = `${params.businessName} Billing`
   const fromEmail = process.env.RESEND_FROM_EMAIL!
   const from = `${fromName} <${fromEmail}>`

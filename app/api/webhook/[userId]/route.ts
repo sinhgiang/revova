@@ -108,6 +108,19 @@ export async function POST(
       return NextResponse.json({ received: true })
     }
 
+    // Check blacklist
+    const { data: isBlacklisted } = await db
+      .from('email_blacklist')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('email', payment.customer_email.toLowerCase())
+      .maybeSingle()
+
+    if (isBlacklisted) {
+      console.log('[Webhook] Email blacklisted — skipping:', payment.customer_email)
+      return NextResponse.json({ received: true })
+    }
+
     try {
       const emailContent = await generateRecoveryEmail({
         customerName: payment.customer_name ?? 'there',
@@ -122,6 +135,15 @@ export async function POST(
         customNote: accountData.email_custom_note ?? undefined,
       })
 
+      const smtp = accountData.smtp_host ? {
+        host: accountData.smtp_host,
+        port: accountData.smtp_port ?? 587,
+        user: accountData.smtp_user,
+        password: accountData.smtp_password,
+        fromEmail: accountData.smtp_from_email,
+        fromName: accountData.smtp_from_name ?? accountData.business_name ?? 'Revova',
+      } : null
+
       await sendRecoveryEmail({
         to: payment.customer_email,
         subject: emailContent.subject,
@@ -129,6 +151,12 @@ export async function POST(
         previewText: emailContent.previewText,
         updateCardUrl: invoice.hosted_invoice_url ?? '#',
         businessName: accountData.business_name ?? 'Our Service',
+        smtp,
+        tracking: {
+          userId,
+          recipientEmail: payment.customer_email,
+          sequence: 1,
+        },
       })
 
       await db
@@ -160,18 +188,44 @@ export async function POST(
       .select('customer_email, customer_name, amount, currency')
       .maybeSingle()
 
-    if (recovered && accountData.slack_webhook_url) {
-      try {
-        await sendSlackNotification(accountData.slack_webhook_url, {
-          type: 'recovered',
-          customerEmail: recovered.customer_email,
-          customerName: recovered.customer_name,
-          amount: recovered.amount,
-          currency: recovered.currency,
-          businessName: accountData.business_name,
-        })
-      } catch (e) {
-        console.error('[Webhook] Slack notification failed:', e)
+    if (recovered) {
+      // Slack notification
+      if (accountData.slack_webhook_url) {
+        try {
+          await sendSlackNotification(accountData.slack_webhook_url, {
+            type: 'recovered',
+            customerEmail: recovered.customer_email,
+            customerName: recovered.customer_name,
+            amount: recovered.amount,
+            currency: recovered.currency,
+            businessName: accountData.business_name,
+          })
+        } catch (e) {
+          console.error('[Webhook] Slack notification failed:', e)
+        }
+      }
+      // Outbound webhook
+      if (accountData.outbound_webhook_url) {
+        try {
+          await fetch(accountData.outbound_webhook_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Revova-Event': 'payment.recovered' },
+            body: JSON.stringify({
+              event: 'payment.recovered',
+              data: {
+                customerEmail: recovered.customer_email,
+                customerName: recovered.customer_name,
+                amount: recovered.amount,
+                currency: recovered.currency,
+                businessName: accountData.business_name,
+                recoveredAt: new Date().toISOString(),
+              },
+            }),
+            signal: AbortSignal.timeout(8000),
+          })
+        } catch (e) {
+          console.error('[Webhook] Outbound webhook failed:', e)
+        }
       }
     }
   }
