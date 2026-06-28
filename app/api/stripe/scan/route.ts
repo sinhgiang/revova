@@ -45,11 +45,11 @@ export async function POST(request: NextRequest) {
     const stripe = new Stripe(account.access_token)
 
     // 1) Currently-failing subscriptions = recoverable right now.
-    //    autoPagingToArray walks EVERY page — a merchant may have >100 past-due subs.
+    //    for-await auto-paginates through EVERY page with no cap — a merchant may
+    //    have >100 past-due subs (autoPagingToArray refuses limits over 10k).
     let failedCount = 0, recoverable = 0, currency = 'usd'
     for (const status of ['past_due', 'unpaid'] as const) {
-      const subs = await stripe.subscriptions.list({ status, limit: 100 }).autoPagingToArray({ limit: 100_000 })
-      for (const sub of subs) {
+      for await (const sub of stripe.subscriptions.list({ status, limit: 100 })) {
         failedCount++
         currency = sub.currency ?? currency
         recoverable += (sub.items?.data ?? []).reduce((s, it) => s + (it.price?.unit_amount ?? 0) * (it.quantity ?? 1), 0)
@@ -60,10 +60,7 @@ export async function POST(request: NextRequest) {
     let expiringCount = 0, activeCount = 0
     const now = new Date()
     const curIdx = now.getFullYear() * 12 + (now.getMonth() + 1)
-    const active = await stripe.subscriptions
-      .list({ status: 'active', limit: 100, expand: ['data.default_payment_method'] })
-      .autoPagingToArray({ limit: 100_000 })
-    for (const sub of active) {
+    for await (const sub of stripe.subscriptions.list({ status: 'active', limit: 100, expand: ['data.default_payment_method'] })) {
       activeCount++
       const pm = sub.default_payment_method as Stripe.PaymentMethod | null
       const card = pm && typeof pm !== 'string' ? pm.card : null
