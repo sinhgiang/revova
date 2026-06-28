@@ -139,10 +139,10 @@ export function StripeScan() {
                   {/* The number — blurred + overlaid with an upgrade CTA when locked */}
                   <div className="relative">
                     <div className={!unlocked ? 'blur-[6px] select-none pointer-events-none' : ''}>
-                      <p className="text-2xl font-bold text-gray-900 leading-none">
+                      <p className={`text-2xl font-bold leading-none ${b.amount > 0 ? 'text-red-600' : 'text-gray-900'}`}>
                         {formatCurrency(b.amount, currency)}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1.5">
+                      <p className={`text-xs mt-1.5 ${b.count > 0 ? 'text-red-500 font-medium' : 'text-gray-500'}`}>
                         {b.count} failed payment{b.count === 1 ? '' : 's'}
                       </p>
                       {unlocked && b.amount > 0 && (
