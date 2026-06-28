@@ -2,8 +2,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
+import { AdminBar } from '@/components/admin/admin-bar'
 import { Mail, Clock, CheckCircle, Zap, AlertTriangle } from 'lucide-react'
 import { EmailPreviewButton } from '@/components/sequences/email-preview-button'
+import { getPlanFor } from '@/lib/plan'
 
 const sequence = [
   {
@@ -65,6 +67,7 @@ export default async function SequencesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+  if (!(await getPlanFor(supabase as any, user.id)).hasAccess) redirect('/billing?expired=1')
 
   const { data: stripeAccount } = await (supabase as any)
     .from('stripe_accounts')
@@ -96,6 +99,7 @@ export default async function SequencesPage() {
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 overflow-auto">
+        <AdminBar />
         <div className="p-8 max-w-4xl">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900">Email Sequences</h1>

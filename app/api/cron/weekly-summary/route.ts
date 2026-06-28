@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { resolvePlan } from '@/lib/plan'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -27,6 +28,10 @@ export async function GET(request: NextRequest) {
   for (const account of accounts ?? []) {
     const merchantEmail = account.email
     if (!merchantEmail) continue
+
+    // Weekly digest is a Pro feature
+    const { data: subRow } = await db.from('subscriptions').select('plan_id, status').eq('user_id', account.user_id).maybeSingle()
+    if (!resolvePlan(account, subRow).isPro) continue
 
     // Query last 7 days stats for this merchant
     const { data: weekPayments } = await db

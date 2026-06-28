@@ -3,24 +3,35 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { PaymentsClient } from '@/components/payments/payments-client'
+import { getPlanFor } from '@/lib/plan'
+import { getAppContext } from '@/lib/impersonate'
+import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
+import { AdminBar } from '@/components/admin/admin-bar'
 
 export default async function PaymentsPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const ctx = await getAppContext(supabase)
+  if (!ctx) redirect('/login')
+  if (!ctx.impersonating && !(await getPlanFor(ctx.db, ctx.userId)).hasAccess) redirect('/billing?expired=1')
 
-  const { data: payments } = await (supabase as any)
+  const { data: payments } = await ctx.db
     .from('failed_payments')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', ctx.userId)
     .order('created_at', { ascending: false })
 
   const allPayments = payments ?? []
+  let bannerName = 'merchant'
+  if (ctx.impersonating) {
+    const { data: acc } = await ctx.db.from('stripe_accounts').select('business_name').eq('user_id', ctx.userId).maybeSingle()
+    bannerName = acc?.business_name ?? 'merchant'
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 overflow-auto">
+        {ctx.impersonating ? <ImpersonationBanner name={bannerName} /> : <AdminBar />}
         <div className="p-8">
           <div className="mb-8 flex items-start justify-between">
             <div>

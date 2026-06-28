@@ -103,13 +103,15 @@ export async function POST(
     .update({ emails_sent: nextSeq, last_email_at: new Date().toISOString(), status: 'email_sent' })
     .eq('id', id)
 
-  await db.from('email_logs').insert({
-    failed_payment_id: payment.id,
-    user_id: user.id,
-    email_type: `manual_${nextSeq}`,
-    recipient_email: payment.customer_email,
-    subject: emailContent.subject,
-  }).catch(() => {/* non-critical */})
+  try {
+    await db.from('email_logs').insert({
+      failed_payment_id: payment.id,
+      user_id: user.id,
+      email_type: `manual_${nextSeq}`,
+      recipient_email: payment.customer_email,
+      subject: emailContent.subject,
+    })
+  } catch { /* non-critical */ }
 
   return NextResponse.json({ ok: true })
 }

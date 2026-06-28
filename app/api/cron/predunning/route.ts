@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendRecoveryEmail } from '@/lib/email/resend'
+import { generatePredunningEmail } from '@/lib/ai/email-generator'
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
@@ -18,7 +19,6 @@ export async function GET(request: NextRequest) {
   const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1
   const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear
 
-  // Select ALL columns so we have SMTP, outbound webhook, etc.
   const { data: accounts } = await db
     .from('stripe_accounts')
     .select('*')
@@ -26,25 +26,28 @@ export async function GET(request: NextRequest) {
 
   let sent = 0
   let skipped = 0
+  let tracked = 0
   const errors: string[] = []
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://revova.io'
 
   for (const account of accounts ?? []) {
+    // Pre-dunning is opt-in per merchant
+    if (account.predunning_enabled === false) { skipped++; continue }
+
     try {
       const stripe = new Stripe(account.access_token)
 
-      const subs = await stripe.subscriptions.list({
+      // for-await auto-paginates through ALL active subscriptions, not just the first 100
+      for await (const sub of stripe.subscriptions.list({
         status: 'active',
         limit: 100,
         expand: ['data.default_payment_method', 'data.customer'],
-      })
-
-      for (const sub of subs.data) {
+      })) {
         const pm = sub.default_payment_method as Stripe.PaymentMethod | null
         const card = pm?.card
         if (!card) { skipped++; continue }
 
-        const { exp_month, exp_year } = card
+        const { exp_month, exp_year, last4 } = card
         const expiringThisMonth = exp_month === currentMonth && exp_year === currentYear
         const expiringNextMonth = exp_month === nextMonth && exp_year === nextYear
         if (!expiringThisMonth && !expiringNextMonth) { skipped++; continue }
@@ -52,6 +55,22 @@ export async function GET(request: NextRequest) {
         const customer = sub.customer as Stripe.Customer
         const email = customer.email
         if (!email) { skipped++; continue }
+
+        // Track this expiring card for the "Customers In Danger" dashboard panel.
+        // Upsert so re-runs don't create duplicates.
+        try {
+          await db.from('expiring_cards').upsert({
+            user_id: account.user_id,
+            customer_email: email,
+            customer_name: customer.name ?? null,
+            stripe_customer_id: customer.id,
+            last4: last4 ?? null,
+            exp_month,
+            exp_year,
+            updated_at: now.toISOString(),
+          }, { onConflict: 'user_id,stripe_customer_id' })
+          tracked++
+        } catch { /* non-critical */ }
 
         // Blacklist check
         const { data: blacklisted } = await db
@@ -76,22 +95,21 @@ export async function GET(request: NextRequest) {
         if (already) { skipped++; continue }
 
         const expMonthName = new Date(exp_year, exp_month - 1).toLocaleString('default', { month: 'long' })
-        const firstName = customer.name ? customer.name.split(' ')[0] : null
         const businessName = account.business_name ?? 'Our Service'
         const portalUrl = `${appUrl}/api/widget/${account.user_id}/billing?customer=${customer.id}`
 
-        const subject = `Your card expires in ${expMonthName} — update to avoid interruption`
-        const body = `Hi${firstName ? ` ${firstName}` : ''},
+        // AI-generated proactive email (Claude → Gemini → static fallback)
+        const emailContent = await generatePredunningEmail({
+          customerName: customer.name ?? 'there',
+          businessName,
+          productName: 'your subscription',
+          expMonthName,
+          expYear: exp_year,
+          updateCardUrl: portalUrl,
+          language: account.email_language ?? 'en',
+          customNote: account.email_custom_note ?? undefined,
+        })
 
-Quick heads-up: the card on your ${businessName} account expires in ${expMonthName} ${exp_year}.
-
-To make sure your subscription continues without any disruption, please update your payment method before it expires.
-
-It only takes a moment — click the button below to update your card now.
-
-Thanks for being a customer!`
-
-        // Build SMTP config if merchant has custom SMTP
         const smtp = account.smtp_host ? {
           host: account.smtp_host,
           port: account.smtp_port ?? 587,
@@ -103,9 +121,9 @@ Thanks for being a customer!`
 
         await sendRecoveryEmail({
           to: email,
-          subject,
-          body,
-          previewText: `Your card expires in ${expMonthName} — update now to stay connected`,
+          subject: emailContent.subject,
+          body: emailContent.body,
+          previewText: emailContent.previewText,
           updateCardUrl: portalUrl,
           businessName,
           smtp,
@@ -121,9 +139,17 @@ Thanks for being a customer!`
             user_id: account.user_id,
             email_type: 'predunning',
             recipient_email: email,
-            subject,
+            subject: emailContent.subject,
           })
         } catch { /* non-critical if failed_payment_id is required */ }
+
+        // Mark the tracked card as notified
+        try {
+          await db.from('expiring_cards')
+            .update({ notified_at: now.toISOString() })
+            .eq('user_id', account.user_id)
+            .eq('stripe_customer_id', customer.id)
+        } catch { /* non-critical */ }
 
         sent++
         console.log(`[Pre-dunning] ✓ Sent to ${email} (expires ${expMonthName} ${exp_year})`)
@@ -135,6 +161,6 @@ Thanks for being a customer!`
     }
   }
 
-  console.log(`[Pre-dunning] Done. sent=${sent} skipped=${skipped} errors=${errors.length}`)
-  return NextResponse.json({ ok: true, sent, skipped, errors })
+  console.log(`[Pre-dunning] Done. sent=${sent} tracked=${tracked} skipped=${skipped} errors=${errors.length}`)
+  return NextResponse.json({ ok: true, sent, tracked, skipped, errors })
 }

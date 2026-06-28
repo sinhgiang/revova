@@ -99,12 +99,12 @@ export async function GET(request: NextRequest) {
     let subscriptions
     try {
       const stripe = new Stripe(account.access_token)
-      const result = await stripe.subscriptions.list({
+      // autoPagingToArray fetches ALL trialing subs across pages, not just 100
+      subscriptions = await stripe.subscriptions.list({
         status: 'trialing',
         limit: 100,
         expand: ['data.customer'],
-      })
-      subscriptions = result.data
+      }).autoPagingToArray({ limit: 10000 })
     } catch (e) {
       errors.push(`${account.user_id}: ${String(e)}`)
       continue
@@ -185,16 +185,18 @@ export async function GET(request: NextRequest) {
           tracking: {
             userId: account.user_id,
             recipientEmail: customerEmail,
-            sequence: daysLeft === 7 ? 71 : daysLeft === 3 ? 73 : 71, // unique sequence codes for trial emails
+            sequence: daysLeft === 7 ? 71 : daysLeft === 3 ? 73 : 72, // unique sequence codes for trial emails (7/3/1-day)
           },
         })
 
-        await db.from('email_logs').insert({
-          user_id: account.user_id,
-          email_type: emailType,
-          recipient_email: customerEmail,
-          subject: email.subject,
-        }).catch(() => {/* non-critical */})
+        try {
+          await db.from('email_logs').insert({
+            user_id: account.user_id,
+            email_type: emailType,
+            recipient_email: customerEmail,
+            subject: email.subject,
+          })
+        } catch { /* non-critical */ }
 
         sent++
         console.log(`[Trial] ✓ ${emailType} → ${customerEmail}`)

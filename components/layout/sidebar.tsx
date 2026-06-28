@@ -1,9 +1,11 @@
 'use client'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut, Receipt } from 'lucide-react'
+import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut, Receipt, BookOpen, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { ADMIN_EMAIL } from '@/lib/admin'
 import { useRouter } from 'next/navigation'
 
 const nav = [
@@ -13,12 +15,21 @@ const nav = [
   { href: '/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/settings', label: 'Settings', icon: Settings },
   { href: '/billing', label: 'Billing', icon: Receipt },
+  { href: '/guide', label: 'Guide', icon: BookOpen },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  // Show the founder-only Admin link if the signed-in email is the admin
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email?.toLowerCase() === ADMIN_EMAIL) setIsAdmin(true)
+    })
+  }, [supabase])
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -52,6 +63,24 @@ export function Sidebar() {
             {label}
           </Link>
         ))}
+
+        {isAdmin && (
+          <>
+            <div className="my-2 border-t border-gray-100" />
+            <Link
+              href="/admin"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors',
+                pathname === '/admin'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              )}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              Admin
+            </Link>
+          </>
+        )}
       </nav>
 
       <div className="p-4 border-t border-gray-100">

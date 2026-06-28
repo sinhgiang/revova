@@ -72,12 +72,14 @@ export default function PricingPage() {
                 'Up to 50 failed payment recoveries/mo',
                 'AI-personalized 4-email sequence',
                 'Day 1 → 3 → 7 → 14 cadence',
-                'Smart payment auto-retry',
+                'Daily smart payment auto-retry',
                 'Pre-dunning expiry alerts',
-                'Slack notifications',
+                'Works with 5 payment processors',
+                'Auto spam/bounce suppression',
+                'Slack & Telegram notifications',
                 'In-app payment banner widget',
                 'Real-time recovery dashboard',
-                'CSV export',
+                'GDPR export & delete tools',
                 '14-day free trial',
               ].map(f => (
                 <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
@@ -113,17 +115,22 @@ export default function PricingPage() {
 
             <ul className="space-y-2.5 mb-8">
               {[
+                'Everything in Starter, plus:',
                 'Unlimited failed payment recoveries',
                 'AI-personalized 5-email sequence',
-                'Day 1 → 3 → 7 → 14 → 21 cadence',
-                'Smart payment auto-retry',
-                'Pre-dunning expiry alerts',
-                'Slack notifications',
-                'In-app payment banner widget',
-                'Advanced analytics & charts',
-                'CSV export',
+                'Hard/soft decline smart routing',
+                'SMS recovery from your own number',
+                'Emails in 8 languages',
+                'Winback campaigns (Day 3, 14, 30)',
+                'In-app cancel flow + A/B testing',
+                '1-month-free retention offer',
+                'LTV-based retention offers',
+                'Churn risk scoring',
+                'Email open & click analytics',
+                'Revenue recovery forecast',
+                'Weekly digest performance report',
+                'GDPR tools + DPA on request',
                 'Priority support (reply within 4h)',
-                '14-day free trial',
               ].map(f => (
                 <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
                   <CheckCircle className="w-4 h-4 text-indigo-500 flex-shrink-0" />
@@ -195,16 +202,28 @@ export default function PricingPage() {
               <tbody className="divide-y divide-gray-100">
                 {[
                   { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: 'Works with 5 payment processors', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Smart payment auto-retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
+                  { feature: 'Daily retry for 30 days', revova: true, churnkey: false, stunning: false, churnbuster: true },
+                  { feature: 'SMS recovery (text message)', revova: 'Pro', churnkey: false, stunning: true, churnbuster: true },
                   { feature: 'Pre-dunning (expiry alerts)', revova: true, churnkey: true, stunning: false, churnbuster: false },
-                  { feature: 'In-app payment banner', revova: true, churnkey: true, stunning: false, churnbuster: false },
-                  { feature: 'Slack notifications', revova: true, churnkey: false, stunning: true, churnbuster: false },
-                  { feature: '5-email sequence (21 days)', revova: 'Pro', churnkey: true, stunning: false, churnbuster: true },
-                  { feature: 'Advanced analytics & charts', revova: true, churnkey: true, stunning: true, churnbuster: true },
-                  { feature: 'CSV export', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Hard vs. soft decline routing', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Multi-language emails (8 langs)', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Winback campaigns (post-cancel)', revova: 'Pro', churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'In-app cancel flow + A/B testing', revova: 'Pro', churnkey: true, stunning: false, churnbuster: false },
+                  { feature: '1-month-free save offer', revova: 'Pro', churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Churn risk score', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Email open & click analytics', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Revenue recovery forecast', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Weekly performance digest', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Send from your own domain (SMTP)', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Outbound webhooks (connect your tools)', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Custom retry cadence & timing', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Custom AI brand voice', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Auto spam/bounce suppression', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'GDPR export & delete + DPA', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: '3-minute setup, no code', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: '30-day money-back', revova: true, churnkey: false, stunning: true, churnbuster: false },
-                  { feature: '14-day free trial', revova: true, churnkey: false, stunning: false, churnbuster: false },
                 ].map(({ feature, revova, churnkey, stunning, churnbuster }, i) => {
                   const Cell = ({ val }: { val: boolean | string }) => {
                     if (val === 'Pro') return <span className="inline-block text-xs font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">Pro</span>
@@ -272,7 +291,7 @@ export default function PricingPage() {
             {[
               {
                 q: "What counts as a 'failed payment recovery'?",
-                a: "Every time Revova detects a failed Stripe payment and sends a recovery email sequence, that counts as 1 recovery attempt. Starter plan: up to 50 per month. Pro: unlimited.",
+                a: "Every time Revova detects a failed payment (from Stripe, Paddle, Braintree, Chargebee, or Recurly) and sends a recovery email sequence, that counts as 1 recovery attempt. Starter plan: up to 50 per month. Pro: unlimited.",
               },
               {
                 q: 'Can I switch plans anytime?',

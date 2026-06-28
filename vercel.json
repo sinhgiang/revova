@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/predunning",
-      "schedule": "0 9 1 * *"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/cron/trial-conversion",

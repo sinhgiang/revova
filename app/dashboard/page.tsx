@@ -3,8 +3,15 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { StatsCard } from '@/components/dashboard/stats-card'
-import { DollarSign, TrendingUp, Mail, AlertCircle, CheckCircle, Circle } from 'lucide-react'
+import { DollarSign, TrendingUp, Mail, AlertCircle, CheckCircle, Circle, CreditCard } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { churnRisk } from '@/lib/health-score'
+import { getPlanFor } from '@/lib/plan'
+import { TrialBanner } from '@/components/plan/trial-banner'
+import { StripeScan } from '@/components/dashboard/stripe-scan'
+import { getAppContext } from '@/lib/impersonate'
+import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
+import { AdminBar } from '@/components/admin/admin-bar'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
@@ -12,23 +19,28 @@ export const metadata: Metadata = { title: 'Dashboard — Revova' }
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const ctx = await getAppContext(supabase)
+  if (!ctx) redirect('/login')
+  const db = ctx.db
+  const userId = ctx.userId
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = supabase as any
   const { data: stripeAccount } = await db
     .from('stripe_accounts')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .single()
 
   if (!stripeAccount) redirect('/onboarding')
 
+  // Plan gate: trial users keep access; expired (unpaid past trial) → paywall.
+  // Skip the paywall when the admin is impersonating (so they can support anyone).
+  const plan = await getPlanFor(db, userId)
+  if (!ctx.impersonating && !plan.hasAccess) redirect('/billing?expired=1')
+
   const { data: payments } = await db
     .from('failed_payments')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
 
   const allPayments = payments ?? []
   const recovered = allPayments.filter(p => p.status === 'recovered')
@@ -44,11 +56,29 @@ export default async function DashboardPage() {
     !['recovered', 'cancelled', 'max_emails_reached'].includes(p.status)
   )
 
+  // Customers In Danger: cards expiring this/next month (populated by pre-dunning cron).
+  // Only show cards that haven't already expired in a past month.
+  const now = new Date()
+  const curY = now.getFullYear()
+  const curM = now.getMonth() + 1
+  const { data: expiringCardsRaw } = await db
+    .from('expiring_cards')
+    .select('*')
+    .eq('user_id', userId)
+    .order('exp_year', { ascending: true })
+    .order('exp_month', { ascending: true })
+  const expiringCards = (expiringCardsRaw ?? []).filter(
+    (c: any) => c.exp_year > curY || (c.exp_year === curY && c.exp_month >= curM)
+  )
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 overflow-auto">
+        {ctx.impersonating ? <ImpersonationBanner name={stripeAccount.business_name ?? 'merchant'} /> : <AdminBar />}
         <div className="p-8">
+          {plan.isTrial && <TrialBanner daysLeft={plan.trialDaysLeft} />}
+
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-500 mt-1">
@@ -83,6 +113,8 @@ export default async function DashboardPage() {
             />
           </div>
 
+          {!ctx.impersonating && <StripeScan />}
+
           {atRisk.length > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
               <div className="flex items-center gap-2 mb-3">
@@ -93,16 +125,59 @@ export default async function DashboardPage() {
                 These customers have received 3+ recovery emails without paying. Consider reaching out manually.
               </p>
               <div className="space-y-2">
-                {atRisk.slice(0, 5).map(p => (
+                {atRisk
+                  .map(p => ({ p, risk: churnRisk(p) }))
+                  .sort((a, b) => b.risk.score - a.risk.score)
+                  .slice(0, 5)
+                  .map(({ p, risk }) => (
                   <div key={p.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-amber-100">
                     <span className="font-medium text-gray-900">{p.customer_email}</span>
-                    <span className="text-gray-500">{formatCurrency(p.amount, p.currency)} · {p.emails_sent} emails sent</span>
+                    <span className="flex items-center gap-2 text-gray-500">
+                      {formatCurrency(p.amount, p.currency)} · {p.emails_sent} emails
+                      {/* Churn risk score is a Pro feature */}
+                      {plan.isPro && (
+                        <span className={`text-xs font-semibold ${risk.color}`} title={`Churn risk: ${risk.score}/100`}>
+                          {risk.label} risk
+                        </span>
+                      )}
+                    </span>
                   </div>
                 ))}
                 {atRisk.length > 5 && (
                   <Link href="/payments" className="block text-center text-xs text-amber-700 hover:underline pt-1">
                     +{atRisk.length - 5} more — view all →
                   </Link>
+                )}
+                {!plan.isPro && (
+                  <Link href="/billing" className="block text-center text-xs font-medium text-indigo-600 hover:underline pt-1">
+                    🔒 Unlock AI churn-risk scoring with Pro →
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+
+          {expiringCards.length > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="w-4 h-4 text-orange-600" />
+                <h2 className="font-semibold text-orange-900">Customers In Danger ({expiringCards.length})</h2>
+              </div>
+              <p className="text-sm text-orange-700 mb-3">
+                These cards expire soon. Revova emails them proactively before the payment fails — no action needed.
+              </p>
+              <div className="space-y-2">
+                {expiringCards.slice(0, 5).map((c: any) => (
+                  <div key={c.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-orange-100">
+                    <span className="font-medium text-gray-900">{c.customer_email}</span>
+                    <span className="text-gray-500">
+                      {c.last4 ? `•••• ${c.last4} · ` : ''}expires {String(c.exp_month).padStart(2, '0')}/{c.exp_year}
+                      {c.notified_at ? ' · notified' : ''}
+                    </span>
+                  </div>
+                ))}
+                {expiringCards.length > 5 && (
+                  <p className="text-center text-xs text-orange-700 pt-1">+{expiringCards.length - 5} more</p>
                 )}
               </div>
             </div>

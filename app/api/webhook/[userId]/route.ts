@@ -5,7 +5,9 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { generateRecoveryEmail } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
 import { sendSlackNotification } from '@/lib/slack'
+import { sendTelegramNotification } from '@/lib/telegram'
 import { sendMerchantRecoveryNotification } from '@/lib/email/notifications'
+import { resolvePlan, monthlyRecoveryCount } from '@/lib/plan'
 import { DeclineCode } from '@/types'
 
 export async function POST(
@@ -56,16 +58,21 @@ export async function POST(
     const chargeObj = (invoice as any).charge as Stripe.Charge | null
     const declineCode = (chargeObj?.failure_code ?? 'generic_decline') as DeclineCode
 
-    // Fetch customer email/name from Stripe if not in invoice (common with test events)
+    // Fetch the customer from Stripe to fill in email/name and the phone number.
+    // Phone is NEVER on the invoice, so we always fetch when a customer exists —
+    // otherwise SMS recovery could never fire for customers who already have
+    // email+name on the invoice (the common case).
     let customerEmail = invoice.customer_email ?? ''
     let customerName: string | null = (invoice.customer_name as string) ?? null
-    if ((!customerEmail || !customerName) && invoice.customer) {
+    let customerPhone: string | null = null
+    if (invoice.customer) {
       try {
         const stripeClient = new Stripe(accountData.access_token)
         const customer = await stripeClient.customers.retrieve(invoice.customer as string)
         if (customer && !customer.deleted) {
           if (!customerEmail) customerEmail = (customer as Stripe.Customer).email ?? ''
           if (!customerName) customerName = (customer as Stripe.Customer).name ?? null
+          customerPhone = (customer as Stripe.Customer).phone ?? null
         }
       } catch (e) {
         console.error('Could not fetch customer:', e)
@@ -80,6 +87,7 @@ export async function POST(
         stripe_invoice_id: invoice.id,
         customer_email: customerEmail,
         customer_name: customerName,
+        customer_phone: customerPhone,
         amount: invoice.amount_due,
         currency: invoice.currency,
         decline_code: declineCode,
@@ -120,6 +128,18 @@ export async function POST(
     if (isBlacklisted) {
       console.log('[Webhook] Email blacklisted — skipping:', payment.customer_email)
       return NextResponse.json({ received: true })
+    }
+
+    // Starter/trial monthly recovery cap (Pro = unlimited). The failed payment is
+    // already recorded above so the merchant still sees it — we just don't email.
+    const { data: planSub } = await db.from('subscriptions').select('plan_id, status').eq('user_id', userId).maybeSingle()
+    const planStatus = resolvePlan(accountData, planSub)
+    if (!planStatus.isPro && planStatus.recoveryLimit != null) {
+      const used = await monthlyRecoveryCount(db, userId)
+      if (used > planStatus.recoveryLimit) {
+        console.log(`[Webhook] Monthly recovery cap (${planStatus.recoveryLimit}) reached — recorded, not emailing`)
+        return NextResponse.json({ received: true })
+      }
     }
 
     try {
@@ -206,6 +226,21 @@ export async function POST(
           console.error('[Webhook] Slack notification failed:', e)
         }
       }
+      // Telegram notification
+      if (accountData.telegram_bot_token && accountData.telegram_chat_id) {
+        try {
+          await sendTelegramNotification(accountData.telegram_bot_token, accountData.telegram_chat_id, {
+            type: 'recovered',
+            customerEmail: recovered.customer_email,
+            customerName: recovered.customer_name,
+            amount: recovered.amount,
+            currency: recovered.currency,
+            businessName: accountData.business_name,
+          })
+        } catch (e) {
+          console.error('[Webhook] Telegram notification failed:', e)
+        }
+      }
       // Outbound webhook
       if (accountData.outbound_webhook_url) {
         try {
@@ -229,9 +264,13 @@ export async function POST(
           console.error('[Webhook] Outbound webhook failed:', e)
         }
       }
-      // Merchant email notification
+      // Merchant email notification — fall back to auth.users when stripe_accounts.email is null
       if (accountData.notify_on_recovery !== false) {
-        const merchantEmail = accountData.email
+        let merchantEmail = accountData.email ?? null
+        if (!merchantEmail) {
+          const { data: merchantUser } = await supabase.auth.admin.getUserById(userId)
+          merchantEmail = merchantUser?.user?.email ?? null
+        }
         if (merchantEmail) {
           await sendMerchantRecoveryNotification({
             merchantEmail,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { sendWelcomeEmail, sendNewSignupAdminAlert } from '@/lib/email/lifecycle'
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +44,10 @@ export async function POST(request: NextRequest) {
     // Use a stable account ID based on user (since we can't get Stripe account ID from regular key)
     const accountId = `acct_manual_${user.id.replace(/-/g, '').slice(0, 16)}`
 
+    // Is this the merchant's FIRST connect? (so we only welcome them once)
+    const { data: existing } = await (supabase as any)
+      .from('stripe_accounts').select('user_id').eq('user_id', user.id).maybeSingle()
+
     // Delete existing record for this user first
     await (supabase as any).from('stripe_accounts').delete().eq('user_id', user.id)
 
@@ -60,6 +65,15 @@ export async function POST(request: NextRequest) {
     if (dbError) {
       console.error('DB error:', dbError)
       return NextResponse.json({ error: 'Failed to save account: ' + dbError.message }, { status: 500 })
+    }
+
+    // First-time onboarding → welcome the merchant + alert the founder (trial begins now)
+    if (!existing) {
+      const merchantEmail = stripeEmail ?? user.email
+      if (merchantEmail) {
+        await sendWelcomeEmail(merchantEmail, businessName)
+        await sendNewSignupAdminAlert(merchantEmail, businessName)
+      }
     }
 
     return NextResponse.json({ success: true, userId: user.id })

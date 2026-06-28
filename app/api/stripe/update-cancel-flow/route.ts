@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { enabled, discountCode, pauseMonths } = await request.json()
+  const { enabled, discountCode, pauseMonths, giftEnabled, abEnabled, discountCodeB } = await request.json()
 
   const { error } = await (supabase as any)
     .from('stripe_accounts')
@@ -15,6 +15,9 @@ export async function POST(request: NextRequest) {
       cancel_flow_enabled: !!enabled,
       cancel_flow_discount_code: discountCode ?? null,
       cancel_flow_pause_months: pauseMonths ?? 1,
+      cancel_flow_gift_enabled: !!giftEnabled,
+      cancel_flow_ab_enabled: !!abEnabled,
+      cancel_flow_discount_code_b: discountCodeB ?? null,
     })
     .eq('user_id', user.id)
 

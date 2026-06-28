@@ -23,12 +23,12 @@ export async function GET(request: NextRequest) {
   const supabase = await createAdminClient()
   const db = supabase as any
 
-  // Add to blacklist — upsert to avoid duplicates
+  // Add to blacklist — upsert to avoid errors on duplicate unsubscribes
   await db.from('email_blacklist').upsert({
     user_id: userId,
     email: email.toLowerCase(),
     reason: 'unsubscribed',
-  })
+  }, { onConflict: 'user_id,email' })
 
   return NextResponse.redirect(`${appUrl}/unsubscribe?success=1&e=${encodeURIComponent(email)}`)
 }

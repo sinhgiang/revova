@@ -9,6 +9,9 @@ interface Props {
   currentEnabled: boolean
   currentDiscountCode: string | null
   currentPauseMonths: number
+  currentGiftEnabled: boolean
+  currentAbEnabled: boolean
+  currentDiscountCodeB: string | null
 }
 
 export function CancelFlowSettings({
@@ -17,10 +20,16 @@ export function CancelFlowSettings({
   currentEnabled,
   currentDiscountCode,
   currentPauseMonths,
+  currentGiftEnabled,
+  currentAbEnabled,
+  currentDiscountCodeB,
 }: Props) {
   const [enabled, setEnabled] = useState(currentEnabled)
   const [discountCode, setDiscountCode] = useState(currentDiscountCode ?? '')
   const [pauseMonths, setPauseMonths] = useState(currentPauseMonths || 1)
+  const [giftEnabled, setGiftEnabled] = useState(currentGiftEnabled)
+  const [abEnabled, setAbEnabled] = useState(currentAbEnabled)
+  const [discountCodeB, setDiscountCodeB] = useState(currentDiscountCodeB ?? '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -38,6 +47,9 @@ export function CancelFlowSettings({
           enabled,
           discountCode: discountCode.trim() || null,
           pauseMonths,
+          giftEnabled,
+          abEnabled,
+          discountCodeB: discountCodeB.trim() || null,
         }),
       })
       setSaved(true)
@@ -108,6 +120,49 @@ export function CancelFlowSettings({
           <p className="text-xs text-gray-400 mt-1">Enter a Stripe promotion code or coupon ID. Leave blank to not offer a discount.</p>
         </div>
 
+        {/* Gift offer: 1 month free */}
+        <div className="flex items-center justify-between pt-1">
+          <div>
+            <p className="text-sm font-medium text-gray-900">Offer 1 month free 🎉</p>
+            <p className="text-xs text-gray-400">Strongest save offer — applies a 100%-off coupon for one month</p>
+          </div>
+          <button
+            onClick={() => setGiftEnabled(v => !v)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${giftEnabled ? 'bg-emerald-500' : 'bg-gray-200'}`}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${giftEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+          </button>
+        </div>
+
+        {/* A/B test */}
+        <div className="border-t border-gray-100 pt-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900">A/B test the discount offer</p>
+              <p className="text-xs text-gray-400">Split customers 50/50 between two discount codes to see which retains more</p>
+            </div>
+            <button
+              onClick={() => setAbEnabled(v => !v)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${abEnabled ? 'bg-emerald-500' : 'bg-gray-200'}`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${abEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+          {abEnabled && (
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Variant B discount code</label>
+              <input
+                type="text"
+                value={discountCodeB}
+                onChange={e => setDiscountCodeB(e.target.value)}
+                placeholder="e.g. SAVE30 (compared against the code above)"
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-300"
+              />
+              <p className="text-xs text-gray-400 mt-1">Half of cancelling customers see this code instead. Compare results in Analytics → Cancel A/B.</p>
+            </div>
+          )}
+        </div>
+
         {/* Integration URL */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Your cancel redirect URL</label>
@@ -125,6 +180,24 @@ export function CancelFlowSettings({
           {copied && <p className="text-xs text-emerald-600 mt-1">Copied!</p>}
           <p className="text-xs text-gray-400 mt-1.5">
             Replace <code className="bg-gray-100 px-1 rounded">STRIPE_SUBSCRIPTION_ID</code> with the customer&apos;s subscription ID and <code className="bg-gray-100 px-1 rounded">YOUR_RETURN_URL</code> with where to send them after.
+          </p>
+        </div>
+
+        {/* In-app modal embed — opens the flow without a full-page redirect */}
+        <div className="border-t border-gray-100 pt-4">
+          <p className="text-sm font-medium text-gray-900 mb-1">Or embed it in-app (no redirect) ✨</p>
+          <p className="text-xs text-gray-400 mb-2">
+            Add this script, then call <code className="bg-gray-100 px-1 rounded">Revova.openCancelFlow()</code> from your &ldquo;Cancel&rdquo; button to open the flow in a modal — like Churnkey.
+          </p>
+          <pre className="bg-gray-900 text-gray-100 rounded-lg p-3 text-xs overflow-x-auto font-mono leading-relaxed whitespace-pre-wrap break-all">{`<script src="${appUrl}/api/widget/${userId}/cancel-embed" async></script>
+
+<!-- On your Cancel button: -->
+<button onclick="Revova.openCancelFlow({
+  subscriptionId: 'sub_123',
+  returnUrl: window.location.href
+})">Cancel subscription</button>`}</pre>
+          <p className="text-xs text-gray-400 mt-1.5">
+            The modal handles pause / discount / 1-month-free / cancel and reports the result back to your page.
           </p>
         </div>
       </div>

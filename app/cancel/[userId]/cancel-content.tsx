@@ -11,6 +11,11 @@ interface AccountInfo {
   cancelFlowEnabled: boolean
   discountCode: string | null
   pauseMonths: number
+  giftEnabled: boolean
+  variant: 'A' | 'B'
+  ltvCents: number
+  segment: 'high' | 'standard'
+  acquisitionChannel: string | null
 }
 
 const REASONS = [
@@ -36,6 +41,15 @@ export function CancelContent() {
   const userId = params.userId as string
   const subscriptionId = searchParams.get('sub') ?? ''
   const returnUrl = searchParams.get('return') ?? '/'
+  // When rendered inside the embeddable modal iframe, notify the parent page on
+  // completion instead of relying on full-page navigation.
+  const isEmbed = searchParams.get('embed') === '1'
+
+  function notifyParent(type: 'close' | 'done', result?: string) {
+    if (isEmbed && typeof window !== 'undefined' && window.parent !== window) {
+      window.parent.postMessage({ source: 'revova-cancel', type, result }, '*')
+    }
+  }
 
   const [step, setStep] = useState<Step>('loading')
   const [account, setAccount] = useState<AccountInfo | null>(null)
@@ -44,7 +58,10 @@ export function CancelContent() {
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    fetch(`/api/cancel/${userId}/info`)
+    // Pass the subscription ID so the server can compute this customer's lifetime
+    // value and segment the retention offer accordingly.
+    const query = subscriptionId ? `?sub=${encodeURIComponent(subscriptionId)}` : ''
+    fetch(`/api/cancel/${userId}/info${query}`)
       .then(r => r.json())
       .then(data => {
         if (!data.cancelFlowEnabled) {
@@ -55,19 +72,27 @@ export function CancelContent() {
         setStep('survey')
       })
       .catch(() => setStep('error'))
-  }, [userId, returnUrl])
+  }, [userId, returnUrl, subscriptionId])
 
-  async function handleAction(action: 'pause' | 'discount' | 'cancel') {
+  async function handleAction(action: 'pause' | 'discount' | 'gift' | 'cancel') {
     setActionLoading(action)
     try {
       const res = await fetch(`/api/cancel/${userId}/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, subscriptionId, reason: selectedReason }),
+        body: JSON.stringify({
+          action,
+          subscriptionId,
+          reason: selectedReason,
+          ltvCents: account?.ltvCents ?? 0,
+          segment: account?.segment ?? 'standard',
+          variant: account?.variant ?? 'A',
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed')
       setStep(action === 'cancel' ? 'cancelled' : 'success')
+      notifyParent('done', action === 'cancel' ? 'cancelled' : 'retained')
     } catch (e) {
       setErrorMsg(e instanceof Error ? e.message : 'Something went wrong')
       setStep('error')
@@ -107,8 +132,9 @@ export function CancelContent() {
             Your offer has been applied. We&apos;re glad you&apos;re staying — thanks for being a customer.
           </p>
           <a
-            href={returnUrl}
-            className="block w-full bg-indigo-600 text-white font-semibold py-2.5 rounded-xl hover:bg-indigo-700 transition-colors text-sm"
+            href={isEmbed ? undefined : returnUrl}
+            onClick={isEmbed ? (e) => { e.preventDefault(); notifyParent('close') } : undefined}
+            className="block w-full bg-indigo-600 text-white font-semibold py-2.5 rounded-xl hover:bg-indigo-700 transition-colors text-sm cursor-pointer"
           >
             Back to {account?.businessName ?? 'app'}
           </a>
@@ -127,8 +153,9 @@ export function CancelContent() {
             Your subscription has been cancelled. You&apos;re welcome back anytime.
           </p>
           <a
-            href={returnUrl}
-            className="block w-full bg-gray-100 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm"
+            href={isEmbed ? undefined : returnUrl}
+            onClick={isEmbed ? (e) => { e.preventDefault(); notifyParent('close') } : undefined}
+            className="block w-full bg-gray-100 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm cursor-pointer"
           >
             Back to {account?.businessName ?? 'app'}
           </a>
@@ -247,11 +274,48 @@ export function CancelContent() {
     </button>
   )
 
-  const orderedOffers = showPauseFirst ? [pauseButton, discountButton] : [discountButton, pauseButton]
+  const hasGift = account && account.giftEnabled
+
+  const giftButton = hasGift && (
+    <button
+      key="gift"
+      onClick={() => handleAction('gift')}
+      disabled={actionLoading !== null}
+      className="w-full text-left border-2 border-gray-100 hover:border-purple-300 hover:bg-purple-50 rounded-2xl p-5 transition-all group disabled:opacity-50"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-purple-200 transition-colors text-xl">🎉</div>
+        <div>
+          <p className="font-semibold text-gray-900 text-sm">Get 1 month free</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Stay with us and your next month is completely on the house — no charge.
+          </p>
+          {actionLoading === 'gift' && (
+            <p className="text-xs text-purple-600 mt-1 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Applying…</p>
+          )}
+        </div>
+      </div>
+    </button>
+  )
+
+  // High-value customers and "too expensive" reasons see the free month first.
+  const leadWithGift = hasGift && (account?.segment === 'high' || selectedReason === 'too_expensive')
+  const baseOffers = showPauseFirst ? [pauseButton, discountButton] : [discountButton, pauseButton]
+  const orderedOffers = leadWithGift ? [giftButton, ...baseOffers] : [...baseOffers, giftButton]
+
+  const isHighValue = account?.segment === 'high'
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+        {isHighValue && (
+          <div className="mb-6 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+            <span className="text-lg flex-shrink-0">⭐</span>
+            <p className="text-xs text-amber-800">
+              You&apos;ve been one of our most valued customers. We&apos;d really hate to see you go — here&apos;s our best offer to keep you.
+            </p>
+          </div>
+        )}
         <div className="text-center mb-8">
           <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">💙</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">We hear you.</h1>

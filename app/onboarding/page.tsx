@@ -123,22 +123,24 @@ export default function OnboardingPage() {
             <div>
               <p className="text-sm font-semibold text-gray-900 mb-2">
                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold mr-2">B</span>
-                Add it in Stripe Dashboard
+                Add it in your Stripe Dashboard
               </p>
               <a
                 href="https://dashboard.stripe.com/webhooks/create"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:underline font-medium"
+                className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:underline font-medium mb-2"
               >
-                Open Stripe → Developers → Webhooks → Add endpoint
+                Open Stripe webhook setup
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-              <div className="mt-2 text-sm text-gray-500 space-y-1">
-                <p>• Paste the URL above as the endpoint URL</p>
-                <p>• Select events: <code className="bg-gray-100 px-1 rounded text-xs">invoice.payment_failed</code> and <code className="bg-gray-100 px-1 rounded text-xs">invoice.payment_succeeded</code></p>
-                <p>• Click <strong>Add endpoint</strong></p>
-              </div>
+              <ol className="mt-1 text-sm text-gray-500 space-y-1.5 list-decimal list-inside leading-relaxed">
+                <li>When asked to <strong>select events</strong>, search and add these 2: <code className="bg-gray-100 px-1 rounded text-xs">invoice.payment_failed</code> and <code className="bg-gray-100 px-1 rounded text-xs">invoice.payment_succeeded</code></li>
+                <li>For <strong>destination type</strong>, choose <strong>&ldquo;Webhook endpoint&rdquo;</strong></li>
+                <li>In <strong>Endpoint URL</strong>, paste the URL from step A above (name can be anything)</li>
+                <li>Click <strong>Create destination</strong> (or <strong>Add endpoint</strong>)</li>
+              </ol>
+              <p className="text-xs text-gray-400 mt-2">💡 Stripe&apos;s screen may look a little different, but the key is always: pick <strong>&ldquo;Webhook endpoint&rdquo;</strong>, paste your URL, and add those 2 events.</p>
             </div>
 
             {/* Step C */}
@@ -147,7 +149,7 @@ export default function OnboardingPage() {
                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold mr-2">C</span>
                 Paste your Signing Secret
               </p>
-              <p className="text-xs text-gray-500 mb-2">After creating the webhook, click &ldquo;Reveal&rdquo; under Signing secret and paste it here.</p>
+              <p className="text-xs text-gray-500 mb-2">On the destination you just created, find <strong>Signing secret</strong> → click the <strong>eye icon 👁</strong> (or &ldquo;Reveal&rdquo;) to show it → copy the full value (starts with <code className="bg-gray-100 px-1 rounded">whsec_</code>) and paste below.</p>
               <Input
                 type="password"
                 placeholder="whsec_..."
@@ -254,7 +256,15 @@ export default function OnboardingPage() {
                 </button>
               </div>
               <p className="text-xs text-gray-400 mt-1.5">
-                Find it in Stripe Dashboard → Developers → API keys
+                <a
+                  href="https://dashboard.stripe.com/apikeys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:text-indigo-700 hover:underline font-medium"
+                >
+                  Open your Stripe API keys →
+                </a>{' '}
+                (Dashboard → Developers → API keys)
               </p>
             </div>
 

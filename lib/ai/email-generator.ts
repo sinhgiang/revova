@@ -136,13 +136,73 @@ Respond in this exact JSON format:
 }`
 }
 
+function buildPredunningPrompt(params: {
+  customerName: string
+  businessName: string
+  productName: string
+  expMonthName: string
+  expYear: number
+  updateCardUrl: string
+  language?: string
+  customNote?: string
+}): string {
+  const lang = params.language && params.language !== 'en' ? params.language : null
+  const langInstruction = lang
+    ? `1. Write entirely in ${lang}. Every word — subject, preview, body — must be in ${lang}.`
+    : '1. Write in English only.'
+
+  return `You are a professional customer success email writer for ${params.businessName}.
+
+Write a PROACTIVE pre-expiry reminder email. The customer's card is about to expire — the payment has NOT failed yet. The goal is to get them to update their card BEFORE any disruption happens.
+
+Details:
+- Customer name: ${params.customerName || 'there'}
+- Product/Service: ${params.productName}
+- Card expires: ${params.expMonthName} ${params.expYear}
+- Card update link: ${params.updateCardUrl}
+
+Rules:
+${langInstruction}
+2. Tone: helpful, calm, proactive — NOT urgent or alarming. Nothing has gone wrong yet.
+3. Make clear this is a friendly heads-up so their subscription continues smoothly.
+4. Subject line must be personal and conversational — no FREE, URGENT, ACT NOW, ALL CAPS, or excessive punctuation.
+5. Body: 2-3 short paragraphs max.
+6. Include the update link as a natural CTA — never "click here".
+7. Sound like a thoughtful human colleague, not an automated system.${params.customNote ? `\n8. Special instructions from the business: "${params.customNote}"` : ''}
+
+Respond in this exact JSON format:
+{
+  "subject": "email subject line here",
+  "previewText": "preview text here (max 90 chars)",
+  "body": "full email body in plain text with \\n for line breaks"
+}`
+}
+
 function parseAIResponse(text: string): EmailTemplate {
   const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
-  const parsed = JSON.parse(clean)
+  // Some models put RAW newlines/tabs inside JSON string values, which is invalid
+  // JSON. Escape any control chars before parsing so JSON.parse won't choke.
+  const escapeCtrl = (s: string) => s.replace(/[ -]/g, c =>
+    c === '\n' ? '\\n' : c === '\t' ? '\\t' : c === '\r' ? '\\r' : '')
+  let parsed: any
+  try {
+    parsed = JSON.parse(clean)
+  } catch {
+    try {
+      parsed = JSON.parse(escapeCtrl(clean))
+    } catch {
+      // Last resort: grab the first {...} block and escape control chars in it
+      const m = clean.match(/\{[\s\S]*\}/)
+      if (!m) throw new Error('No JSON object in AI response')
+      parsed = JSON.parse(escapeCtrl(m[0]))
+    }
+  }
+  // Normalize HTML line breaks to \n (resend.ts splits the body on \n into <p>s)
+  const body = String(parsed.body ?? '').replace(/<br\s*\/?>/gi, '\n')
   return {
     subject: parsed.subject,
     previewText: parsed.previewText,
-    body: parsed.body,
+    body,
   }
 }
 
@@ -202,12 +262,58 @@ async function tryAnthropic(prompt: string): Promise<EmailTemplate> {
 async function tryGemini(prompt: string): Promise<EmailTemplate> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
   const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     contents: prompt,
+    config: { responseMimeType: 'application/json' }, // force valid JSON
   })
   const text = response.text
   if (!text) throw new Error('Empty Gemini response')
   return parseAIResponse(text)
+}
+
+// Groq — free, very fast inference of Llama 3.3 70B. OpenAI-compatible API.
+async function tryGroq(prompt: string): Promise<EmailTemplate> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      // 8b-instant: free tier 500k tokens/day (5× the 70b limit), fast, and more
+      // than enough quality for writing a short personalized recovery email.
+      model: 'llama-3.1-8b-instant',
+      max_tokens: 1024,
+      temperature: 0.7,
+      // Force strictly-valid JSON output (the prompt already asks for JSON).
+      response_format: { type: 'json_object' },
+      messages: [{ role: 'user', content: prompt }],
+    }),
+    signal: AbortSignal.timeout(15000),
+  })
+  if (!res.ok) throw new Error(`Groq HTTP ${res.status}`)
+  const data = await res.json()
+  const text = data?.choices?.[0]?.message?.content
+  if (!text) throw new Error('Empty Groq response')
+  return parseAIResponse(text)
+}
+
+// Run the AI providers free-first: Groq (free) → Gemini (free) → Claude (paid)
+// → null if all fail. The caller falls back to a static template on null.
+async function runAICascade(prompt: string): Promise<EmailTemplate | null> {
+  if (process.env.GROQ_API_KEY) {
+    try { const r = await tryGroq(prompt); console.log('[AI] Used: Groq Llama 3.3 (free)'); return r }
+    catch (err) { console.warn('[AI] Groq failed:', (err as Error).message) }
+  }
+  if (process.env.GEMINI_API_KEY) {
+    try { const r = await tryGemini(prompt); console.log('[AI] Used: Google Gemini Flash (free)'); return r }
+    catch (err) { console.warn('[AI] Gemini failed:', (err as Error).message) }
+  }
+  if (process.env.ANTHROPIC_API_KEY) {
+    try { const r = await tryAnthropic(prompt); console.log('[AI] Used: Anthropic Claude Haiku (paid)'); return r }
+    catch (err) { console.warn('[AI] Anthropic failed:', (err as Error).message) }
+  }
+  return null
 }
 
 export async function generateWinbackEmail(params: {
@@ -226,13 +332,38 @@ export async function generateWinbackEmail(params: {
     body: `Hi ${params.customerName || 'there'},\n\nWe noticed you're no longer subscribed to ${params.productName}.\n\nIf there's anything we could have done better, we'd genuinely love to hear it. And if you're ever ready to come back, we'll be here.\n\nBest,\nThe ${params.businessName} Team`,
   }
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    try { return await tryAnthropic(prompt) } catch {}
+  return (await runAICascade(prompt)) ?? fallback
+}
+
+export async function generatePredunningEmail(params: {
+  customerName: string
+  businessName: string
+  productName: string
+  expMonthName: string
+  expYear: number
+  updateCardUrl: string
+  language?: string
+  customNote?: string
+}): Promise<EmailTemplate> {
+  const prompt = buildPredunningPrompt(params)
+  const fallback: EmailTemplate = {
+    subject: `Your card expires in ${params.expMonthName} — a quick heads-up`,
+    previewText: `Update your card before ${params.expMonthName} to keep your subscription active.`,
+    body: `Hi ${params.customerName || 'there'},
+
+Quick heads-up: the card on your ${params.businessName} account expires in ${params.expMonthName} ${params.expYear}.
+
+To make sure your subscription continues without any disruption, you can update your payment method here:
+
+${params.updateCardUrl}
+
+Thanks for being a customer!
+
+Best,
+The ${params.businessName} Team`,
   }
-  if (process.env.GEMINI_API_KEY) {
-    try { return await tryGemini(prompt) } catch {}
-  }
-  return fallback
+
+  return (await runAICascade(prompt)) ?? fallback
 }
 
 export async function generateRecoveryEmail(params: {
@@ -285,29 +416,9 @@ export async function generateRecoveryEmail(params: {
     emailSequence: params.emailSequence,
   })
 
-  // 1. Try Anthropic Claude (best quality)
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      const result = await tryAnthropic(prompt)
-      console.log('[AI] Used: Anthropic Claude Haiku')
-      return result
-    } catch (err) {
-      console.warn('[AI] Anthropic failed, trying Gemini next:', (err as Error).message)
-    }
-  }
-
-  // 2. Try Google Gemini Flash (free tier — 1500 req/day)
-  if (process.env.GEMINI_API_KEY) {
-    try {
-      const result = await tryGemini(prompt)
-      console.log('[AI] Used: Google Gemini Flash (fallback)')
-      return result
-    } catch (err) {
-      console.warn('[AI] Gemini also failed, using static template:', (err as Error).message)
-    }
-  }
-
-  // 3. Static template — always works, no external dependency
+  // Free-first cascade: Groq → Gemini → Claude → static template
+  const result = await runAICascade(prompt)
+  if (result) return result
   console.warn('[AI] All providers failed — using static template')
   return fallback
 }

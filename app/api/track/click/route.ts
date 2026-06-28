@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const email = searchParams.get('e')
   const seq = searchParams.get('s')
   const target = searchParams.get('target')
+  const typePrefix = searchParams.get('t') ?? 'sequence'
 
   const redirectUrl = target ?? '/'
 
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
         .update({ clicked_at: new Date().toISOString() })
         .eq('user_id', userId)
         .eq('recipient_email', email)
-        .eq('email_type', `sequence_${seq}`)
+        .eq('email_type', `${typePrefix}_${seq}`)
         .is('clicked_at', null)
     } catch { /* non-critical */ }
   }

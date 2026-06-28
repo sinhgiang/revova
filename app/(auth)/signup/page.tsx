@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Zap, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SocialLogins } from '@/components/auth/social-logins'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [confirmSent, setConfirmSent] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -18,9 +20,35 @@ export default function SignupPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) { setError(error.message); setLoading(false) }
-    else router.push('/onboarding')
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    })
+    if (error) { setError(error.message); setLoading(false); return }
+    // Auto-confirm ON → we have a session, go straight to onboarding.
+    if (data.session) { router.push('/onboarding'); return }
+    // Email confirmation required → tell the user to check their inbox.
+    setConfirmSent(true)
+    setLoading(false)
+  }
+
+  if (confirmSent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-4 text-2xl">📬</div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Check your email</h1>
+          <p className="text-gray-500 text-sm mb-6">
+            We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account and start setting up Revova.
+          </p>
+          <p className="text-xs text-gray-400">
+            Didn&apos;t get it? Check your spam folder, or{' '}
+            <Link href="/login" className="text-indigo-600 hover:underline">sign in</Link> if you already confirmed.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -38,6 +66,14 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <SocialLogins verb="Sign up" />
+
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400 font-medium">or sign up with email</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
           <form onSubmit={handleSignup} className="space-y-4">
             {error && (
               <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { createAdminClient } from '@/lib/supabase/server'
+import { sendPurchaseThankYou, sendPurchaseAdminAlert } from '@/lib/email/lifecycle'
 
 // Polar uses Standard Webhooks spec — HMAC-SHA256 with base64 secret
 function verifySignature(
@@ -95,6 +96,10 @@ export async function POST(request: NextRequest) {
     }
     const status = statusMap[sub.status] ?? 'active'
 
+    // Was this merchant already an active paying customer before this event?
+    const { data: prior } = await db.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle()
+    const wasActive = prior?.status === 'active'
+
     await db.from('subscriptions').upsert(
       {
         user_id: user.id,
@@ -108,6 +113,14 @@ export async function POST(request: NextRequest) {
     )
 
     console.log(`[Polar] Subscription upserted — user=${user.id} plan=${planId} status=${status}`)
+
+    // New purchase / first activation → thank the merchant + alert the founder
+    if (status === 'active' && !wasActive) {
+      const planName = planId === 'pro' ? 'Pro' : 'Starter'
+      const businessName = sub.customer?.name ?? sub.customer?.email ?? null
+      await sendPurchaseThankYou(customerEmail, planName, sub.current_period_end ?? null)
+      await sendPurchaseAdminAlert(customerEmail, planName, businessName)
+    }
   }
 
   // ── Subscription cancelled ──

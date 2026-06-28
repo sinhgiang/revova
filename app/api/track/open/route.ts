@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   const userId = searchParams.get('u')
   const email = searchParams.get('e')
   const seq = searchParams.get('s')
+  const typePrefix = searchParams.get('t') ?? 'sequence'
 
   if (userId && email && seq) {
     try {
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
         .update({ opened_at: new Date().toISOString() })
         .eq('user_id', userId)
         .eq('recipient_email', email)
-        .eq('email_type', `sequence_${seq}`)
+        .eq('email_type', `${typePrefix}_${seq}`)
         .is('opened_at', null)
     } catch { /* non-critical */ }
   }

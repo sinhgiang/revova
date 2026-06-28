@@ -1,10 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { CheckCircle, Zap, Shield, TrendingUp, Star } from 'lucide-react'
+import { CheckCircle, Zap, Shield, TrendingUp, Star, Lock } from 'lucide-react'
 import { Sidebar } from '@/components/layout/sidebar'
-import type { Metadata } from 'next'
+import { AdminBar } from '@/components/admin/admin-bar'
+import { getPlanFor } from '@/lib/plan'
 
-export const metadata: Metadata = { title: 'Billing — Revova' }
+export const dynamic = 'force-dynamic'
 
 const PLANS = [
   {
@@ -16,9 +17,13 @@ const PLANS = [
     features: [
       'Up to 50 failed payment recoveries/mo',
       'AI-personalized 4-email sequence (Day 1,3,7,14)',
-      'Real-time dashboard',
-      '1-click Stripe Connect',
-      '14-day free trial',
+      'Daily smart payment auto-retry',
+      'Pre-dunning expiry alerts',
+      'Works with 5 payment processors',
+      'Auto spam/bounce suppression',
+      'Slack & Telegram alerts + in-app banner',
+      'Real-time recovery dashboard',
+      'GDPR export & delete tools',
     ],
     polar_env: 'NEXT_PUBLIC_POLAR_STARTER_URL',
     popular: false,
@@ -30,12 +35,17 @@ const PLANS = [
     description: 'For SaaS companies growing fast',
     limit: 'Unlimited recoveries',
     features: [
+      'Everything in Starter, plus:',
       'Unlimited failed payment recoveries',
       'AI-personalized 5-email sequence (Day 1,3,7,14,21)',
-      'Advanced analytics & revenue insights',
-      '1-click Stripe Connect',
-      'Priority support',
-      '14-day free trial',
+      'SMS recovery + hard/soft decline routing',
+      'Recovery emails in 8 languages',
+      'Winback campaigns (Day 3, 14, 30)',
+      'In-app cancel flow + A/B testing',
+      '1-month-free + LTV retention offers',
+      'Churn risk scoring',
+      'Open/click analytics + revenue forecast',
+      'Weekly digest + priority support',
     ],
     polar_env: 'NEXT_PUBLIC_POLAR_PRO_URL',
     popular: true,
@@ -44,23 +54,36 @@ const PLANS = [
 
 function buildPolarUrl(baseUrl: string, customerEmail: string): string {
   if (!baseUrl || baseUrl === '#') return '#'
-  const url = new URL(baseUrl)
-  if (customerEmail) url.searchParams.set('customer_email', customerEmail)
-  return url.toString()
+  try {
+    const url = new URL(baseUrl)
+    if (customerEmail) url.searchParams.set('customer_email', customerEmail)
+    return url.toString()
+  } catch {
+    return baseUrl
+  }
 }
 
-export default async function BillingPage() {
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ expired?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: subscription } = await (supabase as any)
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
+  const expired = (await searchParams)?.expired === '1'
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let subscription: any = null
+  try {
+    const { data } = await (supabase as any)
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    subscription = data
+  } catch {
+    // subscriptions table may not exist yet — treat as no subscription
+  }
+
+  const plan = await getPlanFor(supabase as any, user.id)
   const isActive = subscription?.status === 'active'
 
   // Build Polar URLs with customer email so webhook can identify the user
@@ -78,6 +101,7 @@ export default async function BillingPage() {
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 overflow-auto">
+    <AdminBar />
     <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Billing & Plans</h1>
@@ -87,6 +111,31 @@ export default async function BillingPage() {
             : 'Start your 14-day free trial. No credit card required.'}
         </p>
       </div>
+
+      {/* Trial ended → access paused until they pick a plan */}
+      {expired && !isActive && (
+        <div className="mb-6 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+            <Lock className="w-4 h-4 text-amber-600" />
+          </div>
+          <div>
+            <p className="font-semibold text-amber-900">Your free trial has ended</p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              Choose a plan below to reactivate your account and keep recovering failed payments. Your settings and data are safe.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Still on trial → show days remaining */}
+      {plan.isTrial && !expired && (
+        <div className="mb-6 flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+          <Zap className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+          <p className="text-sm text-indigo-800">
+            You&apos;re on the free trial — <strong>{plan.trialDaysLeft} day{plan.trialDaysLeft === 1 ? '' : 's'} left</strong>. Upgrade anytime to lock in uninterrupted recovery.
+          </p>
+        </div>
+      )}
 
       {isActive && (
         <div className="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
@@ -135,10 +184,14 @@ export default async function BillingPage() {
 
             <ul className="space-y-3 mb-8">
               {plan.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-3 text-sm text-gray-700">
-                  <CheckCircle className={`w-4 h-4 flex-shrink-0 ${plan.popular ? 'text-indigo-500' : 'text-emerald-500'}`} />
-                  {feature}
-                </li>
+                feature.endsWith('plus:') ? (
+                  <li key={feature} className="text-sm font-bold text-gray-900 pt-1">{feature}</li>
+                ) : (
+                  <li key={feature} className="flex items-center gap-3 text-sm text-gray-700">
+                    <CheckCircle className={`w-4 h-4 flex-shrink-0 ${plan.popular ? 'text-indigo-500' : 'text-emerald-500'}`} />
+                    {feature}
+                  </li>
+                )
               ))}
             </ul>
 

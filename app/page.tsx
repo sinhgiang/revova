@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3 } from 'lucide-react'
+import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 
 export default function LandingPage() {
@@ -141,6 +141,31 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── PROCESSOR STRIP — works with all ── */}
+      <section className="px-6 py-12 bg-white border-b border-gray-100">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-gray-400 text-sm font-medium mb-8">Works with every major payment processor — not just Stripe</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-6">
+            {[
+              { name: 'Stripe', src: '/logos/stripe.png' },
+              { name: 'Paddle', src: '/logos/paddle.webp' },
+              { name: 'Braintree', src: '/logos/braintree.png' },
+              { name: 'Chargebee', src: '/logos/chargebee.png' },
+              { name: 'Recurly', src: '/logos/recurly.png' },
+            ].map(({ name, src }) => (
+              <div key={name} className="flex h-12 w-36 items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={name}
+                  className="max-h-7 max-w-[120px] w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── PAIN — Loss Aversion ── */}
       <section className="px-6 py-24 bg-gray-50">
         <div className="max-w-4xl mx-auto text-center">
@@ -212,14 +237,14 @@ export default function LandingPage() {
             {[
               {
                 step: '01',
-                title: 'Connect Stripe — 60 seconds',
-                desc: 'Paste your Stripe API key. That\'s it. Revova instantly monitors your payment events. No code, no webhooks, no engineers.',
+                title: 'Connect your processor — 60 seconds',
+                desc: 'Paste your payment processor key (Stripe, Paddle, Braintree, Chargebee, or Recurly). That\'s it. Revova instantly monitors your payment events. No code, no engineers.',
                 badge: 'No code required',
               },
               {
                 step: '02',
                 title: 'AI writes the email',
-                desc: 'When a payment fails, Claude AI reads the exact decline reason and writes a unique recovery email from scratch — not a template. Every email is different.',
+                desc: 'When a payment fails, Revova\'s AI reads the exact decline reason and writes a unique recovery email from scratch — not a template. Every email is different.',
                 badge: '5 emails per sequence',
               },
               {
@@ -251,7 +276,7 @@ export default function LandingPage() {
               Emails so good your customers<br/>think <em>you</em> wrote them
             </h2>
             <p className="text-gray-500 text-lg mb-7 leading-relaxed">
-              Claude AI reads the exact failure reason — expired card, insufficient funds, bank decline — and writes a completely different email for each. Zero templates.
+              Revova&apos;s AI reads the exact failure reason — expired card, insufficient funds, bank decline — and writes a completely different email for each. Zero templates.
             </p>
             <ul className="space-y-3 mb-8">
               {[
@@ -312,13 +337,20 @@ export default function LandingPage() {
               { icon: Mail, title: '5-email sequence over 21 days', desc: 'Day 1, 3, 7, 14, 21. Hard bank declines get a faster 3-email track. Most competitors send the same email to everyone.', badge: 'Pro: 5 emails' },
               { icon: Globe, title: 'Emails in 8 languages', desc: 'Serve global customers in their native language. English, French, Spanish, German, Portuguese, Dutch, Italian, Japanese.', badge: 'Multi-language' },
               { icon: RotateCcw, title: 'Winback campaigns for cancellations', desc: 'When a customer cancels, Revova automatically sends AI-personalized re-engagement emails on Day 3, 14, and 30.', badge: 'Pro feature' },
+              { icon: MessageSquare, title: 'SMS recovery when email is ignored', desc: 'If a customer ignores your emails, Revova texts them a card-update link from your own number. SMS gets ~98% open rates.', badge: 'SMS · Pro' },
+              { icon: CreditCard, title: 'Pre-dunning before cards expire', desc: 'Revova spots cards expiring this month or next and emails customers proactively — stopping the failed payment before it ever happens.', badge: 'Proactive' },
+              { icon: RefreshCw, title: 'Daily smart-retry for up to 30 days', desc: 'For recoverable declines like insufficient funds, Revova re-attempts the charge every single day — not just on email days — across your whole recovery window.', badge: 'Adaptive retry' },
               { icon: BarChart3, title: 'Weekly recovery digest', desc: 'Every Monday, get a clean summary: failures, recoveries, revenue saved, and your week-over-week rate.', badge: 'Auto-reports' },
               { icon: TrendingUp, title: 'At-risk customer alerts', desc: 'Dashboard flags customers who\'ve received 3+ emails without resolving — so you know when to reach out personally.', badge: 'Live dashboard' },
               { icon: BarChart3, title: 'Email open & click analytics', desc: 'See open rate and click rate for every email in your sequence. Know exactly which email drives the most payments back.', badge: 'Email analytics' },
               { icon: DollarSign, title: 'Revenue forecast', desc: 'Analytics page projects how much you\'ll recover from in-progress payments, based on your historical recovery rate.', badge: 'Forecasting' },
-              { icon: Shield, title: 'Cancellation survey + smart deflection', desc: 'When a customer tries to cancel, Revova asks why — then offers the most relevant retention offer (discount or pause) based on their answer.', badge: 'Cancel flow' },
-              { icon: Shield, title: 'Read-only Stripe — fully secure', desc: 'Revova never touches card data or processes money. Read-only API access. SOC2 compliant.', badge: 'Enterprise security' },
-              { icon: DollarSign, title: '3-minute setup, no engineers', desc: 'Paste your Stripe key. Done. No webhooks, no code, no Zapier. Any non-technical founder can do it.', badge: 'No-code' },
+              { icon: Shield, title: 'Cancellation survey + smart deflection', desc: 'When a customer tries to cancel, Revova asks why — then offers the most relevant retention offer (discount, pause, or a free month) based on their answer.', badge: 'Cancel flow' },
+              { icon: CreditCard, title: 'Works with 5 payment processors', desc: 'Stripe, Paddle, Braintree, Chargebee, and Recurly — each on its own isolated pipeline. You\'re not locked to Stripe like most recovery tools.', badge: 'Multi-processor' },
+              { icon: Mail, title: 'Stays out of the spam folder', desc: 'Bounced and spam-flagged addresses are auto-suppressed to protect your sender reputation — so your emails keep landing in the inbox where they recover revenue.', badge: 'Deliverability' },
+              { icon: BarChart3, title: 'A/B test your cancel offers', desc: 'Split cancelling customers between two retention offers and see which one keeps more of them. Optimize what actually saves revenue.', badge: 'A/B testing' },
+              { icon: TrendingUp, title: 'Churn risk score', desc: 'Every at-risk customer gets a risk score (Low → Critical), so you know exactly who to reach out to personally — before they\'re gone.', badge: 'Predictive' },
+              { icon: Shield, title: 'Enterprise-ready security & GDPR', desc: 'Read-only payment access, encryption in transit and at rest, per-account data isolation, plus one-click data export and deletion. DPA available on request.', badge: 'Security & GDPR' },
+              { icon: DollarSign, title: '3-minute setup, no engineers', desc: 'Paste your payment processor key. Done. No code, no Zapier, no engineers. Any non-technical founder can do it.', badge: 'No-code' },
             ].map(({ icon: Icon, title, desc, badge }) => (
               <div key={title} className="p-6 rounded-2xl border border-gray-100 hover:border-indigo-200 hover:shadow-md transition-all group">
                 <div className="flex items-start justify-between mb-4">
@@ -426,7 +458,7 @@ export default function LandingPage() {
                   <th className="px-6 py-4 font-bold text-indigo-600 bg-indigo-50 border-x border-indigo-100">
                     <div className="flex flex-col items-center gap-1">
                       <span>Revova</span>
-                      <span className="text-2xl font-black">$29<span className="text-sm font-normal text-gray-500">/mo</span></span>
+                      <span className="text-2xl font-black">from $29<span className="text-sm font-normal text-gray-500">/mo</span></span>
                     </div>
                   </th>
                   <th className="px-6 py-4 font-semibold text-gray-500 text-center">
@@ -446,7 +478,18 @@ export default function LandingPage() {
               <tbody>
                 {[
                   { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: 'Works with 5 payment processors', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Auto spam/bounce suppression', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'GDPR data export & deletion', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Smart payment retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
+                  { feature: 'Daily retry for 30 days', revova: true, churnkey: false, stunning: false, churnbuster: true },
+                  { feature: 'SMS recovery (text message)', revova: true, churnkey: false, stunning: true, churnbuster: true },
+                  { feature: 'LTV-based retention offers', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: 'In-app cancel flow (modal)', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'A/B test cancel offers', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: '1-month-free save offer', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Smart payday retry timing', revova: true, churnkey: true, stunning: false, churnbuster: true },
+                  { feature: 'Churn risk score', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Hard vs. soft decline routing', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Multi-language emails (8 langs)', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Winback campaigns (post-cancel)', revova: true, churnkey: true, stunning: false, churnbuster: false },
@@ -456,7 +499,11 @@ export default function LandingPage() {
                   { feature: 'Cancellation survey (reason tracking)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'Pre-dunning (expiry alerts)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'In-app payment banner', revova: true, churnkey: true, stunning: false, churnbuster: false },
-                  { feature: 'Slack notifications', revova: true, churnkey: false, stunning: true, churnbuster: false },
+                  { feature: 'Slack & Telegram alerts', revova: true, churnkey: false, stunning: true, churnbuster: false },
+                  { feature: 'Send from your own domain (SMTP)', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Outbound webhooks (connect your tools)', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Custom retry cadence & timing', revova: true, churnkey: true, stunning: false, churnbuster: false },
+                  { feature: 'Custom AI brand voice', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: '5-email sequence', revova: true, churnkey: true, stunning: false, churnbuster: true },
                   { feature: '3-minute setup (no code)', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: '30-day money-back', revova: true, churnkey: false, stunning: true, churnbuster: false },
@@ -516,8 +563,10 @@ export default function LandingPage() {
                   'Up to 50 failed payment recoveries/mo',
                   'AI-personalized 4-email sequence',
                   'Day 1 → 3 → 7 → 14 cadence',
+                  'Works with 5 payment processors',
+                  'Pre-dunning + auto spam suppression',
                   'Real-time recovery dashboard',
-                  '1-click Stripe Connect',
+                  'GDPR export & delete tools',
                   '14-day free trial',
                 ].map(f => (
                   <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
@@ -557,14 +606,25 @@ export default function LandingPage() {
                   'AI-personalized 5-email sequence',
                   'Day 1 → 3 → 7 → 14 → 21 cadence',
                   'Hard/soft decline smart routing',
+                  'Daily smart-retry for up to 30 days',
+                  'SMS recovery from your own number',
+                  'Pre-dunning before cards expire',
+                  'LTV-based retention offers',
                   'Emails in 8 languages',
                   'Winback campaigns (Day 3, 14, 30)',
                   'Weekly digest performance report',
                   'Email open & click rate analytics',
                   'Revenue recovery forecast',
                   'Cancellation survey + smart deflection',
+                  'In-app cancel flow (embed, no redirect)',
+                  'A/B test cancel offers',
+                  '1-month-free retention offer',
+                  'Smart payday retry timing',
+                  'Churn risk scoring',
                   'Advanced analytics & revenue insights',
-                  '1-click Stripe Connect',
+                  'Works with 5 payment processors',
+                  'Auto spam/bounce suppression',
+                  'GDPR tools + DPA (export & delete)',
                   'Priority support (reply within 4h)',
                   '14-day free trial',
                 ].map(f => (
@@ -581,13 +641,13 @@ export default function LandingPage() {
           </div>
 
           {/* Guarantees */}
-          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
             {[
               { icon: Shield, text: '30-day money-back guarantee' },
               { icon: Lock, text: 'No credit card to start' },
               { icon: CheckCircle, text: 'Cancel anytime, instantly' },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2 text-gray-500 text-sm justify-center">
+              <div key={text} className="flex items-center gap-2 text-gray-500 text-sm whitespace-nowrap">
                 <Icon className="w-4 h-4 text-gray-400 flex-shrink-0"/>
                 {text}
               </div>
@@ -606,8 +666,8 @@ export default function LandingPage() {
           <div className="space-y-3">
             {[
               {
-                q: 'Is my Stripe data safe? What access does Revova need?',
-                a: 'Revova only needs read-only access to your Stripe payment events. We never touch card data, never process payments, never store financial information. You can revoke access at any time with one click.',
+                q: 'Is my data safe? What access does Revova need?',
+                a: 'Revova only needs read-only access to your payment events (from Stripe, Paddle, Braintree, Chargebee, or Recurly). We never touch card data, never process payments beyond the retries you configure, and never store financial information. Data is encrypted in transit and at rest, and you can export or delete everything anytime.',
               },
               {
                 q: 'Will these emails annoy my customers?',
@@ -615,7 +675,15 @@ export default function LandingPage() {
               },
               {
                 q: 'How long does setup take? Do I need a developer?',
-                a: 'Literally 3 minutes. Paste your Stripe API key, done. No code, no webhooks, no Zapier chains. If you can copy-paste, you can set up Revova.',
+                a: 'Literally 3 minutes. Paste your payment processor key, done. No code, no webhooks, no Zapier chains. If you can copy-paste, you can set up Revova.',
+              },
+              {
+                q: 'Which payment processors do you support?',
+                a: 'Stripe, Paddle, Braintree, Chargebee, and Recurly. Each runs on its own isolated pipeline, so you get the same full recovery experience no matter which one you use. Most recovery tools only work with Stripe — Revova doesn\'t lock you in.',
+              },
+              {
+                q: 'Is Revova GDPR compliant and secure?',
+                a: 'Yes. We use read-only payment access, encryption in transit and at rest, and per-account data isolation. You can export all your data or permanently delete your account in one click (Settings → Data & Privacy). A Data Processing Agreement (DPA) is available, and bounced/spam-flagged addresses are automatically suppressed to protect your sender reputation.',
               },
               {
                 q: 'What\'s the difference between Starter ($29) and Pro ($79)?',
@@ -635,7 +703,7 @@ export default function LandingPage() {
               },
               {
                 q: 'Does Revova work outside the US?',
-                a: 'Yes. Revova works anywhere Stripe is available. We send emails in your customer\'s local timezone regardless of where they are. Full multi-currency support.',
+                a: 'Yes. Revova works anywhere your payment processor (Stripe, Paddle, Braintree, Chargebee, Recurly) is available. We send emails in your customer\'s local timezone regardless of where they are, in 8 languages, with full multi-currency support.',
               },
               {
                 q: 'Can I see which recovery email performs best?',
@@ -709,6 +777,8 @@ export default function LandingPage() {
           <div className="flex items-center gap-6">
             <Link href="/privacy" className="text-sm text-gray-400 hover:text-gray-600">Privacy</Link>
             <Link href="/terms" className="text-sm text-gray-400 hover:text-gray-600">Terms</Link>
+            <Link href="/security" className="text-sm text-gray-400 hover:text-gray-600">Security</Link>
+            <Link href="/dpa" className="text-sm text-gray-400 hover:text-gray-600">DPA</Link>
             <Link href="/login" className="text-sm text-gray-400 hover:text-gray-600">Sign in</Link>
             <Link href="/signup" className="text-sm text-gray-400 hover:text-gray-600">Sign up</Link>
           </div>

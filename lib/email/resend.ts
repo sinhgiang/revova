@@ -17,6 +17,7 @@ export interface TrackingParams {
   userId: string
   recipientEmail: string
   sequence: number
+  typePrefix?: string  // 'sequence' (default) or 'winback'
 }
 
 export async function sendRecoveryEmail(params: {
@@ -147,7 +148,7 @@ export async function sendWinbackEmail(params: {
   let ctaUrl = params.reactivateUrl
   if (params.tracking) {
     const { userId, recipientEmail, sequence } = params.tracking
-    ctaUrl = `${appUrl}/api/track/click?u=${encodeURIComponent(userId)}&e=${encodeURIComponent(recipientEmail)}&s=${sequence}&target=${encodeURIComponent(params.reactivateUrl)}`
+    ctaUrl = `${appUrl}/api/track/click?u=${encodeURIComponent(userId)}&e=${encodeURIComponent(recipientEmail)}&s=${sequence}&t=winback&target=${encodeURIComponent(params.reactivateUrl)}`
   }
 
   const htmlBody = params.body
@@ -157,7 +158,7 @@ export async function sendWinbackEmail(params: {
     .join('')
 
   const trackingPixel = params.tracking
-    ? `<img src="${appUrl}/api/track/open?u=${encodeURIComponent(params.tracking.userId)}&e=${encodeURIComponent(params.tracking.recipientEmail)}&s=${params.tracking.sequence}" width="1" height="1" style="display:none" alt="" />`
+    ? `<img src="${appUrl}/api/track/open?u=${encodeURIComponent(params.tracking.userId)}&e=${encodeURIComponent(params.tracking.recipientEmail)}&s=${params.tracking.sequence}&t=winback" width="1" height="1" style="display:none" alt="" />`
     : ''
 
   const unsubscribeUrl = params.tracking

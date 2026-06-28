@@ -3,16 +3,31 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { formatCurrency } from '@/lib/utils'
+import { getPlanFor } from '@/lib/plan'
+import { ProGate } from '@/components/plan/pro-gate'
+import { getAppContext } from '@/lib/impersonate'
+import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
+import { AdminBar } from '@/components/admin/admin-bar'
 
 export default async function AnalyticsPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const ctx = await getAppContext(supabase)
+  if (!ctx) redirect('/login')
+  const db = ctx.db
+  const userId = ctx.userId
+  const plan = await getPlanFor(db, userId)
+  if (!ctx.impersonating && !plan.hasAccess) redirect('/billing?expired=1')
 
-  const { data: payments } = await (supabase as any)
+  let bannerName = 'merchant'
+  if (ctx.impersonating) {
+    const { data: acc } = await db.from('stripe_accounts').select('business_name').eq('user_id', userId).maybeSingle()
+    bannerName = acc?.business_name ?? 'merchant'
+  }
+
+  const { data: payments } = await db
     .from('failed_payments')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   const all = payments ?? []
@@ -56,30 +71,81 @@ export default async function AnalyticsPage() {
   })
   const maxWeek = Math.max(...weeks.map(w => w.amount), 1)
 
-  // Email performance: open rate + click rate per sequence number
-  const { data: emailLogs } = await (supabase as any)
+  // Pull EVERY email/SMS we've logged so we can break performance down by channel
+  const { data: emailLogs } = await db
     .from('email_logs')
-    .select('email_type, opened_at, clicked_at')
-    .eq('user_id', user.id)
-    .like('email_type', 'sequence_%')
+    .select('email_type, opened_at, clicked_at, delivered_at, bounced_at, complained_at')
+    .eq('user_id', userId)
 
-  const emailStats = [1, 2, 3, 4, 5].map(seq => {
-    const logs = (emailLogs ?? []).filter((l: any) => l.email_type === `sequence_${seq}`)
+  const allLogs = emailLogs ?? []
+
+  // Deliverability: bounce + spam-complaint rates (protect sender reputation)
+  const emailLogsOnly = allLogs.filter((l: any) => !(l.email_type ?? '').startsWith('sms_'))
+  const totalEmails = emailLogsOnly.length
+  const bounced = emailLogsOnly.filter((l: any) => l.bounced_at).length
+  const complained = emailLogsOnly.filter((l: any) => l.complained_at).length
+  const bounceRate = totalEmails > 0 ? Math.round((bounced / totalEmails) * 1000) / 10 : 0
+  const complaintRate = totalEmails > 0 ? Math.round((complained / totalEmails) * 1000) / 10 : 0
+  const statsFor = (match: (t: string) => boolean) => {
+    const logs = allLogs.filter((l: any) => match(l.email_type ?? ''))
     const sent = logs.length
     const opened = logs.filter((l: any) => l.opened_at).length
     const clicked = logs.filter((l: any) => l.clicked_at).length
-    return { seq, sent, openRate: sent > 0 ? Math.round((opened / sent) * 100) : 0, clickRate: sent > 0 ? Math.round((clicked / sent) * 100) : 0 }
+    return {
+      sent,
+      opened,
+      clicked,
+      openRate: sent > 0 ? Math.round((opened / sent) * 100) : 0,
+      clickRate: sent > 0 ? Math.round((clicked / sent) * 100) : 0,
+    }
+  }
+
+  // Per-step stats for the 5-email recovery sequence
+  const emailStats = [1, 2, 3, 4, 5].map(seq => {
+    const s = statsFor(t => t === `sequence_${seq}`)
+    return { seq, ...s }
   }).filter(s => s.sent > 0)
+
+  // Channel-level breakdown across every email/SMS flow, in plain language.
+  // Always show all channels (even at 0) so merchants can see the full system.
+  const channels = [
+    { key: 'recovery', name: 'Payment recovery', emoji: '💳', desc: 'The core 5-email sequence sent when a payment fails.', tracked: true, ...statsFor(t => t.startsWith('sequence_')) },
+    { key: 'winback', name: 'Winback', emoji: '🔄', desc: 'Re-engagement emails sent after a customer cancels (Day 3, 14, 30).', tracked: true, ...statsFor(t => t.startsWith('winback_')) },
+    { key: 'predunning', name: 'Pre-dunning', emoji: '📅', desc: 'Heads-up emails sent before a card expires — stops the failure before it happens.', tracked: true, ...statsFor(t => t === 'predunning') },
+    { key: 'trial', name: 'Trial reminders', emoji: '⏳', desc: 'Nudges sent before a free trial ends (Day 7, 3, 1).', tracked: true, ...statsFor(t => t.startsWith('trial')) },
+    { key: 'manual', name: 'Manual sends', emoji: '✋', desc: 'One-off recovery emails you sent by hand from the Payments page.', tracked: true, ...statsFor(t => t.startsWith('manual_')) },
+    { key: 'sms', name: 'SMS nudges', emoji: '💬', desc: 'Text messages sent when a customer ignores your emails (~98% open rate).', tracked: false, ...statsFor(t => t.startsWith('sms_')) },
+  ]
+
+  const totalTouches = channels.reduce((sum, c) => sum + c.sent, 0)
 
   // Revenue forecast: based on historical recovery rate
   const projectedRecovery = recoveryRate > 0 && inProgress.length > 0
     ? Math.round(totalAtRisk * recoveryRate / 100)
     : 0
 
+  // Cancel-flow A/B test: compare save rate of variant A vs B
+  const { data: cancelEvents } = await db
+    .from('cancel_events')
+    .select('action_taken, variant')
+    .eq('merchant_user_id', userId)
+
+  const RETAINED = ['paused', 'discounted', 'gifted']
+  const abStats = ['A', 'B'].map(v => {
+    const rows = (cancelEvents ?? []).filter((e: any) => e.variant === v)
+    const shown = rows.length
+    const retained = rows.filter((e: any) => RETAINED.includes(e.action_taken)).length
+    return { variant: v, shown, retained, saveRate: shown > 0 ? Math.round((retained / shown) * 100) : 0 }
+  }).filter(s => s.shown > 0)
+  const abWinner = abStats.length === 2 && abStats[0].saveRate !== abStats[1].saveRate
+    ? (abStats[0].saveRate > abStats[1].saveRate ? 'A' : 'B')
+    : null
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 overflow-auto">
+        {ctx.impersonating ? <ImpersonationBanner name={bannerName} /> : <AdminBar />}
         <div className="p-8 max-w-5xl">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
@@ -180,8 +246,9 @@ export default async function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Revenue forecast */}
-          {projectedRecovery > 0 && (
+          {/* Revenue forecast — Pro */}
+          {(projectedRecovery > 0 || !plan.isPro) && (
+            <ProGate isPro={plan.isPro} feature="Revenue recovery forecast">
             <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6 mb-6">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-semibold text-indigo-900">Revenue Forecast</h3>
@@ -201,13 +268,84 @@ export default async function AnalyticsPage() {
                 </div>
               </div>
             </div>
+            </ProGate>
           )}
 
-          {/* Email performance table */}
-          {emailStats.length > 0 && (
+          {/* Deliverability health — bounce + spam rates */}
+          <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-6">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-semibold text-gray-900">Deliverability Health</h3>
+              <span className="text-xs text-gray-400">{totalEmails} emails sent</span>
+            </div>
+            <p className="text-xs text-gray-400 mb-4">Bounced &amp; spam-complaint addresses are auto-suppressed so you never email them again. Keep these low to stay out of spam folders.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className={`rounded-xl p-4 border ${bounceRate > 5 ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50'}`}>
+                <p className="text-xs text-gray-400 mb-1">Bounce rate</p>
+                <p className={`text-2xl font-bold ${bounceRate > 5 ? 'text-red-600' : 'text-emerald-600'}`}>{bounceRate}%</p>
+                <p className="text-xs text-gray-400 mt-0.5">{bounced} bounced · keep under 5%</p>
+              </div>
+              <div className={`rounded-xl p-4 border ${complaintRate > 0.3 ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50'}`}>
+                <p className="text-xs text-gray-400 mb-1">Spam complaint rate</p>
+                <p className={`text-2xl font-bold ${complaintRate > 0.3 ? 'text-red-600' : 'text-emerald-600'}`}>{complaintRate}%</p>
+                <p className="text-xs text-gray-400 mt-0.5">{complained} complaints · keep under 0.3%</p>
+              </div>
+            </div>
+          </div>
+
+          {/* All email/SMS channels — open & click analytics is a Pro feature */}
+          <ProGate isPro={plan.isPro} feature="Email open & click analytics">
+          <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-6">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-semibold text-gray-900">All Message Channels</h3>
+                <span className="text-xs text-gray-400">{totalTouches} total messages sent</span>
+              </div>
+              <p className="text-xs text-gray-400 mb-5">Every way Revova reaches your customers. Each channel does a different job. Numbers fill in automatically as emails go out — here&apos;s how each one is performing.</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {channels.map(c => (
+                  <div key={c.key} className="border border-gray-100 rounded-xl p-4 hover:border-indigo-200 transition-colors">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center text-lg flex-shrink-0">{c.emoji}</div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm">{c.name}</p>
+                        <p className="text-xs text-gray-400 leading-snug mt-0.5">{c.desc}</p>
+                      </div>
+                    </div>
+                    <div className={`grid ${c.tracked ? 'grid-cols-3' : 'grid-cols-1'} gap-2 text-center`}>
+                      <div className="bg-gray-50 rounded-lg py-2">
+                        <p className="text-lg font-bold text-gray-900 leading-none">{c.sent}</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wide mt-1">Sent</p>
+                      </div>
+                      {c.tracked && (
+                        <>
+                          <div className="bg-gray-50 rounded-lg py-2">
+                            <p className={`text-lg font-bold leading-none ${c.openRate >= 40 ? 'text-emerald-600' : c.openRate >= 20 ? 'text-amber-600' : 'text-gray-500'}`}>{c.openRate}%</p>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-wide mt-1">Opened</p>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg py-2">
+                            <p className={`text-lg font-bold leading-none ${c.clickRate >= 20 ? 'text-emerald-600' : c.clickRate >= 10 ? 'text-amber-600' : 'text-gray-500'}`}>{c.clickRate}%</p>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-wide mt-1">Clicked</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    {!c.tracked && (
+                      <p className="text-[11px] text-gray-400 mt-2 text-center">SMS delivery isn&apos;t open-tracked — but texts average ~98% open rates.</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 mt-4 leading-relaxed">
+                <strong>Opened</strong> = customer viewed the email. <strong>Clicked</strong> = customer tapped the button to update their card (this is what drives recovery). A healthy click rate is ~15%+.
+              </p>
+          </div>
+          </ProGate>
+
+          {/* Email performance table — open/click per step (Pro only) */}
+          {plan.isPro && emailStats.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-6">
-              <h3 className="font-semibold text-gray-900 mb-0.5">Email Performance</h3>
-              <p className="text-xs text-gray-400 mb-4">Open rate and click rate per email step — higher click rate = more customers updating their card</p>
+              <h3 className="font-semibold text-gray-900 mb-0.5">Recovery Sequence — Step by Step</h3>
+              <p className="text-xs text-gray-400 mb-4">Open rate and click rate for each of the 5 recovery emails — higher click rate = more customers updating their card</p>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100">
@@ -247,6 +385,29 @@ export default async function AnalyticsPage() {
                 </tbody>
               </table>
               <p className="text-xs text-gray-400 mt-3">Industry avg: ~35% open rate · ~15% click rate. Open/click tracking embedded in all emails automatically.</p>
+            </div>
+          )}
+
+          {/* Cancel-flow A/B test (Pro) */}
+          {plan.isPro && abStats.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-6">
+              <h3 className="font-semibold text-gray-900 mb-0.5">Cancel Offer A/B Test</h3>
+              <p className="text-xs text-gray-400 mb-4">Which discount variant keeps more customers from cancelling. Save rate = % who took an offer instead of leaving.</p>
+              <div className="grid grid-cols-2 gap-4">
+                {abStats.map(({ variant, shown, retained, saveRate }) => (
+                  <div key={variant} className={`rounded-xl p-4 border ${abWinner === variant ? 'border-emerald-300 bg-emerald-50' : 'border-gray-100 bg-gray-50'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-semibold text-gray-900">Variant {variant}</p>
+                      {abWinner === variant && <span className="text-xs bg-emerald-600 text-white px-2 py-0.5 rounded-full font-medium">Winning</span>}
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{saveRate}%</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{retained} saved of {shown} shown</p>
+                  </div>
+                ))}
+              </div>
+              {abStats.length < 2 && (
+                <p className="text-xs text-amber-600 mt-3">Only variant {abStats[0].variant} has data so far — results appear once both variants have been shown.</p>
+              )}
             </div>
           )}
 
