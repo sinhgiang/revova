@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { getPlanFor } from '@/lib/plan'
 
 // Historical scans of a high-volume merchant can take a while — give the
@@ -57,14 +57,43 @@ export async function POST(request: NextRequest) {
     }
 
     // 2) Active subscriptions with a card expiring this month or next (all pages).
+    //    We also collect the ones expiring this/next month so we can refresh the
+    //    "Coming up" panel live on dashboard load — no waiting for the daily cron.
     let expiringCount = 0, activeCount = 0
     const now = new Date()
     const curIdx = now.getFullYear() * 12 + (now.getMonth() + 1)
-    for await (const sub of stripe.subscriptions.list({ status: 'active', limit: 100, expand: ['data.default_payment_method'] })) {
+    const toTrack: any[] = []
+    for await (const sub of stripe.subscriptions.list({ status: 'active', limit: 100, expand: ['data.default_payment_method', 'data.customer'] })) {
       activeCount++
       const pm = sub.default_payment_method as Stripe.PaymentMethod | null
       const card = pm && typeof pm !== 'string' ? pm.card : null
-      if (card?.exp_year && card?.exp_month && card.exp_year * 12 + card.exp_month <= curIdx + 1) expiringCount++
+      if (!card?.exp_year || !card?.exp_month) continue
+      const cardIdx = card.exp_year * 12 + card.exp_month
+      if (cardIdx <= curIdx + 1) expiringCount++
+      // Exactly this month or next → track for the "Coming up" panel.
+      if (cardIdx === curIdx || cardIdx === curIdx + 1) {
+        const cu = sub.customer as Stripe.Customer | string | null
+        const cust = cu && typeof cu !== 'string' ? cu : null
+        if (cust?.email) {
+          toTrack.push({
+            user_id: user.id,
+            customer_email: cust.email,
+            customer_name: cust.name ?? null,
+            stripe_customer_id: cust.id,
+            last4: card.last4 ?? null,
+            exp_month: card.exp_month,
+            exp_year: card.exp_year,
+            updated_at: now.toISOString(),
+          })
+        }
+      }
+    }
+    // Best-effort live refresh of the expiring-cards table (admin client bypasses RLS).
+    if (toTrack.length) {
+      try {
+        const admin = await createAdminClient()
+        await (admin as any).from('expiring_cards').upsert(toTrack, { onConflict: 'user_id,stripe_customer_id' })
+      } catch { /* non-critical — the daily cron also keeps this table fresh */ }
     }
 
     // 3) Historical failed charges, bucketed into cumulative periods (the
