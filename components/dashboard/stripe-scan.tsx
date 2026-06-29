@@ -21,7 +21,9 @@ type ScanData = {
   isPro: boolean
 }
 
-const CACHE_KEY = 'revova_scan_cache_v2'
+// Cache is keyed PER ACCOUNT so signing out of one merchant and into another in
+// the same browser tab never shows the previous account's numbers.
+const CACHE_PREFIX = 'revova_scan_v3_'
 const COLLAPSE_KEY = 'revova_scan_collapsed'
 const CACHE_TTL = 10 * 60 * 1000 // 10 min — avoid re-hitting Stripe on every mount
 
@@ -35,17 +37,18 @@ const PERIODS: { key: keyof ScanData['periods']; label: string; needDays: number
 
 const EMPTY: ScanData['periods'] = { d30: { count: 0, amount: 0 }, m3: { count: 0, amount: 0 }, y1: { count: 0, amount: 0 } }
 
-export function StripeScan() {
+export function StripeScan({ accountId }: { accountId: string }) {
   const [data, setData] = useState<ScanData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [collapsed, setCollapsed] = useState(false)
+  const cacheKey = CACHE_PREFIX + accountId
 
   const scan = useCallback(async (force = false) => {
     // Serve from a short session cache unless the user forces a fresh scan.
     if (!force) {
       try {
-        const raw = sessionStorage.getItem(CACHE_KEY)
+        const raw = sessionStorage.getItem(cacheKey)
         if (raw) {
           const { d, ts } = JSON.parse(raw)
           if (Date.now() - ts < CACHE_TTL) { setData(d); return }
@@ -58,14 +61,14 @@ export function StripeScan() {
       const json = await res.json()
       if (res.ok) {
         setData(json)
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ d: json, ts: Date.now() })) } catch { /* quota */ }
+        try { sessionStorage.setItem(cacheKey, JSON.stringify({ d: json, ts: Date.now() })) } catch { /* quota */ }
         // First-ever scan: collapse on the NEXT visit so returning users get a
         // tidy dashboard, while brand-new users see it fully open right now.
         try { if (localStorage.getItem(COLLAPSE_KEY) === null) localStorage.setItem(COLLAPSE_KEY, '1') } catch { /* ignore */ }
       } else setError(json.error || 'Scan failed')
     } catch { setError('Could not scan your Stripe account') }
     finally { setLoading(false) }
-  }, [])
+  }, [cacheKey])
 
   useEffect(() => {
     try { setCollapsed(localStorage.getItem(COLLAPSE_KEY) === '1') } catch { /* ignore */ }

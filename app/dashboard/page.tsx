@@ -113,7 +113,7 @@ export default async function DashboardPage() {
             />
           </div>
 
-          {!ctx.impersonating && <StripeScan />}
+          {!ctx.impersonating && <StripeScan accountId={userId} />}
 
           {atRisk.length > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">

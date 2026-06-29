@@ -2,10 +2,11 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut, Receipt, BookOpen, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut, Receipt, BookOpen, ShieldCheck, Crown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { ADMIN_EMAIL } from '@/lib/admin'
+import { resolvePlan, type PlanStatus } from '@/lib/plan'
 import { useRouter } from 'next/navigation'
 
 const nav = [
@@ -23,12 +24,19 @@ export function Sidebar() {
   const router = useRouter()
   const supabase = createClient()
   const [isAdmin, setIsAdmin] = useState(false)
+  const [plan, setPlan] = useState<PlanStatus | null>(null)
 
-  // Show the founder-only Admin link if the signed-in email is the admin
+  // Show the founder-only Admin link if the signed-in email is the admin, and
+  // resolve which plan THIS account is on (shown as a badge under the logo).
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email?.toLowerCase() === ADMIN_EMAIL) setIsAdmin(true)
-    })
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      if (user.email?.toLowerCase() === ADMIN_EMAIL) setIsAdmin(true)
+      const { data: account } = await supabase.from('stripe_accounts').select('connected_at').eq('user_id', user.id).maybeSingle()
+      const { data: sub } = await supabase.from('subscriptions').select('plan_id, status').eq('user_id', user.id).maybeSingle()
+      setPlan(resolvePlan(account, sub))
+    })()
   }, [supabase])
 
   async function handleSignOut() {
@@ -45,6 +53,7 @@ export function Sidebar() {
           </div>
           <span className="font-bold text-gray-900 text-lg">Revova</span>
         </Link>
+        {plan && <PlanBadge plan={plan} />}
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
@@ -93,5 +102,29 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+  )
+}
+
+// Plan badge shown under the logo so the merchant always knows their current plan.
+function PlanBadge({ plan }: { plan: PlanStatus }) {
+  const styles: Record<string, { label: string; cls: string; icon?: boolean }> = {
+    pro: { label: 'Pro', cls: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white', icon: true },
+    starter: { label: 'Starter plan', cls: 'bg-blue-100 text-blue-700' },
+    trial: { label: `Free trial · ${plan.trialDaysLeft}d left`, cls: 'bg-amber-100 text-amber-700' },
+    expired: { label: 'Trial ended', cls: 'bg-red-100 text-red-700' },
+  }
+  const s = styles[plan.tier] ?? styles.trial
+  return (
+    <div className="mt-3 flex items-center justify-between gap-2">
+      <span className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold', s.cls)}>
+        {s.icon && <Crown className="w-3 h-3" />}
+        {s.label}
+      </span>
+      {!plan.isPro && (
+        <Link href="/billing" className="text-xs font-semibold text-indigo-600 hover:underline">
+          Upgrade →
+        </Link>
+      )}
+    </div>
   )
 }
