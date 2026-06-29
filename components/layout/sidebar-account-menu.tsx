@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut, ChevronUp, Lock, CheckCircle, Loader2, Building2, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { resolvePlan, type PlanStatus } from '@/lib/plan'
+import { resolvePlan, TRIAL_DAYS, type PlanStatus } from '@/lib/plan'
 
 function fmtDate(s?: string | null) {
   if (!s) return '—'
@@ -23,6 +23,7 @@ export function SidebarAccountMenu() {
 
   const [email, setEmail] = useState('')
   const [createdAt, setCreatedAt] = useState<string | null>(null)
+  const [connectedAt, setConnectedAt] = useState<string | null>(null)
   const [hasPassword, setHasPassword] = useState(false)
   const [plan, setPlan] = useState<PlanStatus | null>(null)
 
@@ -49,6 +50,7 @@ export function SidebarAccountMenu() {
       const { data: acc } = await supabase.from('stripe_accounts').select('business_name, connected_at').eq('user_id', user.id).maybeSingle()
       const { data: sub } = await supabase.from('subscriptions').select('plan_id, status').eq('user_id', user.id).maybeSingle()
       setBizName(acc?.business_name ?? '')
+      setConnectedAt(acc?.connected_at ?? null)
       setPlan(resolvePlan(acc, sub))
     })()
   }, [supabase])
@@ -95,6 +97,8 @@ export function SidebarAccountMenu() {
     : 'bg-red-100 text-red-700'
   const displayName = bizName || email.split('@')[0] || 'Account'
   const initial = (displayName[0] ?? '?').toUpperCase()
+  // The free trial ends TRIAL_DAYS after the Stripe account was connected.
+  const trialEnd = connectedAt ? new Date(new Date(connectedAt).getTime() + TRIAL_DAYS * 86_400_000).toISOString() : null
   const inputCls = 'w-full text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-indigo-200'
 
   return (
@@ -112,11 +116,35 @@ export function SidebarAccountMenu() {
             </div>
 
             {/* Plan + meta */}
-            <div className="px-3.5 py-2.5 border-b border-gray-100 flex items-center justify-between">
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${planCls}`}>{planLabel}</span>
-              <span className="text-[11px] text-gray-400">
-                {plan?.isTrial ? `${plan.trialDaysLeft} days left` : `Joined ${fmtDate(createdAt)}`}
-              </span>
+            <div className="px-3.5 py-2.5 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${planCls}`}>{planLabel}</span>
+                {plan?.isTrial && <span className="text-[11px] font-semibold text-amber-600">{plan.trialDaysLeft} days left</span>}
+              </div>
+              <div className="space-y-1 text-[11px]">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Member since</span>
+                  <span className="text-gray-600 font-medium">{fmtDate(createdAt)}</span>
+                </div>
+                {plan?.isTrial && trialEnd && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Free trial ends</span>
+                    <span className="text-amber-700 font-medium">{fmtDate(trialEnd)}</span>
+                  </div>
+                )}
+                {plan && !plan.isTrial && plan.tier !== 'expired' && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Status</span>
+                    <span className="text-emerald-700 font-medium">Active · renews monthly</span>
+                  </div>
+                )}
+                {plan?.tier === 'expired' && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Free trial</span>
+                    <span className="text-red-600 font-medium">Ended {trialEnd ? `· ${fmtDate(trialEnd)}` : ''}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Menu rows */}
