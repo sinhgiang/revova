@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DollarSign, TrendingUp, Mail, AlertCircle, Calendar } from 'lucide-react'
 import { StatsCard } from './stats-card'
+import { DateRangePicker } from './date-range-picker'
 import { formatCurrency } from '@/lib/utils'
 
 // One failed-payment row, slimmed to what the stats need.
@@ -35,7 +36,6 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
   const [preset, setPreset] = useState('30d')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
-  const fromRef = useRef<HTMLInputElement>(null)
   const custom = preset === 'custom'
 
   // Resolve the active [start, end] window from either a preset or the calendar.
@@ -71,16 +71,6 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
 
   function choosePreset(k: string) { setPreset(k); setFrom(''); setTo('') }
 
-  // Switch to custom mode and pop the calendar open on the "From" field.
-  function openCustom() {
-    setPreset('custom')
-    setTimeout(() => {
-      const el = fromRef.current as (HTMLInputElement & { showPicker?: () => void }) | null
-      try { el?.showPicker?.() } catch { /* showPicker unsupported → field is still clickable */ }
-      el?.focus()
-    }, 0)
-  }
-
   // Human label for the active custom window (shown on the Custom pill).
   const customLabel = custom && (from || to)
     ? `${from || '…'} → ${to || 'now'}`
@@ -98,34 +88,23 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
             {p.label}
           </button>
         ))}
-        <button onClick={openCustom} className={pill(custom)} title="Pick a custom date range">
+        <button onClick={() => setPreset('custom')} className={pill(custom)} title="Pick a custom date range">
           <Calendar className="w-3.5 h-3.5" />
           {customLabel}
         </button>
       </div>
 
-      {/* ── Custom range picker (revealed when Custom is selected) ── */}
+      {/* ── Custom range: our own English calendar (filters live as you click) ── */}
       {custom && (
-        <div className="flex flex-wrap items-center gap-2 mb-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2.5">
-          <span className="text-xs font-semibold text-indigo-700">From</span>
-          <input
-            ref={fromRef}
-            type="date" value={from} max={to || undefined}
-            onChange={e => setFrom(e.target.value)}
-            className="text-sm border border-indigo-200 rounded-lg px-2.5 py-1.5 text-gray-800 focus:ring-2 focus:ring-indigo-300 outline-none"
-          />
-          <span className="text-xs font-semibold text-indigo-700">To</span>
-          <input
-            type="date" value={to} min={from || undefined}
-            onChange={e => setTo(e.target.value)}
-            className="text-sm border border-indigo-200 rounded-lg px-2.5 py-1.5 text-gray-800 focus:ring-2 focus:ring-indigo-300 outline-none"
-          />
-          {(from || to) && (
-            <button onClick={() => { setFrom(''); setTo('') }} className="text-xs font-medium text-gray-500 hover:text-gray-800 px-1">
-              Clear
-            </button>
-          )}
-          <span className="text-xs text-indigo-600/70 ml-1">Pick a start and end day to filter.</span>
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-3">
+          <div className="text-xs text-indigo-700 sm:pt-2 sm:w-48">
+            <p className="font-semibold mb-0.5">Pick a start day, then an end day.</p>
+            <p className="text-indigo-600/80">
+              {from ? `From ${from}` : 'No start yet'}{to ? ` → To ${to}` : from ? ' → pick end' : ''}
+            </p>
+            <p className="text-indigo-500/70 mt-1">It filters instantly — no Apply needed.</p>
+          </div>
+          <DateRangePicker from={from} to={to} onChange={(f, t) => { setFrom(f); setTo(t) }} />
         </div>
       )}
 
