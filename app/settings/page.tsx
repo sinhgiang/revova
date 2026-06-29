@@ -3,9 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { formatDate } from '@/lib/utils'
-import { CheckCircle, User, Plug, Mail, Bell, Heart, Webhook, Shield } from 'lucide-react'
+import { CheckCircle, Plug, Mail, Bell, Heart, Webhook, Shield } from 'lucide-react'
 import { WebhookSettings } from '@/components/settings/webhook-settings'
-import { BusinessNameSettings } from '@/components/settings/business-name-settings'
 import { SlackSettings } from '@/components/settings/slack-settings'
 import { TelegramSettings } from '@/components/settings/telegram-settings'
 import { WidgetSettings } from '@/components/settings/widget-settings'
@@ -23,7 +22,6 @@ import { PredunningSettings } from '@/components/settings/predunning-settings'
 import { RecoveryWindowSettings } from '@/components/settings/recovery-window-settings'
 import { ProcessorConnectionSettings } from '@/components/settings/processor-connection-settings'
 import { DataPrivacySettings } from '@/components/settings/data-privacy-settings'
-import { ChangePasswordSettings } from '@/components/settings/change-password-settings'
 import { SettingsTabs, SettingsTab } from '@/components/settings/settings-tabs'
 import { AdminBar } from '@/components/admin/admin-bar'
 import { getPlanFor } from '@/lib/plan'
@@ -37,10 +35,6 @@ export default async function SettingsPage() {
   const plan = await getPlanFor(supabase as any, user.id)
   if (!plan.hasAccess) redirect('/billing?expired=1')
   const isPro = plan.isPro
-
-  // Only email/password accounts can change a password (OAuth users have none)
-  const hasPassword = user.app_metadata?.provider === 'email'
-    || (user.identities ?? []).some((i: { provider: string }) => i.provider === 'email')
 
   const { data: stripeAccount } = await (supabase as any)
     .from('stripe_accounts')
@@ -76,25 +70,6 @@ export default async function SettingsPage() {
           </div>
 
           <SettingsTabs>
-            {/* ───────── Account ───────── */}
-            <SettingsTab id="account" label="Account" icon={<User className={ic} />}>
-              <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-semibold text-gray-900 mb-4">Account</h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">Email</span>
-                    <span className="text-sm font-medium text-gray-900">{user.email}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-sm text-gray-500">Member since</span>
-                    <span className="text-sm font-medium text-gray-900">{formatDate(user.created_at)}</span>
-                  </div>
-                  <BusinessNameSettings currentName={stripeAccount?.business_name ?? null} />
-                </div>
-              </div>
-              {hasPassword && <ChangePasswordSettings />}
-            </SettingsTab>
-
             {/* ───────── Connections ───────── */}
             <SettingsTab id="connections" label="Connections" icon={<Plug className={ic} />}>
               <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">

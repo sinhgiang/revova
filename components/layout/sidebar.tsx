@@ -2,12 +2,12 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, LogOut, Receipt, BookOpen, ShieldCheck, Crown } from 'lucide-react'
+import { LayoutDashboard, CreditCard, Mail, BarChart2, Settings, Zap, Receipt, BookOpen, ShieldCheck, Crown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { ADMIN_EMAIL } from '@/lib/admin'
 import { resolvePlan, type PlanStatus } from '@/lib/plan'
-import { useRouter } from 'next/navigation'
+import { SidebarAccountMenu } from './sidebar-account-menu'
 
 const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -21,7 +21,6 @@ const nav = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const router = useRouter()
   const supabase = createClient()
   const [isAdmin, setIsAdmin] = useState(false)
   const [plan, setPlan] = useState<PlanStatus | null>(null)
@@ -38,11 +37,6 @@ export function Sidebar() {
       setPlan(resolvePlan(account, sub))
     })()
   }, [supabase])
-
-  async function handleSignOut() {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
 
   return (
     <aside className="w-64 bg-white border-r border-gray-100 flex flex-col h-screen sticky top-0">
@@ -92,15 +86,7 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="p-4 border-t border-gray-100">
-        <button
-          onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button>
-      </div>
+      <SidebarAccountMenu />
     </aside>
   )
 }
