@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { DollarSign, TrendingUp, Mail, AlertCircle, Calendar } from 'lucide-react'
 import { StatsCard } from './stats-card'
 import { formatCurrency } from '@/lib/utils'
@@ -25,16 +25,23 @@ const PRESETS: { key: string; label: string; days: number | null }[] = [
 
 const DAY = 86_400_000
 
+function pill(active: boolean) {
+  return `px-3 py-1.5 rounded-full text-xs font-semibold transition-colors inline-flex items-center gap-1 ${
+    active ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+  }`
+}
+
 export function RecoveryStats({ payments, currency }: { payments: P[]; currency: string }) {
   const [preset, setPreset] = useState('30d')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
-  const usingCustom = !!(from || to)
+  const fromRef = useRef<HTMLInputElement>(null)
+  const custom = preset === 'custom'
 
   // Resolve the active [start, end] window from either a preset or the calendar.
   const { start, end } = useMemo(() => {
     const now = Date.now()
-    if (usingCustom) {
+    if (custom) {
       return {
         start: from ? new Date(from + 'T00:00:00').getTime() : 0,
         end: to ? new Date(to + 'T23:59:59').getTime() : now,
@@ -44,7 +51,7 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
     if (!p || p.days === null) return { start: 0, end: now }
     if (p.days === 0) { const d = new Date(); d.setHours(0, 0, 0, 0); return { start: d.getTime(), end: now } }
     return { start: now - p.days * DAY, end: now }
-  }, [preset, from, to, usingCustom])
+  }, [preset, from, to, custom])
 
   const m = useMemo(() => {
     const f = payments.filter(p => {
@@ -62,47 +69,65 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
     return { count: f.length, totalRecovered, lostAmount, pending: pending.length, emailsSent, customers, rate }
   }, [payments, start, end])
 
-  function selectPreset(k: string) { setPreset(k); setFrom(''); setTo('') }
+  function choosePreset(k: string) { setPreset(k); setFrom(''); setTo('') }
+
+  // Switch to custom mode and pop the calendar open on the "From" field.
+  function openCustom() {
+    setPreset('custom')
+    setTimeout(() => {
+      const el = fromRef.current as (HTMLInputElement & { showPicker?: () => void }) | null
+      try { el?.showPicker?.() } catch { /* showPicker unsupported → field is still clickable */ }
+      el?.focus()
+    }, 0)
+  }
+
+  // Human label for the active custom window (shown on the Custom pill).
+  const customLabel = custom && (from || to)
+    ? `${from || '…'} → ${to || 'now'}`
+    : 'Custom range'
 
   return (
     <div className="mb-8">
       {/* ── Time filter bar ── */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
         <span className="text-sm text-gray-500 flex items-center gap-1.5">
           <Calendar className="w-4 h-4" /> Showing:
         </span>
         {PRESETS.map(p => (
-          <button
-            key={p.key}
-            onClick={() => selectPreset(p.key)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-              !usingCustom && preset === p.key
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-            }`}
-          >
+          <button key={p.key} onClick={() => choosePreset(p.key)} className={pill(!custom && preset === p.key)}>
             {p.label}
           </button>
         ))}
-        <div className="flex items-center gap-1.5 sm:ml-auto">
+        <button onClick={openCustom} className={pill(custom)} title="Pick a custom date range">
+          <Calendar className="w-3.5 h-3.5" />
+          {customLabel}
+        </button>
+      </div>
+
+      {/* ── Custom range picker (revealed when Custom is selected) ── */}
+      {custom && (
+        <div className="flex flex-wrap items-center gap-2 mb-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2.5">
+          <span className="text-xs font-semibold text-indigo-700">From</span>
           <input
+            ref={fromRef}
             type="date" value={from} max={to || undefined}
             onChange={e => setFrom(e.target.value)}
-            className={`text-xs border rounded-lg px-2 py-1.5 text-gray-700 ${usingCustom ? 'border-indigo-300 ring-1 ring-indigo-200' : 'border-gray-200'}`}
-            title="From date"
+            className="text-sm border border-indigo-200 rounded-lg px-2.5 py-1.5 text-gray-800 focus:ring-2 focus:ring-indigo-300 outline-none"
           />
-          <span className="text-gray-400 text-xs">→</span>
+          <span className="text-xs font-semibold text-indigo-700">To</span>
           <input
             type="date" value={to} min={from || undefined}
             onChange={e => setTo(e.target.value)}
-            className={`text-xs border rounded-lg px-2 py-1.5 text-gray-700 ${usingCustom ? 'border-indigo-300 ring-1 ring-indigo-200' : 'border-gray-200'}`}
-            title="To date"
+            className="text-sm border border-indigo-200 rounded-lg px-2.5 py-1.5 text-gray-800 focus:ring-2 focus:ring-indigo-300 outline-none"
           />
-          {usingCustom && (
-            <button onClick={() => { setFrom(''); setTo('') }} className="text-xs text-gray-400 hover:text-gray-700 px-1" title="Clear">✕</button>
+          {(from || to) && (
+            <button onClick={() => { setFrom(''); setTo('') }} className="text-xs font-medium text-gray-500 hover:text-gray-800 px-1">
+              Clear
+            </button>
           )}
+          <span className="text-xs text-indigo-600/70 ml-1">Pick a start and end day to filter.</span>
         </div>
-      </div>
+      )}
 
       {/* ── One-line summary for the selected window ── */}
       <p className="text-xs text-gray-500 mb-3">
