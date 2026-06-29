@@ -2,13 +2,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
-import { StatsCard } from '@/components/dashboard/stats-card'
-import { DollarSign, TrendingUp, Mail, AlertCircle, CheckCircle, Circle, CreditCard } from 'lucide-react'
+import { TrendingUp, AlertCircle, CheckCircle, Circle, CreditCard } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { churnRisk } from '@/lib/health-score'
 import { getPlanFor } from '@/lib/plan'
 import { TrialBanner } from '@/components/plan/trial-banner'
 import { StripeScan } from '@/components/dashboard/stripe-scan'
+import { RecoveryStats } from '@/components/dashboard/recovery-stats'
 import { getAppContext } from '@/lib/impersonate'
 import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
 import { AdminBar } from '@/components/admin/admin-bar'
@@ -43,12 +43,15 @@ export default async function DashboardPage() {
     .eq('user_id', userId)
 
   const allPayments = payments ?? []
-  const recovered = allPayments.filter(p => p.status === 'recovered')
-  const pending = allPayments.filter(p => p.status === 'pending' || p.status === 'email_sent')
-  const totalRecovered = recovered.reduce((sum, p) => sum + p.amount, 0)
-  const recoveryRate = allPayments.length > 0 ? Math.round((recovered.length / allPayments.length) * 100) : 0
-  const emailsSent = allPayments.reduce((sum, p) => sum + (p.emails_sent ?? 0), 0)
   const currency = allPayments[0]?.currency ?? 'usd'
+  // Slim rows the client filter needs (it recomputes KPIs per selected window).
+  const statsPayments = allPayments.map((p: any) => ({
+    created_at: p.created_at,
+    status: p.status,
+    amount: p.amount,
+    emails_sent: p.emails_sent ?? 0,
+    customer_email: p.customer_email ?? null,
+  }))
 
   // At-risk: pending payments that have received 3+ emails without resolving
   const atRisk = allPayments.filter(p =>
@@ -86,32 +89,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatsCard
-              title="Total Recovered"
-              value={formatCurrency(totalRecovered, currency)}
-              subtitle="Revenue saved"
-              icon={<DollarSign className="w-6 h-6" />}
-            />
-            <StatsCard
-              title="Recovery Rate"
-              value={`${recoveryRate}%`}
-              subtitle="of failed payments"
-              icon={<TrendingUp className="w-6 h-6" />}
-            />
-            <StatsCard
-              title="Emails Sent"
-              value={emailsSent.toString()}
-              subtitle="Recovery emails"
-              icon={<Mail className="w-6 h-6" />}
-            />
-            <StatsCard
-              title="Pending Recovery"
-              value={pending.length.toString()}
-              subtitle="Awaiting response"
-              icon={<AlertCircle className="w-6 h-6" />}
-            />
-          </div>
+          <RecoveryStats payments={statsPayments} currency={currency} />
 
           {!ctx.impersonating && <StripeScan accountId={userId} />}
 
