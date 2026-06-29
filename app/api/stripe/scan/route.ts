@@ -37,8 +37,19 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
     const { data: account } = await (supabase as any)
-      .from('stripe_accounts').select('access_token').eq('user_id', user.id).single()
-    if (!account?.access_token) return NextResponse.json({ error: 'No Stripe connected' }, { status: 400 })
+      .from('stripe_accounts').select('access_token').eq('user_id', user.id).maybeSingle()
+    if (!account?.access_token) {
+      // Non-Stripe merchant. The scan/expiry features read the processor's API,
+      // which we implement per-processor. Until that adapter supports reads,
+      // report gracefully so the dashboard shows a "coming soon" state — never a
+      // broken error. Live webhook recovery already works for every processor.
+      const { data: conn } = await (supabase as any)
+        .from('payment_connections').select('processor').eq('user_id', user.id).maybeSingle()
+      if (conn?.processor) {
+        return NextResponse.json({ ok: true, scanSupported: false, processor: conn.processor })
+      }
+      return NextResponse.json({ error: 'No payment processor connected' }, { status: 400 })
+    }
 
     const plan = await getPlanFor(supabase as any, user.id)
     const actionableDays = ACTIONABLE_DAYS[plan.tier] ?? 30

@@ -19,6 +19,9 @@ type ScanData = {
   actionableDays: number
   tier: string
   isPro: boolean
+  // Set by the API for a non-Stripe processor whose read-scan isn't wired yet.
+  scanSupported?: boolean
+  processor?: string
 }
 
 // Cache is keyed PER ACCOUNT so signing out of one merchant and into another in
@@ -89,6 +92,8 @@ export function StripeScan({ accountId }: { accountId: string }) {
   const yearLost = periods.y1.amount
   const hasNow = (data?.failedCount ?? 0) > 0 || (data?.expiringCount ?? 0) > 0
   const hasAnyLoss = periods.y1.count > 0
+  const comingSoon = data?.scanSupported === false
+  const processorName = data?.processor ? data.processor.charAt(0).toUpperCase() + data.processor.slice(1) : 'your processor'
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm mb-8 overflow-hidden">
@@ -104,10 +109,12 @@ export function StripeScan({ accountId }: { accountId: string }) {
           <p className="font-bold text-gray-900 leading-tight">Lost Revenue Finder</p>
           <p className="text-xs text-gray-500 mt-0.5 truncate">
             {loading
-              ? 'Scanning your Stripe account…'
-              : hasAnyLoss
-                ? <>You lost <span className="font-semibold text-red-600">{formatCurrency(yearLost, currency)}</span> to failed payments in the last 12 months</>
-                : 'Find revenue you lost to failed payments — and win it back'}
+              ? 'Scanning your payment history…'
+              : comingSoon
+                ? `Historical scan for ${processorName} is coming soon`
+                : hasAnyLoss
+                  ? <>You lost <span className="font-semibold text-red-600">{formatCurrency(yearLost, currency)}</span> to failed payments in the last 12 months</>
+                  : 'Find revenue you lost to failed payments — and win it back'}
           </p>
         </div>
         {collapsed
@@ -115,7 +122,21 @@ export function StripeScan({ accountId }: { accountId: string }) {
           : <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />}
       </button>
 
-      {!collapsed && (
+      {!collapsed && comingSoon && (
+        <div className="px-5 pb-5 pt-1">
+          <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4 flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Lost Revenue Finder for {processorName} is on the way</p>
+              <p className="text-sm text-gray-600 mt-1">
+                Your <strong>live recovery is already fully active</strong> on {processorName} — every failed payment is detected and emailed automatically. The historical scan that surfaces past losses is being added for {processorName} next.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!collapsed && !comingSoon && (
         <div className="px-5 pb-5 pt-1">
           {error && (
             <p className="text-sm text-red-600 mb-3 flex items-center gap-1.5">
