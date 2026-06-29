@@ -221,36 +221,43 @@ export default async function DashboardPage() {
             </>
           )}
 
-          {/* ── SOON: cards about to expire — prevent the failure before it happens ── */}
-          {expiringCards.length > 0 && (
-            <>
-              <TimelineSection
-                tone="soon"
-                title="Coming up — prevent these failures"
-                subtitle="Cards expiring soon. Revova emails these customers before the charge fails — no action needed."
-                className="mt-10"
-              />
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <CreditCard className="w-4 h-4 text-orange-600" />
-                  <h2 className="font-semibold text-orange-900">Customers In Danger ({expiringCards.length})</h2>
-                </div>
-                <div className="space-y-2">
-                  {expiringCards.slice(0, 5).map((c: any) => (
-                    <div key={c.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-orange-100">
-                      <span className="font-medium text-gray-900">{c.customer_email}</span>
-                      <span className="text-gray-500">
-                        {c.last4 ? `•••• ${c.last4} · ` : ''}expires {String(c.exp_month).padStart(2, '0')}/{c.exp_year}
-                        {c.notified_at ? ' · notified' : ''}
-                      </span>
-                    </div>
-                  ))}
-                  {expiringCards.length > 5 && (
-                    <p className="text-center text-xs text-orange-700 pt-1">+{expiringCards.length - 5} more</p>
-                  )}
-                </div>
+          {/* ── SOON: cards about to expire — prevent the failure before it happens.
+                 Always shown (even at zero) so the merchant sees the full timeline. ── */}
+          <TimelineSection
+            tone="soon"
+            title="Coming up — prevent these failures"
+            subtitle="Cards expiring soon. Revova emails these customers before the charge fails — no action needed."
+            className="mt-10"
+          />
+          {expiringCards.length > 0 ? (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="w-4 h-4 text-orange-600" />
+                <h2 className="font-semibold text-orange-900">Customers In Danger ({expiringCards.length})</h2>
               </div>
-            </>
+              <div className="space-y-2">
+                {expiringCards.slice(0, 5).map((c: any) => (
+                  <div key={c.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-orange-100">
+                    <span className="font-medium text-gray-900">{c.customer_email}</span>
+                    <span className="text-gray-500">
+                      {c.last4 ? `•••• ${c.last4} · ` : ''}expires {String(c.exp_month).padStart(2, '0')}/{c.exp_year}
+                      {c.notified_at ? ' · notified' : ''}
+                    </span>
+                  </div>
+                ))}
+                {expiringCards.length > 5 && (
+                  <p className="text-center text-xs text-orange-700 pt-1">+{expiringCards.length - 5} more</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-100 rounded-xl p-5 mb-6 shadow-sm flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-gray-900">No cards expiring soon — you&apos;re all clear</p>
+                <p className="text-sm text-gray-500 mt-0.5">Revova watches every active card. The moment one is about to expire, it appears here and the customer is emailed before the payment can fail.</p>
+              </div>
+            </div>
           )}
         </div>
       </main>
