@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { DollarSign, TrendingUp, Mail, AlertCircle, Calendar } from 'lucide-react'
 import { StatsCard } from './stats-card'
 import { DateRangePicker } from './date-range-picker'
@@ -36,7 +36,19 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
   const [preset, setPreset] = useState('30d')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const popRef = useRef<HTMLDivElement>(null)
   const custom = preset === 'custom'
+
+  // Close the calendar popover when clicking anywhere outside it.
+  useEffect(() => {
+    if (!pickerOpen) return
+    function onDown(e: MouseEvent) {
+      if (popRef.current && !popRef.current.contains(e.target as Node)) setPickerOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [pickerOpen])
 
   // Resolve the active [start, end] window from either a preset or the calendar.
   const { start, end } = useMemo(() => {
@@ -69,12 +81,15 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
     return { count: f.length, totalRecovered, lostAmount, pending: pending.length, emailsSent, customers, rate }
   }, [payments, start, end])
 
-  function choosePreset(k: string) { setPreset(k); setFrom(''); setTo('') }
+  function choosePreset(k: string) { setPreset(k); setFrom(''); setTo(''); setPickerOpen(false) }
 
-  // Human label for the active custom window (shown on the Custom pill).
-  const customLabel = custom && (from || to)
-    ? `${from || '…'} → ${to || 'now'}`
-    : 'Custom range'
+  // Selecting a day. When BOTH ends are chosen, auto-close the calendar.
+  function handleRange(f: string, t: string) {
+    setFrom(f); setTo(t)
+    if (f && t) setPickerOpen(false)
+  }
+
+  const customLabel = custom && (from || to) ? `${from || '…'} → ${to || 'now'}` : 'Custom range'
 
   return (
     <div className="mb-8">
@@ -88,25 +103,30 @@ export function RecoveryStats({ payments, currency }: { payments: P[]; currency:
             {p.label}
           </button>
         ))}
-        <button onClick={() => setPreset('custom')} className={pill(custom)} title="Pick a custom date range">
-          <Calendar className="w-3.5 h-3.5" />
-          {customLabel}
-        </button>
-      </div>
 
-      {/* ── Custom range: our own English calendar (filters live as you click) ── */}
-      {custom && (
-        <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-3">
-          <div className="text-xs text-indigo-700 sm:pt-2 sm:w-48">
-            <p className="font-semibold mb-0.5">Pick a start day, then an end day.</p>
-            <p className="text-indigo-600/80">
-              {from ? `From ${from}` : 'No start yet'}{to ? ` → To ${to}` : from ? ' → pick end' : ''}
-            </p>
-            <p className="text-indigo-500/70 mt-1">It filters instantly — no Apply needed.</p>
-          </div>
-          <DateRangePicker from={from} to={to} onChange={(f, t) => { setFrom(f); setTo(t) }} />
+        {/* Custom-range button + popover calendar (closes on outside click / after picking both days) */}
+        <div className="relative" ref={popRef}>
+          <button
+            onClick={() => { setPreset('custom'); setPickerOpen(o => !o) }}
+            className={pill(custom)}
+            title="Pick a custom date range"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            {customLabel}
+          </button>
+
+          {custom && pickerOpen && (
+            <div className="absolute z-30 mt-2 left-0">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-xl p-3">
+                <p className="text-xs text-gray-500 mb-2 px-1">
+                  {!from ? 'Pick a start day…' : !to ? 'Now pick an end day…' : 'Range set — filtering applied.'}
+                </p>
+                <DateRangePicker from={from} to={to} onChange={handleRange} />
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ── One-line summary for the selected window ── */}
       <p className="text-xs text-gray-500 mb-3">
