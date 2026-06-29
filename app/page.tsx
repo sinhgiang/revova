@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw } from 'lucide-react'
+import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw, Sparkles, History, Search, Filter } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 
 export default function LandingPage() {
@@ -267,6 +267,73 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── LOST REVENUE FINDER — signature feature ── */}
+      <section className="px-6 py-24 bg-[#060612] text-white overflow-hidden">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
+          <div>
+            <div className="inline-flex items-center gap-1.5 bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" /> Only on Revova
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-5 leading-[1.1]">
+              Find the money you&apos;ve<br/>
+              <span className="bg-gradient-to-r from-rose-400 to-purple-400 bg-clip-text text-transparent">already lost</span> — in 30 seconds
+            </h2>
+            <p className="text-lg text-white/55 mb-7 leading-relaxed">
+              Every other recovery tool only catches <em>new</em> failures. Revova looks <strong className="text-white/80">backwards</strong> too. The moment you connect, it scans your entire payment history and shows every failed charge you never recovered — then launches an AI win-back campaign to bring those customers back.
+            </p>
+            <ul className="space-y-3 mb-8">
+              {[
+                'Instant historical scan — last 30 days, 3 months, all the way to 12 months',
+                'See the exact dollars that slipped through — real data, not estimates',
+                'One-click win-back campaign for old failures (Day 0 → 7 → 21)',
+                'No competitor does this — they only watch payments going forward',
+              ].map(item => (
+                <li key={item} className="flex items-start gap-3 text-white/75 text-sm">
+                  <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link href="/signup" className="inline-flex items-center gap-2 bg-white text-gray-900 font-bold px-7 py-3.5 rounded-xl hover:bg-gray-100 transition-colors">
+              Scan my lost revenue — free
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Scan mockup — mirrors the in-app Lost Revenue Finder */}
+          <div className="bg-[#0e0e1a] border border-white/10 rounded-2xl shadow-2xl p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-white text-sm">Lost Revenue Finder</p>
+                <p className="text-white/40 text-xs">You lost <span className="text-rose-400 font-semibold">$11,800</span> in the last 12 months</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[
+                { label: 'Last 30 days', amt: '$1,240', n: '14 failed', locked: false },
+                { label: 'Last 3 months', amt: '$4,120', n: '52 failed', locked: false },
+                { label: 'Last 12 months', amt: '$11,800', n: '148 failed', locked: true },
+              ].map(({ label, amt, n, locked }) => (
+                <div key={label} className={`rounded-lg p-3 border ${locked ? 'border-purple-400/30 bg-purple-500/5' : 'border-white/10 bg-white/5'}`}>
+                  <p className="text-[10px] uppercase tracking-wide text-white/40 mb-1.5 flex items-center justify-between">
+                    {label} {locked && <Lock className="w-3 h-3 text-purple-400" />}
+                  </p>
+                  <p className={`text-lg font-bold ${locked ? 'blur-[5px] text-white' : 'text-rose-400'}`}>{amt}</p>
+                  <p className={`text-[11px] mt-0.5 ${locked ? 'blur-[4px] text-white/50' : 'text-white/45'}`}>{n} payments</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3">
+              <span className="text-sm text-white/70 flex items-center gap-2"><Search className="w-4 h-4 text-indigo-400" /> Scan complete</span>
+              <span className="text-xs font-semibold text-indigo-300 flex items-center gap-1"><Sparkles className="w-3.5 h-3.5" /> Recover these customers →</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── EMAIL PREVIEW ── */}
       <section className="px-6 py-24 bg-gradient-to-br from-indigo-50 to-purple-50">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
@@ -332,6 +399,10 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
+              { icon: Search, title: 'Lost Revenue Finder', desc: 'Scans your entire payment history the moment you connect and shows exactly how much you lost to past failures — 30 days, 3 months, up to 12 months. No competitor looks backwards.', badge: 'Signature' },
+              { icon: Sparkles, title: 'Historical win-back campaigns', desc: 'Turn those past failures into recovered revenue — Revova emails the customers who failed before you joined, on a Day 0 / 7 / 21 cadence.', badge: 'Win-back' },
+              { icon: History, title: 'Past · Now · Upcoming timeline', desc: 'Your dashboard splits into clear zones — money already lost, failures Revova is recovering right now, and cards about to expire. Always know what\'s what.', badge: 'Live dashboard' },
+              { icon: Filter, title: 'Filter every metric by date', desc: 'See recoveries for today, the last 7/30/90 days, the last year, or any custom range with a built-in calendar. Know what you recovered in any window.', badge: 'Date filter' },
               { icon: Zap, title: 'AI writes every email from scratch', desc: 'Unique copy for every failure reason. Expired card ≠ insufficient funds ≠ stolen card. No templates, ever.', badge: 'Core feature' },
               { icon: Clock, title: 'Lands at 8:30am in their timezone', desc: 'Emails feel natural because they arrive at a natural time — not 3am. Higher open rate = more revenue back.', badge: 'Smart timing' },
               { icon: Mail, title: '5-email sequence over 21 days', desc: 'Day 1, 3, 7, 14, 21. Hard bank declines get a faster 3-email track. Most competitors send the same email to everyone.', badge: 'Pro: 5 emails' },
@@ -477,6 +548,9 @@ export default function LandingPage() {
               </thead>
               <tbody>
                 {[
+                  { feature: 'Lost Revenue Finder (scan past failures)', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Historical win-back campaigns', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Past / Now / Upcoming timeline view', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
                   { feature: 'Works with 5 payment processors', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Auto spam/bounce suppression', revova: true, churnkey: false, stunning: false, churnbuster: false },
@@ -561,11 +635,12 @@ export default function LandingPage() {
               <ul className="space-y-2.5 mb-8">
                 {[
                   'Up to 50 failed payment recoveries/mo',
+                  'Lost Revenue Finder — scan + win back 90 days',
                   'AI-personalized 4-email sequence',
                   'Day 1 → 3 → 7 → 14 cadence',
                   'Works with 5 payment processors',
                   'Pre-dunning + auto spam suppression',
-                  'Real-time recovery dashboard',
+                  'Past / Now / Upcoming dashboard + date filters',
                   'GDPR export & delete tools',
                   '14-day free trial',
                 ].map(f => (
@@ -603,6 +678,8 @@ export default function LandingPage() {
               <ul className="space-y-2.5 mb-8">
                 {[
                   'Unlimited failed payment recoveries',
+                  'Lost Revenue Finder — full 12-month scan',
+                  'Historical win-back campaigns (Day 0 → 7 → 21)',
                   'AI-personalized 5-email sequence',
                   'Day 1 → 3 → 7 → 14 → 21 cadence',
                   'Hard/soft decline smart routing',
@@ -665,6 +742,10 @@ export default function LandingPage() {
           </div>
           <div className="space-y-3">
             {[
+              {
+                q: 'Can Revova show how much I\'ve ALREADY lost to failed payments?',
+                a: 'Yes — this is our signature Lost Revenue Finder, and no other recovery tool does it. The moment you connect your processor, Revova scans your entire payment history and shows exactly how much you lost to failures you never recovered: the last 30 days, 3 months, and up to 12 months. Then it can launch an AI win-back campaign to bring those customers back. Starter scans the last 90 days; Pro goes back a full 12 months. Every other tool only catches new failures going forward — Revova also recovers the ones you missed.',
+              },
               {
                 q: 'Is my data safe? What access does Revova need?',
                 a: 'Revova only needs read-only access to your payment events (from Stripe, Paddle, Braintree, Chargebee, or Recurly). We never touch card data, never process payments beyond the retries you configure, and never store financial information. Data is encrypted in transit and at rest, and you can export or delete everything anytime.',

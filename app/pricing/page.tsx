@@ -70,6 +70,7 @@ export default function PricingPage() {
             <ul className="space-y-2.5 mb-8">
               {[
                 'Up to 50 failed payment recoveries/mo',
+                'Lost Revenue Finder — scan + win back 90 days',
                 'AI-personalized 4-email sequence',
                 'Day 1 → 3 → 7 → 14 cadence',
                 'Daily smart payment auto-retry',
@@ -78,7 +79,7 @@ export default function PricingPage() {
                 'Auto spam/bounce suppression',
                 'Slack & Telegram notifications',
                 'In-app payment banner widget',
-                'Real-time recovery dashboard',
+                'Past / Now / Upcoming dashboard + date filters',
                 'GDPR export & delete tools',
                 '14-day free trial',
               ].map(f => (
@@ -117,6 +118,7 @@ export default function PricingPage() {
               {[
                 'Everything in Starter, plus:',
                 'Unlimited failed payment recoveries',
+                'Lost Revenue Finder — full 12-month scan + win-back',
                 'AI-personalized 5-email sequence',
                 'Hard/soft decline smart routing',
                 'SMS recovery from your own number',
@@ -201,6 +203,9 @@ export default function PricingPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {[
+                  { feature: 'Lost Revenue Finder (scan past failures)', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Historical win-back campaigns', revova: true, churnkey: false, stunning: false, churnbuster: false },
+                  { feature: 'Past / Now / Upcoming timeline view', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
                   { feature: 'Works with 5 payment processors', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Smart payment auto-retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
