@@ -2,7 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
-import { TrendingUp, AlertCircle, CheckCircle, Circle, CreditCard } from 'lucide-react'
+import { TrendingUp, AlertCircle, CheckCircle, CreditCard } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { churnRisk } from '@/lib/health-score'
 import { getPlanFor } from '@/lib/plan'
@@ -10,6 +10,7 @@ import { TrialBanner } from '@/components/plan/trial-banner'
 import { StripeScan } from '@/components/dashboard/stripe-scan'
 import { RecoveryStats } from '@/components/dashboard/recovery-stats'
 import { TimelineSection } from '@/components/dashboard/timeline-section'
+import { SetupChecklist } from '@/components/dashboard/setup-checklist'
 import { getAppContext } from '@/lib/impersonate'
 import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
 import { AdminBar } from '@/components/admin/admin-bar'
@@ -90,6 +91,14 @@ export default async function DashboardPage() {
             </p>
           </div>
 
+          {!ctx.impersonating && (
+            <SetupChecklist
+              webhookDone={!!stripeAccount.webhook_secret}
+              businessNameDone={!!stripeAccount.business_name}
+              notificationsDone={!!(stripeAccount.slack_webhook_url || (stripeAccount.telegram_bot_token && stripeAccount.telegram_chat_id))}
+            />
+          )}
+
           {/* ── NOW: failures since the merchant joined — Revova actively recovering ── */}
           <TimelineSection
             tone="live"
@@ -147,31 +156,12 @@ export default async function DashboardPage() {
               <a href="/payments" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View all →</a>
             </div>
             {allPayments.length === 0 ? (
-              <div className="py-8">
-                <div className="text-center mb-8">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <p className="font-semibold text-gray-900">Revova is live and watching</p>
-                  <p className="text-gray-500 text-sm mt-1">No failed payments yet. Complete setup below to ensure everything is ready.</p>
+              <div className="py-10 text-center">
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
+                  <TrendingUp className="w-6 h-6 text-indigo-600" />
                 </div>
-                <div className="max-w-sm mx-auto space-y-3">
-                  {[
-                    { done: true, label: 'Connect your Stripe account', href: null },
-                    { done: !!stripeAccount.webhook_secret, label: 'Configure Stripe webhook', href: '/settings' },
-                    { done: !!stripeAccount.business_name, label: 'Set your business name', href: '/settings' },
-                    { done: !!stripeAccount.slack_webhook_url, label: 'Add Slack notifications (optional)', href: '/settings' },
-                  ].map(({ done, label, href }) => (
-                    <div key={label} className="flex items-center gap-3">
-                      {done
-                        ? <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                        : <Circle className="w-5 h-5 text-gray-300 flex-shrink-0" />}
-                      {href && !done
-                        ? <Link href={href} className="text-sm text-indigo-600 hover:underline">{label}</Link>
-                        : <span className={`text-sm ${done ? 'text-gray-500 line-through' : 'text-gray-700'}`}>{label}</span>}
-                    </div>
-                  ))}
-                </div>
+                <p className="font-semibold text-gray-900">Revova is live and watching</p>
+                <p className="text-gray-500 text-sm mt-1">No failed payments yet. The moment one fails, Revova recovers it automatically.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">

@@ -62,6 +62,14 @@ export function SidebarAccountMenu() {
     return () => document.removeEventListener('mousedown', onDown)
   }, [open])
 
+  // Let other parts of the app (e.g. the setup checklist's "Set name") open this
+  // menu straight to the business-name editor.
+  useEffect(() => {
+    function onOpen() { setOpen(true); setExpanded('biz') }
+    window.addEventListener('revova:open-account', onOpen)
+    return () => window.removeEventListener('revova:open-account', onOpen)
+  }, [])
+
   async function signOut() { await supabase.auth.signOut(); router.push('/login') }
 
   async function saveBiz() {
