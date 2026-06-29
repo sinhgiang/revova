@@ -298,6 +298,7 @@ export default function LandingPage() {
               Scan my lost revenue — free
               <ArrowRight className="w-4 h-4" />
             </Link>
+            <p className="text-white/35 text-xs mt-4">Available on Stripe today · Paddle, Braintree, Chargebee &amp; Recurly rolling out soon. Live recovery already works on all five.</p>
           </div>
 
           {/* Scan mockup — mirrors the in-app Lost Revenue Finder */}

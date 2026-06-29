@@ -255,6 +255,9 @@ export default function PricingPage() {
               </tbody>
             </table>
           </div>
+          <p className="text-center text-xs text-gray-400 mt-5">
+            Lost Revenue Finder, historical win-back &amp; the timeline view run on Stripe today — Paddle, Braintree, Chargebee &amp; Recurly are rolling out. Live payment recovery already works on all five.
+          </p>
         </div>
       </section>
 
