@@ -9,6 +9,7 @@ import { getPlanFor } from '@/lib/plan'
 import { TrialBanner } from '@/components/plan/trial-banner'
 import { StripeScan } from '@/components/dashboard/stripe-scan'
 import { RecoveryStats } from '@/components/dashboard/recovery-stats'
+import { TimelineSection } from '@/components/dashboard/timeline-section'
 import { getAppContext } from '@/lib/impersonate'
 import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
 import { AdminBar } from '@/components/admin/admin-bar'
@@ -89,9 +90,14 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <RecoveryStats payments={statsPayments} currency={currency} />
+          {/* ── NOW: failures since the merchant joined — Revova actively recovering ── */}
+          <TimelineSection
+            tone="live"
+            title="Live recovery — happening now"
+            subtitle="Payments that failed since you connected Stripe. Revova emails these automatically until they pay or cancel."
+          />
 
-          {!ctx.impersonating && <StripeScan accountId={userId} />}
+          <RecoveryStats payments={statsPayments} currency={currency} />
 
           {atRisk.length > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
@@ -130,32 +136,6 @@ export default async function DashboardPage() {
                   <Link href="/billing" className="block text-center text-xs font-medium text-indigo-600 hover:underline pt-1">
                     🔒 Unlock AI churn-risk scoring with Pro →
                   </Link>
-                )}
-              </div>
-            </div>
-          )}
-
-          {expiringCards.length > 0 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="w-4 h-4 text-orange-600" />
-                <h2 className="font-semibold text-orange-900">Customers In Danger ({expiringCards.length})</h2>
-              </div>
-              <p className="text-sm text-orange-700 mb-3">
-                These cards expire soon. Revova emails them proactively before the payment fails — no action needed.
-              </p>
-              <div className="space-y-2">
-                {expiringCards.slice(0, 5).map((c: any) => (
-                  <div key={c.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-orange-100">
-                    <span className="font-medium text-gray-900">{c.customer_email}</span>
-                    <span className="text-gray-500">
-                      {c.last4 ? `•••• ${c.last4} · ` : ''}expires {String(c.exp_month).padStart(2, '0')}/{c.exp_year}
-                      {c.notified_at ? ' · notified' : ''}
-                    </span>
-                  </div>
-                ))}
-                {expiringCards.length > 5 && (
-                  <p className="text-center text-xs text-orange-700 pt-1">+{expiringCards.length - 5} more</p>
                 )}
               </div>
             </div>
@@ -227,6 +207,51 @@ export default async function DashboardPage() {
               </div>
             )}
           </div>
+
+          {/* ── PAST: failures from before Revova — recoverable history, not auto-recovered ── */}
+          {!ctx.impersonating && (
+            <>
+              <TimelineSection
+                tone="past"
+                title="Before Revova — money already lost"
+                subtitle="These payments failed before Revova was watching, so they were never recovered. Run a winback campaign to try to get them back."
+                className="mt-10"
+              />
+              <StripeScan accountId={userId} />
+            </>
+          )}
+
+          {/* ── SOON: cards about to expire — prevent the failure before it happens ── */}
+          {expiringCards.length > 0 && (
+            <>
+              <TimelineSection
+                tone="soon"
+                title="Coming up — prevent these failures"
+                subtitle="Cards expiring soon. Revova emails these customers before the charge fails — no action needed."
+                className="mt-10"
+              />
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <CreditCard className="w-4 h-4 text-orange-600" />
+                  <h2 className="font-semibold text-orange-900">Customers In Danger ({expiringCards.length})</h2>
+                </div>
+                <div className="space-y-2">
+                  {expiringCards.slice(0, 5).map((c: any) => (
+                    <div key={c.id} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 border border-orange-100">
+                      <span className="font-medium text-gray-900">{c.customer_email}</span>
+                      <span className="text-gray-500">
+                        {c.last4 ? `•••• ${c.last4} · ` : ''}expires {String(c.exp_month).padStart(2, '0')}/{c.exp_year}
+                        {c.notified_at ? ' · notified' : ''}
+                      </span>
+                    </div>
+                  ))}
+                  {expiringCards.length > 5 && (
+                    <p className="text-center text-xs text-orange-700 pt-1">+{expiringCards.length - 5} more</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>
