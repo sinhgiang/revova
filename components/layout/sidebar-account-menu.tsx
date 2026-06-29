@@ -104,10 +104,10 @@ export function SidebarAccountMenu() {
   return (
     <div ref={ref} className="relative p-2.5 border-t border-gray-100">
       {open && (
-        <div className="absolute bottom-full left-2 right-2 mb-2 bg-white border border-gray-200/80 rounded-xl shadow-2xl shadow-gray-300/40 z-50 overflow-hidden">
+        <div className="absolute bottom-full left-2 right-2 mb-2 bg-white border border-gray-300 rounded-xl shadow-[0_12px_48px_rgba(49,46,129,0.28)] ring-1 ring-black/5 z-50 overflow-hidden">
           <div className="max-h-[74vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center gap-3 p-3.5 border-b border-gray-100">
+            {/* Header (tinted so the menu clearly reads as a popped-up surface) */}
+            <div className="flex items-center gap-3 p-3.5 border-b border-gray-100 bg-gradient-to-br from-indigo-50 to-purple-50/40">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">{initial}</div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
