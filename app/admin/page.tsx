@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { resolvePlan } from '@/lib/plan'
 import { ADMIN_EMAIL } from '@/lib/admin'
-import Stripe from 'stripe'
+import { scanLost, type LostBuckets } from '@/lib/stripe-lost-scan'
 import Link from 'next/link'
 import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search } from 'lucide-react'
 
@@ -14,42 +14,6 @@ export const maxDuration = 300
 const STARTER_PRICE = 29
 const PRO_PRICE = 79
 const SCAN_CAP = 50 // cap live Stripe scans per admin load to bound latency
-
-type LostBuckets = { d30: { c: number; a: number }; m3: { c: number; a: number }; y1: { c: number; a: number } }
-
-// Scan a merchant's Stripe for failed charges, bucketed 30d / 3mo / 12mo
-// (same engine as the in-app Lost Revenue Finder). Read-only, best-effort.
-async function scanLost(token: string): Promise<LostBuckets> {
-  const p: LostBuckets = { d30: { c: 0, a: 0 }, m3: { c: 0, a: 0 }, y1: { c: 0, a: 0 } }
-  const nowSec = Math.floor(Date.now() / 1000)
-  const cut30 = nowSec - 30 * 86400, cut90 = nowSec - 90 * 86400, cut365 = nowSec - 365 * 86400
-  const add = (createdSec: number, amt: number) => {
-    p.y1.c++; p.y1.a += amt
-    if (createdSec >= cut90) { p.m3.c++; p.m3.a += amt }
-    if (createdSec >= cut30) { p.d30.c++; p.d30.a += amt }
-  }
-  const stripe = new Stripe(token)
-  try {
-    let page: string | undefined
-    do {
-      const res: any = await stripe.charges.search({ query: `status:"failed" AND created>${cut365}`, limit: 100, ...(page ? { page } : {}) })
-      for (const c of res.data) add(c.created, c.amount ?? 0)
-      page = res.has_more ? res.next_page : undefined
-    } while (page)
-  } catch {
-    try { // fallback: list every charge and filter
-      let sa: string | undefined
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const ch: any = await stripe.charges.list({ created: { gte: cut365 }, limit: 100, starting_after: sa })
-        for (const c of ch.data) if (c.status === 'failed') add(c.created, c.amount ?? 0)
-        if (!ch.has_more || ch.data.length === 0) break
-        sa = ch.data[ch.data.length - 1].id
-      }
-    } catch { /* invalid/revoked key — leave zeros */ }
-  }
-  return p
-}
 
 export default async function AdminPage() {
   // ── Access: founder only ──
@@ -243,23 +207,46 @@ export default async function AdminPage() {
           <p className="text-xs text-gray-500 mb-4">
             Past failed payments Revova surfaced for your customers · live scan of {scanTargets.length} Stripe-connected account{scanTargets.length === 1 ? '' : 's'}.
           </p>
-          {c365 > 0 ? (
-            <>
-              <div className="grid grid-cols-3 gap-3">
-                {([['Last 30 days', lost30, c30], ['Last 3 months', lost90, c90], ['Last 12 months', lost365, c365]] as const).map(([label, amt, cnt]) => (
-                  <div key={label} className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">{label}</p>
-                    <p className="text-xl font-bold text-red-600">{formatCurrency(amt)}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{cnt} failed payment{cnt === 1 ? '' : 's'}</p>
-                  </div>
-                ))}
+
+          {/* All merchants combined */}
+          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">All merchants combined</p>
+          <div className="grid grid-cols-3 gap-3">
+            {([['Last 30 days', lost30, c30], ['Last 3 months', lost90, c90], ['Last 12 months', lost365, c365]] as const).map(([label, amt, cnt]) => (
+              <div key={label} className="bg-gray-50 rounded-lg p-4">
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">{label}</p>
+                <p className={`text-xl font-bold ${amt > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(amt)}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{cnt} failed payment{cnt === 1 ? '' : 's'}</p>
               </div>
-              <p className="text-sm text-emerald-700 mt-3 font-medium">
-                ~{formatCurrency(recoverable365)} recoverable (≈50%) — the value Revova can deliver across your customers.
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-gray-500">No past failed payments found across connected merchants yet — their Stripe accounts are clean.</p>
+            ))}
+          </div>
+          {c365 > 0 && (
+            <p className="text-sm text-emerald-700 mt-3 font-medium">
+              ~{formatCurrency(recoverable365)} recoverable (≈50%) — the value Revova can deliver across your customers.
+            </p>
+          )}
+
+          {/* Per merchant — so you know exactly whose customers these are */}
+          {scanTargets.length > 0 && (
+            <div className="mt-5 border-t border-gray-100 pt-4">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">By merchant</p>
+              <div className="space-y-1.5">
+                {scanTargets.map(m => {
+                  const l = (m as any).lost as LostBuckets | null
+                  return (
+                    <div key={m.userId} className="flex items-center justify-between gap-3 bg-gray-50 rounded-lg px-3 py-2">
+                      <Link href={`/admin/merchant/${m.userId}`} className="text-sm font-medium text-indigo-600 hover:underline truncate min-w-0">{m.name}</Link>
+                      {l && l.y1.c > 0 ? (
+                        <span className="text-xs text-gray-500 flex-shrink-0 whitespace-nowrap">
+                          30d <strong className="text-red-600">{formatCurrency(l.d30.a)}</strong> · 3mo <strong className="text-red-600">{formatCurrency(l.m3.a)}</strong> · 12mo <strong className="text-red-600">{formatCurrency(l.y1.a)}</strong> <span className="text-gray-400">· {l.y1.c} failed</span>
+                        </span>
+                      ) : (
+                        <span className="text-xs text-emerald-600 flex-shrink-0">Clean — no past failures ✓</span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           )}
         </div>
 

@@ -4,11 +4,13 @@ import { redirect, notFound } from 'next/navigation'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { resolvePlan, TRIAL_DAYS } from '@/lib/plan'
 import { ADMIN_EMAIL } from '@/lib/admin'
+import { scanLost } from '@/lib/stripe-lost-scan'
 import { EnterDashboardButton } from '@/components/admin/impersonate-controls'
 import { MerchantActions } from '@/components/admin/merchant-actions'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Search } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 120
 
 export default async function MerchantDetailPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params
@@ -51,6 +53,10 @@ export default async function MerchantDetailPage({ params }: { params: Promise<{
   const currency = pays[0]?.currency ?? 'usd'
   const joined = account.connected_at ? new Date(account.connected_at) : null
   const trialEnds = joined ? new Date(joined.getTime() + TRIAL_DAYS * 86_400_000) : null
+
+  // Lost Revenue Finder for THIS merchant (live Stripe scan of past failures).
+  const lostScan = account.access_token ? await scanLost(account.access_token) : null
+  const lostRecoverable = lostScan ? Math.round(lostScan.y1.a * 0.5) : 0
 
   const features: [string, boolean][] = [
     ['Slack alerts', !!account.slack_webhook_url],
@@ -128,6 +134,33 @@ export default async function MerchantDetailPage({ params }: { params: Promise<{
             <div className="bg-gray-50 rounded-lg py-2"><span className="font-bold text-gray-900">{lost.length}</span> <span className="text-gray-400">lost</span></div>
             <div className="bg-gray-50 rounded-lg py-2"><span className="font-bold text-gray-900">{emailsSent ?? 0}</span> <span className="text-gray-400">emails sent</span> · <span className="font-bold text-gray-900">{suppressed ?? 0}</span> <span className="text-gray-400">suppressed</span></div>
           </div>
+        </div>
+
+        {/* Lost Revenue Finder for this merchant (past failures on Stripe) */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center"><Search className="w-4 h-4 text-white" /></div>
+            <h3 className="font-semibold text-gray-900">Lost Revenue Finder</h3>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">Money this merchant lost to failed payments before/outside Revova — their win-back opportunity.</p>
+          {lostScan ? (
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                {([['Last 30 days', lostScan.d30], ['Last 3 months', lostScan.m3], ['Last 12 months', lostScan.y1]] as const).map(([label, b]) => (
+                  <div key={label} className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">{label}</p>
+                    <p className={`text-xl font-bold ${b.a > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(b.a, currency)}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{b.c} failed payment{b.c === 1 ? '' : 's'}</p>
+                  </div>
+                ))}
+              </div>
+              {lostScan.y1.c > 0
+                ? <p className="text-sm text-emerald-700 mt-3 font-medium">~{formatCurrency(lostRecoverable, currency)} recoverable (≈50%) — worth flagging to this merchant for a win-back campaign.</p>
+                : <p className="text-sm text-emerald-600 mt-3">Clean — no past failed payments found on their Stripe.</p>}
+            </>
+          ) : (
+            <p className="text-sm text-gray-500">No Stripe connected — historical scan unavailable for this merchant.</p>
+          )}
         </div>
 
         {/* Feature configuration */}
