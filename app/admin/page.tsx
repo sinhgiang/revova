@@ -5,8 +5,10 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { resolvePlan } from '@/lib/plan'
 import { ADMIN_EMAIL } from '@/lib/admin'
 import { scanLost, type LostBuckets } from '@/lib/stripe-lost-scan'
+import { AdminTabs, AdminTab } from '@/components/admin/admin-tabs'
+import { MerchantsTable } from '@/components/admin/merchants-table'
 import Link from 'next/link'
-import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search } from 'lucide-react'
+import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search, LayoutDashboard, AlertTriangle, History } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -122,15 +124,15 @@ export default async function AdminPage() {
     if (!onboardedIds.has(u.id)) attention.push({ name: u.email ?? u.id.slice(0, 8), email: u.email ?? '—', reasons: ['🔌 Signed up but never connected'] })
   }
 
-  const tierBadge = (t: string) => {
-    const map: Record<string, string> = {
-      pro: 'bg-purple-100 text-purple-700',
-      starter: 'bg-indigo-100 text-indigo-700',
-      trial: 'bg-amber-100 text-amber-700',
-      expired: 'bg-gray-100 text-gray-500',
+  // Rows for the filterable client-side merchants table.
+  const merchantRows = merchants.map(m => {
+    const l = (m as any).lost as LostBuckets | null
+    return {
+      userId: m.userId, name: m.name, email: m.email, tier: m.tier, daysActive: m.daysActive,
+      total: m.total, recovered: m.recovered, revenue: m.revenue, currency: m.currency, rate: m.rate,
+      lost30: l?.d30.a ?? 0, lost90: l?.m3.a ?? 0, lost365: l?.y1.a ?? 0, lostCount: l?.y1.c ?? 0,
     }
-    return map[t] ?? 'bg-gray-100 text-gray-500'
-  }
+  })
 
   const card = (icon: React.ReactNode, label: string, value: string, sub: string, color: string) => (
     <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
@@ -158,187 +160,143 @@ export default async function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-8 py-8">
-        {/* Top metrics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {card(<Users className="w-4 h-4 text-white" />, 'Signups', String(totalSignups), `${onboarded} onboarded · +${newThisWeek} this week`, 'bg-indigo-500')}
-          {card(<CreditCard className="w-4 h-4 text-white" />, 'Paying', String(paying), `${conversion}% conversion`, 'bg-emerald-500')}
-          {card(<DollarSign className="w-4 h-4 text-white" />, 'MRR', `$${mrr.toLocaleString()}`, `$${arr.toLocaleString()} ARR · ${tierCount.pro} Pro · ${tierCount.starter} Starter`, 'bg-purple-500')}
-          {card(<TrendingUp className="w-4 h-4 text-white" />, 'Recovered for customers', formatCurrency(totalRevenue, recovCurrency), `${totalRecovered} payments`, 'bg-amber-500')}
-        </div>
-
-        {/* Plan breakdown + system health */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <h3 className="font-semibold text-gray-900 mb-3">Plan breakdown</h3>
-            <div className="grid grid-cols-4 gap-3 text-center">
-              {([['Trial', tierCount.trial, 'text-amber-600'], ['Starter', tierCount.starter, 'text-indigo-600'], ['Pro', tierCount.pro, 'text-purple-600'], ['Expired', tierCount.expired, 'text-gray-400']] as const).map(([l, n, c]) => (
-                <div key={l} className="bg-gray-50 rounded-lg py-3">
-                  <p className={`text-2xl font-bold ${c}`}>{n}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{l}</p>
-                </div>
-              ))}
+        <AdminTabs>
+          {/* ───────── Overview ───────── */}
+          <AdminTab id="overview" label="Overview" icon={<LayoutDashboard className="w-4 h-4" />}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {card(<Users className="w-4 h-4 text-white" />, 'Signups', String(totalSignups), `${onboarded} onboarded · +${newThisWeek} this week`, 'bg-indigo-500')}
+              {card(<CreditCard className="w-4 h-4 text-white" />, 'Paying', String(paying), `${conversion}% conversion`, 'bg-emerald-500')}
+              {card(<DollarSign className="w-4 h-4 text-white" />, 'MRR', `$${mrr.toLocaleString()}`, `$${arr.toLocaleString()} ARR · ${tierCount.pro} Pro · ${tierCount.starter} Starter`, 'bg-purple-500')}
+              {card(<TrendingUp className="w-4 h-4 text-white" />, 'Recovered for customers', formatCurrency(totalRevenue, recovCurrency), `${totalRecovered} payments`, 'bg-amber-500')}
             </div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <h3 className="font-semibold text-gray-900 mb-3">System health</h3>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-gray-50 rounded-lg py-3">
-                <p className="text-2xl font-bold text-gray-900">{(emailCount ?? 0).toLocaleString()}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Emails sent</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg py-3">
-                <p className="text-2xl font-bold text-gray-900">{overallRate}%</p>
-                <p className="text-xs text-gray-400 mt-0.5">Recovery rate</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg py-3">
-                <p className="text-2xl font-bold text-gray-900">{(suppressed ?? 0).toLocaleString()}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Suppressed (bounce/spam)</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Lost Revenue Finder — aggregated across all merchants */}
-        <div className="bg-white rounded-xl border border-indigo-100 shadow-sm p-5 mb-8">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center"><Search className="w-4 h-4 text-white" /></div>
-            <h3 className="font-semibold text-gray-900">Lost Revenue Finder — across all merchants</h3>
-          </div>
-          <p className="text-xs text-gray-500 mb-4">
-            Past failed payments Revova surfaced for your customers · live scan of {scanTargets.length} Stripe-connected account{scanTargets.length === 1 ? '' : 's'}.
-          </p>
-
-          {/* All merchants combined */}
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">All merchants combined</p>
-          <div className="grid grid-cols-3 gap-3">
-            {([['Last 30 days', lost30, c30], ['Last 3 months', lost90, c90], ['Last 12 months', lost365, c365]] as const).map(([label, amt, cnt]) => (
-              <div key={label} className="bg-gray-50 rounded-lg p-4">
-                <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">{label}</p>
-                <p className={`text-xl font-bold ${amt > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(amt)}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{cnt} failed payment{cnt === 1 ? '' : 's'}</p>
-              </div>
-            ))}
-          </div>
-          {c365 > 0 && (
-            <p className="text-sm text-emerald-700 mt-3 font-medium">
-              ~{formatCurrency(recoverable365)} recoverable (≈50%) — the value Revova can deliver across your customers.
-            </p>
-          )}
-
-          {/* Per merchant — so you know exactly whose customers these are */}
-          {scanTargets.length > 0 && (
-            <div className="mt-5 border-t border-gray-100 pt-4">
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">By merchant</p>
-              <div className="space-y-1.5">
-                {scanTargets.map(m => {
-                  const l = (m as any).lost as LostBuckets | null
-                  return (
-                    <div key={m.userId} className="flex items-center justify-between gap-3 bg-gray-50 rounded-lg px-3 py-2">
-                      <Link href={`/admin/merchant/${m.userId}`} className="text-sm font-medium text-indigo-600 hover:underline truncate min-w-0">{m.name}</Link>
-                      {l && l.y1.c > 0 ? (
-                        <span className="text-xs text-gray-500 flex-shrink-0 whitespace-nowrap">
-                          30d <strong className="text-red-600">{formatCurrency(l.d30.a)}</strong> · 3mo <strong className="text-red-600">{formatCurrency(l.m3.a)}</strong> · 12mo <strong className="text-red-600">{formatCurrency(l.y1.a)}</strong> <span className="text-gray-400">· {l.y1.c} failed</span>
-                        </span>
-                      ) : (
-                        <span className="text-xs text-emerald-600 flex-shrink-0">Clean — no past failures ✓</span>
-                      )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-3">Plan breakdown</h3>
+                <div className="grid grid-cols-4 gap-3 text-center">
+                  {([['Trial', tierCount.trial, 'text-amber-600'], ['Starter', tierCount.starter, 'text-indigo-600'], ['Pro', tierCount.pro, 'text-purple-600'], ['Expired', tierCount.expired, 'text-gray-400']] as const).map(([l, n, c]) => (
+                    <div key={l} className="bg-gray-50 rounded-lg py-3">
+                      <p className={`text-2xl font-bold ${c}`}>{n}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{l}</p>
                     </div>
-                  )
-                })}
+                  ))}
+                </div>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-3">System health</h3>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="bg-gray-50 rounded-lg py-3"><p className="text-2xl font-bold text-gray-900">{(emailCount ?? 0).toLocaleString()}</p><p className="text-xs text-gray-400 mt-0.5">Emails sent</p></div>
+                  <div className="bg-gray-50 rounded-lg py-3"><p className="text-2xl font-bold text-gray-900">{overallRate}%</p><p className="text-xs text-gray-400 mt-0.5">Recovery rate</p></div>
+                  <div className="bg-gray-50 rounded-lg py-3"><p className="text-2xl font-bold text-gray-900">{(suppressed ?? 0).toLocaleString()}</p><p className="text-xs text-gray-400 mt-0.5">Suppressed (bounce/spam)</p></div>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+          </AdminTab>
 
-        {/* Needs attention */}
-        {attention.length > 0 && (
-          <div className="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden mb-6">
-            <div className="px-5 py-4 border-b border-amber-100 bg-amber-50">
-              <h3 className="font-semibold text-amber-900">⚠️ Needs attention ({attention.length})</h3>
-              <p className="text-xs text-amber-700 mt-0.5">Merchants worth a proactive reach-out — convert, support, or fix.</p>
-            </div>
-            <ul className="divide-y divide-gray-50">
-              {attention.map((a, i) => (
-                <li key={i} className="px-5 py-3 flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    {a.userId ? <a href={`/admin/merchant/${a.userId}`} className="font-medium text-indigo-600 hover:underline">{a.name}</a> : <span className="font-medium text-gray-700">{a.name}</span>}
-                    <p className="text-xs text-gray-400 truncate">{a.email}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 justify-end">
-                    {a.reasons.map((r, j) => (
-                      <span key={j} className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-full">{r}</span>
-                    ))}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          {/* ───────── Merchants (filterable) ───────── */}
+          <AdminTab id="merchants" label="Merchants" icon={<Users className="w-4 h-4" />} badge={merchants.length}>
+            <MerchantsTable merchants={merchantRows} />
+          </AdminTab>
 
-        {/* Merchant table */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-900">All merchants ({merchants.length})</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
-                  <th className="px-5 py-3 font-medium">Business</th>
-                  <th className="px-5 py-3 font-medium">Plan</th>
-                  <th className="px-5 py-3 font-medium text-right">Days</th>
-                  <th className="px-5 py-3 font-medium text-right">Failed</th>
-                  <th className="px-5 py-3 font-medium text-right">Recovered</th>
-                  <th className="px-5 py-3 font-medium text-right">Rate</th>
-                  <th className="px-5 py-3 font-medium text-right">Revenue saved</th>
-                  <th className="px-5 py-3 font-medium text-right">Lost (12mo)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {merchants.length === 0 ? (
-                  <tr><td colSpan={8} className="px-5 py-8 text-center text-gray-400">No merchants onboarded yet.</td></tr>
-                ) : merchants.map((m, i) => (
-                  <tr key={i} className="hover:bg-indigo-50/40">
-                    <td className="px-5 py-3">
-                      <Link href={`/admin/merchant/${m.userId}`} className="font-medium text-indigo-600 hover:underline">{m.name}</Link>
-                      <p className="text-xs text-gray-400">{m.email}</p>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${tierBadge(m.tier)}`}>{m.tier}</span>
-                    </td>
-                    <td className="px-5 py-3 text-right text-gray-600">{m.daysActive}d</td>
-                    <td className="px-5 py-3 text-right text-gray-600">{m.total}</td>
-                    <td className="px-5 py-3 text-right text-gray-600">{m.recovered}</td>
-                    <td className="px-5 py-3 text-right font-medium text-gray-900">{m.rate}%</td>
-                    <td className="px-5 py-3 text-right font-semibold text-emerald-600">{formatCurrency(m.revenue, m.currency)}</td>
-                    <td className="px-5 py-3 text-right font-semibold text-red-600">
-                      {(m as any).lost ? formatCurrency((m as any).lost.y1.a) : <span className="text-gray-300">—</span>}
-                    </td>
-                  </tr>
+          {/* ───────── Lost Revenue ───────── */}
+          <AdminTab id="lost" label="Lost Revenue" icon={<Search className="w-4 h-4" />}>
+            <div className="bg-white rounded-xl border border-indigo-100 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center"><Search className="w-4 h-4 text-white" /></div>
+                <h3 className="font-semibold text-gray-900">Lost Revenue Finder — across all merchants</h3>
+              </div>
+              <p className="text-xs text-gray-500 mb-4">
+                Past failed payments Revova surfaced for your customers · live scan of {scanTargets.length} Stripe-connected account{scanTargets.length === 1 ? '' : 's'}.
+              </p>
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">All merchants combined</p>
+              <div className="grid grid-cols-3 gap-3">
+                {([['Last 30 days', lost30, c30], ['Last 3 months', lost90, c90], ['Last 12 months', lost365, c365]] as const).map(([label, amt, cnt]) => (
+                  <div key={label} className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">{label}</p>
+                    <p className={`text-xl font-bold ${amt > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(amt)}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{cnt} failed payment{cnt === 1 ? '' : 's'}</p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </div>
+              {c365 > 0 && (
+                <p className="text-sm text-emerald-700 mt-3 font-medium">
+                  ~{formatCurrency(recoverable365)} recoverable (≈50%) — the value Revova can deliver across your customers.
+                </p>
+              )}
+              {scanTargets.length > 0 && (
+                <div className="mt-5 border-t border-gray-100 pt-4">
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">By merchant</p>
+                  <div className="space-y-1.5">
+                    {scanTargets.map(m => {
+                      const l = (m as any).lost as LostBuckets | null
+                      return (
+                        <div key={m.userId} className="flex items-center justify-between gap-3 bg-gray-50 rounded-lg px-3 py-2">
+                          <Link href={`/admin/merchant/${m.userId}`} className="text-sm font-medium text-indigo-600 hover:underline truncate min-w-0">{m.name}</Link>
+                          {l && l.y1.c > 0 ? (
+                            <span className="text-xs text-gray-500 flex-shrink-0 whitespace-nowrap">
+                              30d <strong className="text-red-600">{formatCurrency(l.d30.a)}</strong> · 3mo <strong className="text-red-600">{formatCurrency(l.m3.a)}</strong> · 12mo <strong className="text-red-600">{formatCurrency(l.y1.a)}</strong> <span className="text-gray-400">· {l.y1.c} failed</span>
+                            </span>
+                          ) : (
+                            <span className="text-xs text-emerald-600 flex-shrink-0">Clean — no past failures ✓</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </AdminTab>
 
-        {/* Recent admin changes (audit log) */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mt-6">
-          <div className="px-5 py-4 border-b border-gray-100"><h3 className="font-semibold text-gray-900">Recent admin activity</h3></div>
-          {(recentAudit ?? []).length === 0 ? (
-            <p className="px-5 py-6 text-sm text-gray-400">No admin changes recorded yet.</p>
-          ) : (
-            <ul className="divide-y divide-gray-50">
-              {(recentAudit ?? []).map((a: any) => (
-                <li key={a.id} className="px-5 py-3 flex items-center justify-between text-sm">
-                  <span className="text-gray-700"><strong>{a.merchant_name ?? a.merchant_user_id?.slice(0, 8)}</strong> — {a.action}</span>
-                  <span className="text-xs text-gray-400">{formatDate(a.created_at)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+          {/* ───────── Needs attention ───────── */}
+          <AdminTab id="attention" label="Needs attention" icon={<AlertTriangle className="w-4 h-4" />} badge={attention.length}>
+            {attention.length > 0 ? (
+              <div className="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-amber-100 bg-amber-50">
+                  <h3 className="font-semibold text-amber-900">⚠️ Needs attention ({attention.length})</h3>
+                  <p className="text-xs text-amber-700 mt-0.5">Merchants worth a proactive reach-out — convert, support, or fix.</p>
+                </div>
+                <ul className="divide-y divide-gray-50">
+                  {attention.map((a, i) => (
+                    <li key={i} className="px-5 py-3 flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        {a.userId ? <a href={`/admin/merchant/${a.userId}`} className="font-medium text-indigo-600 hover:underline">{a.name}</a> : <span className="font-medium text-gray-700">{a.name}</span>}
+                        <p className="text-xs text-gray-400 truncate">{a.email}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 justify-end">
+                        {a.reasons.map((r, j) => (
+                          <span key={j} className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-full">{r}</span>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center text-sm text-gray-400">All clear — no merchants need attention right now. 🎉</div>
+            )}
+          </AdminTab>
 
-        <p className="text-xs text-gray-400 mt-4">Private admin view · only visible to {ADMIN_EMAIL}</p>
+          {/* ───────── Activity ───────── */}
+          <AdminTab id="activity" label="Activity" icon={<History className="w-4 h-4" />}>
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100"><h3 className="font-semibold text-gray-900">Recent admin activity</h3></div>
+              {(recentAudit ?? []).length === 0 ? (
+                <p className="px-5 py-6 text-sm text-gray-400">No admin changes recorded yet.</p>
+              ) : (
+                <ul className="divide-y divide-gray-50">
+                  {(recentAudit ?? []).map((a: any) => (
+                    <li key={a.id} className="px-5 py-3 flex items-center justify-between text-sm">
+                      <span className="text-gray-700"><strong>{a.merchant_name ?? a.merchant_user_id?.slice(0, 8)}</strong> — {a.action}</span>
+                      <span className="text-xs text-gray-400">{formatDate(a.created_at)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </AdminTab>
+        </AdminTabs>
+
+        <p className="text-xs text-gray-400 mt-6">Private admin view · only visible to {ADMIN_EMAIL}</p>
       </div>
     </div>
   )
