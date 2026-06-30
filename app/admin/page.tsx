@@ -4,13 +4,52 @@ import { redirect } from 'next/navigation'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { resolvePlan } from '@/lib/plan'
 import { ADMIN_EMAIL } from '@/lib/admin'
+import Stripe from 'stripe'
 import Link from 'next/link'
-import { Users, DollarSign, TrendingUp, CreditCard, Zap } from 'lucide-react'
+import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 300
 
 const STARTER_PRICE = 29
 const PRO_PRICE = 79
+const SCAN_CAP = 50 // cap live Stripe scans per admin load to bound latency
+
+type LostBuckets = { d30: { c: number; a: number }; m3: { c: number; a: number }; y1: { c: number; a: number } }
+
+// Scan a merchant's Stripe for failed charges, bucketed 30d / 3mo / 12mo
+// (same engine as the in-app Lost Revenue Finder). Read-only, best-effort.
+async function scanLost(token: string): Promise<LostBuckets> {
+  const p: LostBuckets = { d30: { c: 0, a: 0 }, m3: { c: 0, a: 0 }, y1: { c: 0, a: 0 } }
+  const nowSec = Math.floor(Date.now() / 1000)
+  const cut30 = nowSec - 30 * 86400, cut90 = nowSec - 90 * 86400, cut365 = nowSec - 365 * 86400
+  const add = (createdSec: number, amt: number) => {
+    p.y1.c++; p.y1.a += amt
+    if (createdSec >= cut90) { p.m3.c++; p.m3.a += amt }
+    if (createdSec >= cut30) { p.d30.c++; p.d30.a += amt }
+  }
+  const stripe = new Stripe(token)
+  try {
+    let page: string | undefined
+    do {
+      const res: any = await stripe.charges.search({ query: `status:"failed" AND created>${cut365}`, limit: 100, ...(page ? { page } : {}) })
+      for (const c of res.data) add(c.created, c.amount ?? 0)
+      page = res.has_more ? res.next_page : undefined
+    } while (page)
+  } catch {
+    try { // fallback: list every charge and filter
+      let sa: string | undefined
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const ch: any = await stripe.charges.list({ created: { gte: cut365 }, limit: 100, starting_after: sa })
+        for (const c of ch.data) if (c.status === 'failed') add(c.created, c.amount ?? 0)
+        if (!ch.has_more || ch.data.length === 0) break
+        sa = ch.data[ch.data.length - 1].id
+      }
+    } catch { /* invalid/revoked key — leave zeros */ }
+  }
+  return p
+}
 
 export default async function AdminPage() {
   // ── Access: founder only ──
@@ -23,7 +62,7 @@ export default async function AdminPage() {
 
   // ── Pull everything (service-role bypasses RLS) ──
   const { data: { users: authUsers } } = await admin.auth.admin.listUsers({ perPage: 1000, page: 1 })
-  const { data: accounts } = await db.from('stripe_accounts').select('user_id, business_name, email, connected_at')
+  const { data: accounts } = await db.from('stripe_accounts').select('user_id, business_name, email, connected_at, access_token')
   const { data: subs } = await db.from('subscriptions').select('user_id, plan_id, status, current_period_end')
   const { data: payments } = await db.from('failed_payments').select('user_id, status, amount, currency, created_at')
   const { count: emailCount } = await db.from('email_logs').select('id', { count: 'exact', head: true })
@@ -68,6 +107,23 @@ export default async function AdminPage() {
       rate,
     }
   }).sort((a, b) => b.revenue - a.revenue)
+
+  // ── Lost Revenue Finder across all merchants (live Stripe scan) ──
+  // Shows the founder the real past-failure opportunity Revova surfaces for
+  // customers. Only Stripe-connected accounts can be scanned today.
+  const accessByUser = new Map(accountList.map((a: any) => [a.user_id, a.access_token]))
+  const scanTargets = merchants.filter(m => accessByUser.get(m.userId)).slice(0, SCAN_CAP)
+  const lostResults = await Promise.all(
+    scanTargets.map(async m => [m.userId, await scanLost(accessByUser.get(m.userId) as string)] as const)
+  )
+  const lostByUser = new Map<string, LostBuckets>(lostResults)
+  merchants.forEach(m => { (m as any).lost = lostByUser.get(m.userId) ?? null })
+  let lost30 = 0, lost90 = 0, lost365 = 0, c30 = 0, c90 = 0, c365 = 0
+  for (const [, b] of lostByUser) {
+    lost30 += b.d30.a; lost90 += b.m3.a; lost365 += b.y1.a
+    c30 += b.d30.c; c90 += b.m3.c; c365 += b.y1.c
+  }
+  const recoverable365 = Math.round(lost365 * 0.5)
 
   // ── Totals ──
   const totalSignups = (authUsers ?? []).length
@@ -178,6 +234,35 @@ export default async function AdminPage() {
           </div>
         </div>
 
+        {/* Lost Revenue Finder — aggregated across all merchants */}
+        <div className="bg-white rounded-xl border border-indigo-100 shadow-sm p-5 mb-8">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center"><Search className="w-4 h-4 text-white" /></div>
+            <h3 className="font-semibold text-gray-900">Lost Revenue Finder — across all merchants</h3>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">
+            Past failed payments Revova surfaced for your customers · live scan of {scanTargets.length} Stripe-connected account{scanTargets.length === 1 ? '' : 's'}.
+          </p>
+          {c365 > 0 ? (
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                {([['Last 30 days', lost30, c30], ['Last 3 months', lost90, c90], ['Last 12 months', lost365, c365]] as const).map(([label, amt, cnt]) => (
+                  <div key={label} className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1.5">{label}</p>
+                    <p className="text-xl font-bold text-red-600">{formatCurrency(amt)}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{cnt} failed payment{cnt === 1 ? '' : 's'}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-emerald-700 mt-3 font-medium">
+                ~{formatCurrency(recoverable365)} recoverable (≈50%) — the value Revova can deliver across your customers.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-gray-500">No past failed payments found across connected merchants yet — their Stripe accounts are clean.</p>
+          )}
+        </div>
+
         {/* Needs attention */}
         {attention.length > 0 && (
           <div className="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden mb-6">
@@ -219,11 +304,12 @@ export default async function AdminPage() {
                   <th className="px-5 py-3 font-medium text-right">Recovered</th>
                   <th className="px-5 py-3 font-medium text-right">Rate</th>
                   <th className="px-5 py-3 font-medium text-right">Revenue saved</th>
+                  <th className="px-5 py-3 font-medium text-right">Lost (12mo)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {merchants.length === 0 ? (
-                  <tr><td colSpan={7} className="px-5 py-8 text-center text-gray-400">No merchants onboarded yet.</td></tr>
+                  <tr><td colSpan={8} className="px-5 py-8 text-center text-gray-400">No merchants onboarded yet.</td></tr>
                 ) : merchants.map((m, i) => (
                   <tr key={i} className="hover:bg-indigo-50/40">
                     <td className="px-5 py-3">
@@ -238,6 +324,9 @@ export default async function AdminPage() {
                     <td className="px-5 py-3 text-right text-gray-600">{m.recovered}</td>
                     <td className="px-5 py-3 text-right font-medium text-gray-900">{m.rate}%</td>
                     <td className="px-5 py-3 text-right font-semibold text-emerald-600">{formatCurrency(m.revenue, m.currency)}</td>
+                    <td className="px-5 py-3 text-right font-semibold text-red-600">
+                      {(m as any).lost ? formatCurrency((m as any).lost.y1.a) : <span className="text-gray-300">—</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
