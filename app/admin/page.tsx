@@ -8,7 +8,7 @@ import { scanLost, type LostBuckets } from '@/lib/stripe-lost-scan'
 import { AdminTabs, AdminTab } from '@/components/admin/admin-tabs'
 import { MerchantsTable } from '@/components/admin/merchants-table'
 import Link from 'next/link'
-import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search, LayoutDashboard, AlertTriangle, History } from 'lucide-react'
+import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search, LayoutDashboard, AlertTriangle, History, Mail, MailOpen, MousePointerClick, ShieldX } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -32,6 +32,9 @@ export default async function AdminPage() {
   const { data: subs } = await db.from('subscriptions').select('user_id, plan_id, status, current_period_end')
   const { data: payments } = await db.from('failed_payments').select('user_id, status, amount, currency, created_at')
   const { count: emailCount } = await db.from('email_logs').select('id', { count: 'exact', head: true })
+  const { count: openedCount } = await db.from('email_logs').select('id', { count: 'exact', head: true }).not('opened_at', 'is', null)
+  const { count: clickedCount } = await db.from('email_logs').select('id', { count: 'exact', head: true }).not('clicked_at', 'is', null)
+  const { data: emailRows } = await db.from('email_logs').select('user_id, opened_at, clicked_at')
   const { count: suppressed } = await db.from('email_blacklist').select('id', { count: 'exact', head: true })
   const { data: recentAudit } = await db.from('admin_audit_log').select('*').order('created_at', { ascending: false }).limit(15)
   const { data: blacklist } = await db.from('email_blacklist').select('user_id')
@@ -123,6 +126,23 @@ export default async function AdminPage() {
   for (const u of authUsers ?? []) {
     if (!onboardedIds.has(u.id)) attention.push({ name: u.email ?? u.id.slice(0, 8), email: u.email ?? '—', reasons: ['🔌 Signed up but never connected'] })
   }
+
+  // ── Email deliverability (platform health) ──
+  const openRate = (emailCount ?? 0) > 0 ? Math.round(((openedCount ?? 0) / (emailCount ?? 1)) * 100) : 0
+  const clickRate = (emailCount ?? 0) > 0 ? Math.round(((clickedCount ?? 0) / (emailCount ?? 1)) * 100) : 0
+  const emailByUser = new Map<string, { sent: number; opened: number; clicked: number }>()
+  for (const r of emailRows ?? []) {
+    const e = emailByUser.get(r.user_id) ?? { sent: 0, opened: 0, clicked: 0 }
+    e.sent++; if (r.opened_at) e.opened++; if (r.clicked_at) e.clicked++
+    emailByUser.set(r.user_id, e)
+  }
+  const deliverRows = merchants
+    .map(m => {
+      const em = emailByUser.get(m.userId) ?? { sent: 0, opened: 0, clicked: 0 }
+      return { userId: m.userId, name: m.name, email: m.email, sent: em.sent, opened: em.opened, clicked: em.clicked, suppressed: m.suppressed }
+    })
+    .filter(r => r.sent > 0 || r.suppressed > 0)
+    .sort((a, b) => b.sent - a.sent)
 
   // Rows for the filterable client-side merchants table.
   const merchantRows = merchants.map(m => {
@@ -244,6 +264,56 @@ export default async function AdminPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </AdminTab>
+
+          {/* ───────── Deliverability ───────── */}
+          <AdminTab id="deliverability" label="Deliverability" icon={<Mail className="w-4 h-4" />} badge={(suppressed ?? 0) > 0 ? suppressed ?? undefined : undefined}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {card(<Mail className="w-4 h-4 text-white" />, 'Emails sent', (emailCount ?? 0).toLocaleString(), 'across all merchants', 'bg-indigo-500')}
+              {card(<MailOpen className="w-4 h-4 text-white" />, 'Open rate', `${openRate}%`, `${(openedCount ?? 0).toLocaleString()} opened`, 'bg-emerald-500')}
+              {card(<MousePointerClick className="w-4 h-4 text-white" />, 'Click rate', `${clickRate}%`, `${(clickedCount ?? 0).toLocaleString()} clicked`, 'bg-blue-500')}
+              {card(<ShieldX className="w-4 h-4 text-white" />, 'Suppressed', (suppressed ?? 0).toLocaleString(), 'bounce / spam — protects sender reputation', 'bg-red-500')}
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900">Email health by merchant</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Watch suppressions — a merchant emailing bad addresses hurts deliverability for everyone on shared sending.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
+                      <th className="px-5 py-3 font-medium">Business</th>
+                      <th className="px-5 py-3 font-medium text-right">Sent</th>
+                      <th className="px-5 py-3 font-medium text-right">Opened</th>
+                      <th className="px-5 py-3 font-medium text-right">Clicked</th>
+                      <th className="px-5 py-3 font-medium text-right">Suppressed</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {deliverRows.length === 0 ? (
+                      <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-400">No emails sent yet.</td></tr>
+                    ) : deliverRows.map(r => {
+                      const oRate = r.sent > 0 ? Math.round((r.opened / r.sent) * 100) : 0
+                      const cRate = r.sent > 0 ? Math.round((r.clicked / r.sent) * 100) : 0
+                      return (
+                        <tr key={r.userId} className="hover:bg-indigo-50/40">
+                          <td className="px-5 py-3">
+                            <Link href={`/admin/merchant/${r.userId}`} className="font-medium text-indigo-600 hover:underline">{r.name}</Link>
+                            <p className="text-xs text-gray-400">{r.email}</p>
+                          </td>
+                          <td className="px-5 py-3 text-right text-gray-600">{r.sent}</td>
+                          <td className="px-5 py-3 text-right text-gray-600">{r.opened} <span className="text-gray-400">({oRate}%)</span></td>
+                          <td className="px-5 py-3 text-right text-gray-600">{r.clicked} <span className="text-gray-400">({cRate}%)</span></td>
+                          <td className={`px-5 py-3 text-right font-semibold ${r.suppressed > 0 ? 'text-red-600' : 'text-gray-300'}`}>{r.suppressed > 0 ? r.suppressed : '—'}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </AdminTab>
 
