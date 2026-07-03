@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendRecoveryEmail } from '@/lib/email/resend'
+import { isAuthorizedCron } from '@/lib/cron-auth'
 
 const DAYS_BEFORE = [7, 3, 1]
 
@@ -77,8 +78,7 @@ The ${businessName} Team`,
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCron(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

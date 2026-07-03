@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkOutboundUrl } from '@/lib/net-guard'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -16,6 +17,10 @@ export async function POST(request: NextRequest) {
   if (!account?.outbound_webhook_url) {
     return NextResponse.json({ error: 'No webhook URL configured' }, { status: 400 })
   }
+
+  // Don't let the test button probe internal infrastructure (SSRF).
+  const urlError = checkOutboundUrl(account.outbound_webhook_url)
+  if (urlError) return NextResponse.json({ error: urlError }, { status: 400 })
 
   const payload = {
     event: 'payment.recovered',

@@ -40,6 +40,9 @@ export function CancelContent() {
   const searchParams = useSearchParams()
   const userId = params.userId as string
   const subscriptionId = searchParams.get('sub') ?? ''
+  // Optional signed token — when the merchant generates one server-side it is
+  // forwarded to the action endpoint, which enforces it.
+  const actionToken = searchParams.get('token') ?? ''
   const returnUrl = searchParams.get('return') ?? '/'
   // When rendered inside the embeddable modal iframe, notify the parent page on
   // completion instead of relying on full-page navigation.
@@ -83,6 +86,7 @@ export function CancelContent() {
         body: JSON.stringify({
           action,
           subscriptionId,
+          ...(actionToken ? { token: actionToken } : {}),
           reason: selectedReason,
           ltvCents: account?.ltvCents ?? 0,
           segment: account?.segment ?? 'standard',

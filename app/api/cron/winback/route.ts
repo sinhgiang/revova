@@ -4,13 +4,13 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { generateWinbackEmail } from '@/lib/ai/email-generator'
 import { sendWinbackEmail } from '@/lib/email/resend'
 import { resolvePlan } from '@/lib/plan'
+import { isAuthorizedCron } from '@/lib/cron-auth'
 
 // Days after cancellation to send each winback email
 const WINBACK_DAYS = [3, 14, 30]
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCron(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

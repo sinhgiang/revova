@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendRecoveryEmail } from '@/lib/email/resend'
+import { checkOutboundHost } from '@/lib/net-guard'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -15,6 +16,10 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (!account?.smtp_host) return NextResponse.json({ error: 'No SMTP configured' }, { status: 400 })
+
+  // Block connecting to internal/private hosts (SSRF).
+  const hostError = checkOutboundHost(account.smtp_host)
+  if (hostError) return NextResponse.json({ error: hostError }, { status: 400 })
 
   try {
     await sendRecoveryEmail({

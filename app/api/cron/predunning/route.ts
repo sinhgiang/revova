@@ -4,10 +4,11 @@ import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendRecoveryEmail } from '@/lib/email/resend'
 import { generatePredunningEmail } from '@/lib/ai/email-generator'
+import { isAuthorizedCron } from '@/lib/cron-auth'
+import { portalToken } from '@/lib/signing'
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCron(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
 
         const expMonthName = new Date(exp_year, exp_month - 1).toLocaleString('default', { month: 'long' })
         const businessName = account.business_name ?? 'Our Service'
-        const portalUrl = `${appUrl}/api/widget/${account.user_id}/billing?customer=${customer.id}`
+        const portalUrl = `${appUrl}/api/widget/${account.user_id}/billing?customer=${customer.id}&t=${portalToken(account.user_id, customer.id)}`
 
         // AI-generated proactive email (Claude → Gemini → static fallback)
         const emailContent = await generatePredunningEmail({

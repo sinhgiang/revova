@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
+import { verifyPortalToken } from '@/lib/signing'
 
 // Redirect customers to Stripe Billing Portal to update their card
 export async function GET(
@@ -9,10 +10,15 @@ export async function GET(
 ) {
   const { userId } = await params
   const customerId = request.nextUrl.searchParams.get('customer')
+  const token = request.nextUrl.searchParams.get('t')
 
   const fallback = NextResponse.redirect(new URL('https://stripe.com'))
 
   if (!customerId) return fallback
+
+  // The (userId, customerId) pair is signed when the link is generated, so the
+  // customer param can't be swapped to open another customer's billing portal.
+  if (!verifyPortalToken(token, userId, customerId)) return fallback
 
   const supabase = await createAdminClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

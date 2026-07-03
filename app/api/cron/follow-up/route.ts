@@ -9,6 +9,7 @@ import { sendTelegramNotification } from '@/lib/telegram'
 import { sendMerchantRecoveryNotification } from '@/lib/email/notifications'
 import { sendSMS, buildRecoverySms } from '@/lib/sms/twilio'
 import { resolvePlan, monthlyRecoveryCount, STARTER_MONTHLY_RECOVERY_LIMIT } from '@/lib/plan'
+import { isAuthorizedCron } from '@/lib/cron-auth'
 import { DeclineCode } from '@/types'
 
 // Decline codes where auto-retrying the charge is worth attempting
@@ -63,8 +64,7 @@ function getDaysAfterPrev(account: any, emailNum: number): number {
 
 export async function GET(request: NextRequest) {
   // Vercel automatically sends this header using CRON_SECRET env var
-  const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCron(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

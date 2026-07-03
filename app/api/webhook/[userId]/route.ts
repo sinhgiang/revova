@@ -32,25 +32,22 @@ export async function POST(
 
   let event: Stripe.Event
 
-  if (accountData.webhook_secret) {
-    // Verify signature with user's webhook secret
-    const signature = request.headers.get('stripe-signature')
-    if (!signature) {
-      return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
-    }
-    const stripeClient = new Stripe(accountData.access_token)
-    try {
-      event = stripeClient.webhooks.constructEvent(body, signature, accountData.webhook_secret)
-    } catch {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
-    }
-  } else {
-    // No secret stored yet — trust the UUID in the URL (128-bit entropy)
-    try {
-      event = JSON.parse(body) as Stripe.Event
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
-    }
+  // A signing secret is REQUIRED. Never trust an unsigned payload: a forged
+  // invoice.payment_failed with an attacker-chosen customer email + "update card"
+  // URL would make us send a phishing email through the merchant's own sender.
+  if (!accountData.webhook_secret) {
+    console.error(`[Webhook] Rejected: no webhook_secret configured for user ${userId}`)
+    return NextResponse.json({ error: 'Webhook signing secret not configured' }, { status: 400 })
+  }
+  const signature = request.headers.get('stripe-signature')
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+  }
+  const stripeClient = new Stripe(accountData.access_token)
+  try {
+    event = stripeClient.webhooks.constructEvent(body, signature, accountData.webhook_secret)
+  } catch {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
   if (event.type === 'invoice.payment_failed') {

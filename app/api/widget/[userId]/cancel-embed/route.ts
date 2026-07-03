@@ -20,6 +20,7 @@ export async function GET(
   function openCancelFlow(opts){
     opts=opts||{};
     var sub=opts.subscriptionId||'';
+    var tok=opts.token||'';
     var ret=opts.returnUrl||window.location.href;
     if(document.getElementById('rv-cancel-overlay'))return;
     var ov=document.createElement('div');
@@ -33,7 +34,7 @@ export async function GET(
     close.style.cssText='position:absolute;top:10px;right:12px;z-index:2;background:rgba(255,255,255,.9);border:none;width:30px;height:30px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;color:#475569;box-shadow:0 1px 4px rgba(0,0,0,.15)';
     close.onclick=closeModal;
     var f=document.createElement('iframe');
-    f.src=API+'/cancel/'+UID+'?embed=1&sub='+encodeURIComponent(sub)+'&return='+encodeURIComponent(ret);
+    f.src=API+'/cancel/'+UID+'?embed=1&sub='+encodeURIComponent(sub)+(tok?'&token='+encodeURIComponent(tok):'')+'&return='+encodeURIComponent(ret);
     f.style.cssText='width:100%;height:100%;border:0;display:block';
     f.setAttribute('title','Cancel subscription');
     frameWrap.appendChild(close);

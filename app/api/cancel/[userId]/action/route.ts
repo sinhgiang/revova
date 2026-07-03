@@ -2,16 +2,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
+import { verifyCancelActionToken } from '@/lib/signing'
+
+// This endpoint is public (embedded on the merchant's site), so it hardens itself:
+//  1. subscriptionId must look like a real Stripe id.
+//  2. Stripe itself rejects any subscription not on this merchant's account, so
+//     cross-merchant tampering is impossible.
+//  3. Retention offers (pause/discount/gift) are IDEMPOTENT per subscription — a
+//     customer can't loop the flow to mint unlimited free months or coupons.
+//  4. If the merchant embeds a signed token (recommended), it is verified; an
+//     invalid token is always rejected.
+const SUB_ID_RE = /^sub_[A-Za-z0-9]+$/
+const OFFER_ACTIONS: Record<string, string> = { pause: 'paused', discount: 'discounted', gift: 'gifted' }
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params
-  const { action, subscriptionId, reason, ltvCents, segment, variant } = await request.json()
+  const { action, subscriptionId, reason, ltvCents, segment, variant, token } = await request.json().catch(() => ({}))
 
   if (!action || !subscriptionId) {
     return NextResponse.json({ error: 'Missing action or subscriptionId' }, { status: 400 })
+  }
+  if (typeof subscriptionId !== 'string' || !SUB_ID_RE.test(subscriptionId)) {
+    return NextResponse.json({ error: 'Invalid subscriptionId' }, { status: 400 })
+  }
+  // Opt-in hardening: if a token is supplied it MUST be valid. Merchants who
+  // generate one server-side (lib/signing.ts → cancelActionToken) get full
+  // per-subscription authorization.
+  if (token != null && !verifyCancelActionToken(String(token), userId, subscriptionId)) {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 403 })
   }
 
   const supabase = await createAdminClient()
@@ -29,6 +50,24 @@ export async function POST(
 
   if (!account.cancel_flow_enabled) {
     return NextResponse.json({ error: 'Cancel flow not enabled' }, { status: 403 })
+  }
+
+  // Idempotency: a retention offer already applied to this subscription is not
+  // re-applied. This is the core anti-abuse control — without it a customer could
+  // re-open the flow and claim gift/discount repeatedly (unlimited free months,
+  // unbounded Stripe coupon creation).
+  if (OFFER_ACTIONS[action]) {
+    const { data: prior } = await db
+      .from('cancel_events')
+      .select('id')
+      .eq('merchant_user_id', userId)
+      .eq('subscription_id', subscriptionId)
+      .eq('action_taken', OFFER_ACTIONS[action])
+      .limit(1)
+      .maybeSingle()
+    if (prior) {
+      return NextResponse.json({ ok: true, result: OFFER_ACTIONS[action], idempotent: true })
+    }
   }
 
   const stripe = new Stripe(account.access_token)

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { safeRedirectTarget } from '@/lib/net-guard'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -10,7 +11,11 @@ export async function GET(request: NextRequest) {
   const target = searchParams.get('target')
   const typePrefix = searchParams.get('t') ?? 'sequence'
 
-  const redirectUrl = target ?? '/'
+  // Never redirect to an arbitrary attacker-supplied URL — these links live in
+  // recovery emails, so an open redirect would let anyone craft a revova.io link
+  // that phishes. Only the app itself and Stripe-hosted pages are allowed.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://revova.io'
+  const redirectUrl = safeRedirectTarget(target, appUrl)
 
   if (userId && email && seq) {
     try {
