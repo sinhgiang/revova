@@ -115,7 +115,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">11. Contact</h2>
             <p>
               Questions? Email{' '}
-              <a href="mailto:legal@revova.io" className="text-indigo-600 hover:underline">legal@revova.io</a>.
+              <a href="mailto:support@revova.io" className="text-indigo-600 hover:underline">support@revova.io</a>.
             </p>
           </section>
         </div>

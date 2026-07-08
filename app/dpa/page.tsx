@@ -80,7 +80,7 @@ export default function DPAPage() {
 
         <div className="mt-10 p-4 rounded-xl bg-amber-50 border border-amber-100">
           <p className="text-xs text-amber-800">
-            This DPA is a good-faith template. For a binding agreement tailored to your jurisdiction and an enterprise contract, have it reviewed by your legal counsel. To sign a countersigned copy, email <a href="mailto:legal@revova.io" className="underline">legal@revova.io</a>.
+            This DPA is a good-faith template. For a binding agreement tailored to your jurisdiction and an enterprise contract, have it reviewed by your legal counsel. To sign a countersigned copy, email <a href="mailto:support@revova.io" className="underline">support@revova.io</a>.
           </p>
         </div>
       </div>

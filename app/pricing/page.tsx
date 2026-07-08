@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Zap, CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown, Star } from 'lucide-react'
+import { Zap, CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 
 export default function PricingPage() {
@@ -261,31 +261,24 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Why the price makes sense */}
       <section className="px-6 py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto text-center mb-10">
-          <div className="flex items-center justify-center gap-1 mb-2">
-            {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
-            <span className="text-gray-400 text-sm ml-2">4.9/5 · 87 reviews</span>
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Customers love the ROI</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Why the price makes sense</h2>
+          <p className="text-gray-500 mt-3">Flat, honest pricing — and you see what you&apos;re losing before you pay.</p>
         </div>
         <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-5">
           {[
-            { quote: 'Was paying $199/mo for Churnkey. Switched to Revova. Same recovery rate, save $170/mo. No-brainer.', name: 'Tom R.', role: 'Founder, InboxFlow', stat: 'Saves $170/mo vs Churnkey' },
-            { quote: 'Recovered $4,280 in month one. Revova costs $79. The math is embarrassingly obvious.', name: 'Sarah K.', role: 'Solo SaaS, $35K MRR', stat: '$4,280 recovered in month 1' },
-            { quote: 'Setup took 4 minutes. It just works. No devs, no webhooks, nothing. I wish I found this sooner.', name: 'Mike C.', role: 'Bootstrapped founder', stat: '74% recovery rate' },
-          ].map(({ quote, name, role, stat }) => (
-            <div key={name} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <div className="flex gap-0.5 mb-4">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
+            { title: 'Up to 85% cheaper', body: 'Churnkey is $199/mo, ChurnBuster $149/mo, Stunning $120/mo. Revova starts at $29/mo with the same core recovery engine.' },
+            { title: 'No commission, ever', body: 'We charge a flat monthly fee. We never take a percentage of the revenue we recover for you — so the upside is entirely yours.' },
+            { title: 'Risk-free to try', body: 'Start with a 14-day free trial, no credit card. Not happy within 30 days of paying? Full refund, no questions asked.' },
+          ].map(({ title, body }) => (
+            <div key={title} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm text-left">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                <p className="font-semibold text-gray-900">{title}</p>
               </div>
-              <p className="text-gray-600 text-sm italic mb-5">&ldquo;{quote}&rdquo;</p>
-              <div className="border-t border-gray-100 pt-4">
-                <p className="font-semibold text-gray-900 text-sm">{name}</p>
-                <p className="text-gray-400 text-xs">{role}</p>
-                <span className="inline-block mt-2 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">↑ {stat}</span>
-              </div>
+              <p className="text-gray-600 text-sm leading-relaxed">{body}</p>
             </div>
           ))}
         </div>

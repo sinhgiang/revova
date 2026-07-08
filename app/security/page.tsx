@@ -46,7 +46,7 @@ export default function SecurityPage() {
           <p className="text-sm text-gray-600">
             Need our <Link href="/dpa" className="text-indigo-600 hover:underline">Data Processing Agreement</Link>,
             {' '}<Link href="/privacy" className="text-indigo-600 hover:underline">Privacy Policy</Link>, or have a security question?
-            Email <a href="mailto:security@revova.io" className="text-indigo-600 hover:underline">security@revova.io</a>.
+            Email <a href="mailto:support@revova.io" className="text-indigo-600 hover:underline">support@revova.io</a>.
           </p>
         </div>
 

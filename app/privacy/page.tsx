@@ -71,7 +71,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">6. Your Rights</h2>
             <p>
               You may request access to, correction of, or deletion of your personal data by emailing{' '}
-              <a href="mailto:privacy@revova.io" className="text-indigo-600 hover:underline">privacy@revova.io</a>.
+              <a href="mailto:support@revova.io" className="text-indigo-600 hover:underline">support@revova.io</a>.
               For EU/EEA users, you have rights under GDPR including access, portability, and erasure.
             </p>
           </section>
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">9. Contact</h2>
             <p>
               Questions? Email us at{' '}
-              <a href="mailto:privacy@revova.io" className="text-indigo-600 hover:underline">privacy@revova.io</a>.
+              <a href="mailto:support@revova.io" className="text-indigo-600 hover:underline">support@revova.io</a>.
             </p>
           </section>
         </div>

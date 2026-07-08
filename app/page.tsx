@@ -1,11 +1,14 @@
 'use client'
 import Link from 'next/link'
-import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, Star, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw, Sparkles, History, Search, Filter } from 'lucide-react'
+import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw, Sparkles, History, Search, Filter } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
+import { JsonLd } from '@/components/json-ld'
+import { homeFaqs, faqPageSchema, breadcrumbSchema } from '@/lib/seo'
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white font-sans">
+      <JsonLd data={[faqPageSchema(homeFaqs), breadcrumbSchema([{ name: 'Home', path: '' }])]} />
 
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
@@ -36,10 +39,8 @@ export default function LandingPage() {
 
           {/* Trust badge */}
           <div className="inline-flex items-center gap-2 bg-white/8 border border-white/15 text-white/70 text-sm px-4 py-1.5 rounded-full mb-8">
-            <span className="flex gap-0.5">
-              {[...Array(5)].map((_,i)=><Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400"/>)}
-            </span>
-            <span>Trusted by 500+ indie hackers &amp; SaaS founders</span>
+            <Zap className="w-3.5 h-3.5 text-indigo-400"/>
+            <span>Recover failed payments on autopilot — no code, no engineers</span>
           </div>
 
           {/* Headline — loss aversion */}
@@ -78,8 +79,8 @@ export default function LandingPage() {
         <div className="border-t border-white/8 bg-white/3">
           <div className="max-w-4xl mx-auto px-6 py-8 grid grid-cols-4 gap-6 text-center">
             {[
-              { value: '65–80%', label: 'Avg recovery rate' },
-              { value: '$2.3M+', label: 'Revenue recovered monthly' },
+              { value: '40–60%', label: 'of failed payments are recoverable' },
+              { value: '5', label: 'payment processors supported' },
               { value: '3 min', label: 'Setup time' },
               { value: '30-day', label: 'Money-back guarantee' },
             ].map(({ value, label }) => (
@@ -250,8 +251,8 @@ export default function LandingPage() {
               {
                 step: '03',
                 title: 'Revenue comes back',
-                desc: 'Your customer gets a human-feeling email at 8:30am in their timezone with a one-click update link. Most recover within 24 hours.',
-                badge: '65–80% recovery rate',
+                desc: 'Your customer gets a human-feeling email at 8:30am in their timezone with a one-click update link. Many recover within 24 hours.',
+                badge: 'Automatic recovery',
               },
             ].map(({ step, title, desc, badge }) => (
               <div key={step}>
@@ -439,72 +440,42 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── SOCIAL PROOF ── */}
+      {/* ── HONEST PROOF: see it before you pay ── */}
       <section className="px-6 py-24 bg-gray-900 text-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-1 mb-3">
-              {[...Array(5)].map((_,i)=><Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400"/>)}
-              <span className="text-white/50 text-sm ml-2">4.9/5 · 87 reviews</span>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-white/8 border border-white/15 text-white/60 text-xs px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider">
+              <Search className="w-3.5 h-3.5 text-indigo-400"/> See the money first
             </div>
-            <h2 className="text-4xl font-bold text-white mb-3">Real founders. Real revenue recovered.</h2>
-            <p className="text-white/40">Not vague testimonials. Specific dollars and percentages.</p>
+            <h2 className="text-4xl font-bold text-white mb-4">You see exactly what you&apos;re losing — before you pay a cent</h2>
+            <p className="text-white/50 max-w-2xl mx-auto">
+              Revova is newly launched, so we won&apos;t show you other people&apos;s testimonials. We&apos;ll show you your own number instead: connect your processor and the Lost Revenue Finder scans your history for free. Then you decide.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              {
-                quote: 'I had no idea how much I was losing. Revova recovered $1,200 in month one. Setup literally took 4 minutes.',
-                name: 'Alex Turner', role: 'Founder, FormFlow', mrr: '$12K MRR',
-                recovered: '$1,200 recovered in month 1', rate: '74% recovery rate',
-              },
-              {
-                quote: 'As a solo founder, chasing failed payments was embarrassing. Now it\'s 100% automated. My recovery rate went from 0% to 71%.',
-                name: 'Sarah Kim', role: 'Solo founder, Chartify', mrr: '$5K MRR',
-                recovered: '71% recovery rate', rate: '0% → 71%',
-              },
-              {
-                quote: 'We were losing $2,500/month to failed payments. Didn\'t realize until Revova showed me. Recovered $2,100 in the first 30 days.',
-                name: 'Marcus Chen', role: 'Bootstrapped, DataPulse', mrr: '$28K MRR',
-                recovered: '$2,100/month recovered', rate: '84% recovery rate',
-              },
-            ].map(({ quote, name, role, mrr, recovered, rate }) => (
-              <div key={name} className="bg-white/6 border border-white/10 rounded-2xl p-7 flex flex-col">
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(5)].map((_,i)=><Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"/>)}
-                </div>
-                <p className="text-white/75 text-sm leading-relaxed mb-6 flex-1 italic">&ldquo;{quote}&rdquo;</p>
-                <div className="border-t border-white/10 pt-4">
-                  <p className="font-semibold text-white text-sm">{name}</p>
-                  <p className="text-white/35 text-xs">{role} · {mrr}</p>
-                  <div className="mt-3 flex gap-3 flex-wrap">
-                    <span className="text-emerald-400 text-xs font-semibold bg-emerald-400/10 px-2 py-1 rounded">↑ {recovered}</span>
-                    <span className="text-indigo-400 text-xs font-semibold bg-indigo-400/10 px-2 py-1 rounded">{rate}</span>
-                  </div>
-                </div>
+              { step: '1', title: 'Connect in 3 minutes', body: 'Paste your payment processor key — read-only access, no code, no engineers. Works with Stripe, Paddle, Braintree, Chargebee and Recurly.' },
+              { step: '2', title: 'See what you already lost', body: 'The scan surfaces failed charges from the last 30 days up to 12 months — a real number pulled from your own account, not an estimate.' },
+              { step: '3', title: 'Recover it on autopilot', body: 'Turn on AI recovery emails and daily smart-retries. Not happy within 30 days? We refund you in full — no questions asked.' },
+            ].map(({ step, title, body }) => (
+              <div key={step} className="bg-white/6 border border-white/10 rounded-2xl p-7">
+                <div className="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 text-sm font-bold mb-4">{step}</div>
+                <p className="font-semibold text-white mb-2">{title}</p>
+                <p className="text-white/55 text-sm leading-relaxed">{body}</p>
               </div>
             ))}
           </div>
 
-          {/* Live feed */}
-          <div className="mt-10 bg-white/4 border border-white/10 rounded-2xl p-5 max-w-lg mx-auto">
-            <p className="text-white/40 text-xs uppercase tracking-widest mb-4 text-center">Live recoveries in the last 24h</p>
-            <div className="space-y-2">
-              {[
-                { name: 'Sarah M.', amount: '$79', time: '2 min ago' },
-                { name: 'James K.', amount: '$49', time: '18 min ago' },
-                { name: 'Priya R.', amount: '$149', time: '41 min ago' },
-              ].map(({ name, amount, time }) => (
-                <div key={name} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>
-                    <span className="text-white/60">{name} just recovered</span>
-                    <span className="text-emerald-400 font-bold">{amount}</span>
-                  </div>
-                  <span className="text-white/25 text-xs">{time}</span>
-                </div>
-              ))}
-            </div>
+          {/* Illustrative example — clearly labelled, not a customer claim */}
+          <div className="mt-8 bg-white/4 border border-white/10 rounded-2xl p-6 max-w-2xl mx-auto text-center">
+            <p className="text-white/40 text-[11px] uppercase tracking-widest mb-3">Illustrative example</p>
+            <p className="text-white/70 text-sm leading-relaxed">
+              A SaaS at <span className="text-white font-semibold">$10K MRR</span> typically loses ~6% to failed payments —
+              about <span className="text-rose-400 font-semibold">$600/month</span>. Recovering even half of that is
+              <span className="text-emerald-400 font-semibold"> ~$300/month back</span>, on a plan that costs $29–79.
+            </p>
+            <p className="text-white/30 text-xs mt-3">Your actual numbers depend on your failure rate and recovery results.</p>
           </div>
         </div>
       </section>
@@ -742,68 +713,7 @@ export default function LandingPage() {
             <p className="text-gray-500">Everything you need to know before you start.</p>
           </div>
           <div className="space-y-3">
-            {[
-              {
-                q: 'Can Revova show how much I\'ve ALREADY lost to failed payments?',
-                a: 'Yes — this is our signature Lost Revenue Finder, and no other recovery tool does it. The moment you connect your processor, Revova scans your entire payment history and shows exactly how much you lost to failures you never recovered: the last 30 days, 3 months, and up to 12 months. Then it can launch an AI win-back campaign to bring those customers back. Starter scans the last 90 days; Pro goes back a full 12 months. Every other tool only catches new failures going forward — Revova also recovers the ones you missed.',
-              },
-              {
-                q: 'Is my data safe? What access does Revova need?',
-                a: 'Revova only needs read-only access to your payment events (from Stripe, Paddle, Braintree, Chargebee, or Recurly). We never touch card data, never process payments beyond the retries you configure, and never store financial information. Data is encrypted in transit and at rest, and you can export or delete everything anytime.',
-              },
-              {
-                q: 'Will these emails annoy my customers?',
-                a: 'No — our AI writes emails that feel like they came from you personally, not a robot. They\'re warm, empathetic, and sent at the right time of day (8:30am customer timezone). We have 0 reported spam complaints across all customers.',
-              },
-              {
-                q: 'How long does setup take? Do I need a developer?',
-                a: 'Literally 3 minutes. Paste your payment processor key, done. No code, no webhooks, no Zapier chains. If you can copy-paste, you can set up Revova.',
-              },
-              {
-                q: 'Which payment processors do you support?',
-                a: 'Stripe, Paddle, Braintree, Chargebee, and Recurly. Each runs on its own isolated pipeline, so you get the same full recovery experience no matter which one you use. Most recovery tools only work with Stripe — Revova doesn\'t lock you in.',
-              },
-              {
-                q: 'Is Revova GDPR compliant and secure?',
-                a: 'Yes. We use read-only payment access, encryption in transit and at rest, and per-account data isolation. You can export all your data or permanently delete your account in one click (Settings → Data & Privacy). A Data Processing Agreement (DPA) is available, and bounced/spam-flagged addresses are automatically suppressed to protect your sender reputation.',
-              },
-              {
-                q: 'What\'s the difference between Starter ($29) and Pro ($79)?',
-                a: 'Starter: up to 50 recoveries/month with a 4-email sequence (Day 1,3,7,14). Pro: unlimited recoveries with a 5-email sequence, hard/soft decline smart routing, emails in 8 languages, winback campaigns for cancelled customers, weekly digest reports, and priority support. If you have more than 50 failed payments per month or global customers, Pro pays for itself many times over.',
-              },
-              {
-                q: 'I have less than $1K MRR. Is Revova worth it?',
-                a: 'At $29/month you need to recover just 1 payment of $29 to break even. Even at $1K MRR you likely have 5–15 failed payments per month. If Revova doesn\'t recover more than $29 in your first 30 days, we\'ll give you a full refund.',
-              },
-              {
-                q: 'How much will I actually recover?',
-                a: 'Our customers average 65–80% recovery rate. Stripe\'s built-in retries alone recover about 30–40%. Revova\'s AI emails recover the remaining 35–50% on top of that. The difference is huge at scale.',
-              },
-              {
-                q: 'What\'s your money-back guarantee?',
-                a: '30-day full refund, no questions asked. If Revova doesn\'t recover more in revenue than it costs you in the first 30 days, email us and we\'ll refund the full amount. We\'ve only had 3 refund requests in our history.',
-              },
-              {
-                q: 'Does Revova work outside the US?',
-                a: 'Yes. Revova works anywhere your payment processor (Stripe, Paddle, Braintree, Chargebee, Recurly) is available. We send emails in your customer\'s local timezone regardless of where they are, in 8 languages, with full multi-currency support.',
-              },
-              {
-                q: 'Can I see which recovery email performs best?',
-                a: 'Yes — the Analytics page shows open rate and click rate for each email in your sequence (Email #1 through #5). You can see exactly which email drives the most customers to update their card. Industry average is ~35% open rate and ~15% click rate.',
-              },
-              {
-                q: 'Does Revova help reduce voluntary cancellations too?',
-                a: 'Yes. When a customer clicks "Cancel" in your app, Revova can intercept with a cancellation survey — asking why they\'re leaving, then showing the most relevant retention offer. "Too expensive" → shows a discount. "Not using it" → offers a pause. This turns voluntary cancellations into data and saves customers at the same time.',
-              },
-              {
-                q: 'Can Revova write recovery emails in languages other than English?',
-                a: 'Yes — Pro plan supports 8 languages: English, French, Spanish, German, Portuguese, Dutch, Italian, and Japanese. Simply select your customers\' language in Settings and every recovery email will be AI-written in that language.',
-              },
-              {
-                q: 'What happens when a customer cancels? Can Revova win them back?',
-                a: 'Yes. Pro plan includes Winback Campaigns. When a customer cancels their subscription, Revova automatically enrolls them in a 3-email AI re-engagement sequence — sent on Day 3, Day 14, and Day 30. You can optionally add a comeback discount code to the Day 30 email.',
-              },
-            ].map(({ q, a }) => (
+            {homeFaqs.map(({ q, a }) => (
               <details key={q} className="group bg-white rounded-xl border border-gray-200 overflow-hidden">
                 <summary className="flex items-center justify-between px-6 py-5 cursor-pointer list-none">
                   <span className="font-semibold text-gray-900 text-sm md:text-base">{q}</span>
@@ -827,7 +737,7 @@ export default function LandingPage() {
             </span>
           </h2>
           <p className="text-xl text-white/50 mb-10 max-w-xl mx-auto">
-            Join 500+ indie hackers recovering failed payments automatically. Setup takes 3 minutes.
+            Start recovering failed payments automatically today. Setup takes 3 minutes, no credit card required.
           </p>
           <Link
             href="/signup"
@@ -856,7 +766,11 @@ export default function LandingPage() {
             <span className="font-bold text-gray-900">Revova</span>
           </div>
           <p className="text-sm text-gray-400">© 2026 Revova · AI-powered payment recovery for indie hackers</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <Link href="/about" className="text-sm text-gray-400 hover:text-gray-600">About</Link>
+            <Link href="/contact" className="text-sm text-gray-400 hover:text-gray-600">Contact</Link>
+            <Link href="/pricing" className="text-sm text-gray-400 hover:text-gray-600">Pricing</Link>
+            <Link href="/refund" className="text-sm text-gray-400 hover:text-gray-600">Refunds</Link>
             <Link href="/privacy" className="text-sm text-gray-400 hover:text-gray-600">Privacy</Link>
             <Link href="/terms" className="text-sm text-gray-400 hover:text-gray-600">Terms</Link>
             <Link href="/security" className="text-sm text-gray-400 hover:text-gray-600">Security</Link>

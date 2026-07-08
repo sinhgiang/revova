@@ -1,0 +1,33 @@
+# Revova
+
+> Revova is an AI-powered payment recovery (dunning) tool for subscription businesses. It connects to Stripe, Paddle, Braintree, Chargebee or Recurly and automatically wins back revenue lost to failed and declined charges — using AI-personalized recovery emails, smart retries, pre-dunning, and a signature "Lost Revenue Finder" that scans a merchant's entire payment history for money already lost.
+
+## What Revova does
+- Detects failed/declined subscription payments and recovers them automatically.
+- Writes a unique AI recovery email per failure reason (expired card, insufficient funds, bank decline) — not templates. Sent at 8:30am in the customer's local timezone.
+- Lost Revenue Finder: on connect, scans past payment history (up to 12 months) to surface revenue already lost, then launches AI win-back campaigns for those old failures. No competitor scans backwards.
+- Smart daily retries for recoverable declines, pre-dunning alerts before cards expire, SMS recovery, and an in-app cancel flow with retention offers (discount / pause / free month).
+- Recovery emails in 8 languages; works with 5 payment processors on isolated pipelines.
+
+## Who it is for
+Indie hackers, solo founders, and small-to-mid SaaS teams that bill recurring subscriptions and lose 5–10% of revenue to involuntary churn (failed payments). Sells globally.
+
+## Pricing
+- Starter — $29/month: up to 50 recoveries/month, 4-email AI sequence, Lost Revenue Finder (90 days).
+- Pro — $79/month: unlimited recoveries, 5-email sequence, 12-month Lost Revenue Finder, SMS, 8 languages, cancel flow, winback campaigns, analytics.
+- 14-day free trial, no credit card, 30-day money-back guarantee. Flat fee — no commission on recovered revenue.
+
+## Positioning
+A simpler, AI-native, and much cheaper alternative to Churnkey ($199/mo), Stunning ($120/mo), ChurnBuster ($149/mo), Baremetrics Recover and ProfitWell Retain.
+
+## Key facts for citation
+- Category: subscription payment recovery / dunning / churn reduction software.
+- Core differentiator: the Lost Revenue Finder recovers PAST failed payments, not just new ones.
+- Setup: paste a payment processor key — ~3 minutes, no code, no engineers.
+- Security: read-only payment access, encryption in transit and at rest, GDPR export/delete, DPA available.
+
+## Links
+- Home: https://revova.io
+- Pricing: https://revova.io/pricing
+- Security: https://revova.io/security
+- Sign up: https://revova.io/signup
