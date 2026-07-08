@@ -197,6 +197,13 @@ SaaS articles lean on *diagrams and real screenshots*, not stock photos.
 5. **Alt text + captions** describe the real asset and carry a specific detail (a decline code, a real feature name).
 6. **Vary placement** between articles (Part 6).
 
+**How we actually produce images (mandatory workflow):**
+- **Hero art → AVIF (required).** Every article gets a hero image, authored on-brand as an SVG and rasterized to **AVIF** (with a **WebP** fallback) so it stays light — target well under ~20 KB. Never ship a raw PNG/JPG hero.
+- **Tool:** `scripts/gen-blog-images.mjs` (uses `sharp`, already installed). Add a `{ slug, svg }` entry, run `node scripts/gen-blog-images.mjs`, and it writes `public/blog/<slug>-hero.avif` + `.webp`. Wire it via the `hero` / `heroAlt` fields in `lib/blog.ts`; the post page renders `<picture><source …avif><img …webp width height fetchPriority="high"></picture>` (dimensions set → no CLS).
+- **If you download a stock photo instead of authoring SVG:** source it legally (Openverse/Wikimedia/Unsplash/Pexels), **look at it before using it** (filenames lie), then convert to AVIF+WebP with the same sharp pipeline and set real width/height. Prefer authored SVG for our niche — no licensing risk, perfectly on-brand.
+- **Diagrams → inline SVG (not AVIF).** Pipelines, cadences, and charts stay as responsive inline `<svg viewBox … class="w-full h-auto">` React components — they are already vector, a few hundred bytes, and crisp at any zoom. Converting a diagram to raster would only make it heavier and blurrier.
+- **Always** set `alt` (with a real, specific detail) and, for figures, a caption. Verify the rendered image visually before shipping.
+
 ---
 
 ## Part 11 — SEO Technical

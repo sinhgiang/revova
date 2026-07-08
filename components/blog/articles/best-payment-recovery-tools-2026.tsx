@@ -4,6 +4,69 @@ import {
   KeyTakeaways, StatCards, ProsCons, InlineCTA, FAQ,
 } from '@/components/blog/prose'
 
+// Inline, responsive SVG diagrams — crisp at any size and only a few hundred
+// bytes each (lighter than any raster). Diagrams stay SVG; only hero art is AVIF.
+function RecoveryPipeline() {
+  const nodes = [
+    { label: 'Failed charge', fill: '#fff1f2', stroke: '#fda4af', text: '#9f1239' },
+    { label: 'Smart retry', fill: '#eef2ff', stroke: '#a5b4fc', text: '#3730a3' },
+    { label: 'AI recovery email', fill: '#eef2ff', stroke: '#a5b4fc', text: '#3730a3' },
+    { label: 'Recovered', fill: '#ecfdf5', stroke: '#6ee7b7', text: '#065f46' },
+  ]
+  const bw = 158, h = 60, gap = 30, y = 34
+  return (
+    <figure className="my-8">
+      <svg viewBox="0 0 752 116" className="w-full h-auto" role="img" aria-label="How Revova recovers a failed payment: failed charge, smart retry, AI recovery email, recovered">
+        {nodes.map((n, i) => {
+          const x = i * (bw + gap)
+          return (
+            <g key={i}>
+              <rect x={x} y={y} width={bw} height={h} rx="12" fill={n.fill} stroke={n.stroke} strokeWidth="1.5" />
+              <text x={x + bw / 2} y={y + h / 2 + 5} textAnchor="middle" fontSize="15" fontWeight="600" fill={n.text} fontFamily="Segoe UI, Arial, sans-serif">{n.label}</text>
+              {i < nodes.length - 1 && (
+                <g stroke="#cbd5e1" strokeWidth="2" fill="none">
+                  <line x1={x + bw} y1={y + h / 2} x2={x + bw + gap} y2={y + h / 2} />
+                  <path d={`M${x + bw + gap - 7} ${y + h / 2 - 5} l6 5 l-6 5`} />
+                </g>
+              )}
+            </g>
+          )
+        })}
+      </svg>
+      <figcaption className="mt-3 text-center text-sm text-gray-400">How a single failed charge is recovered — automatically.</figcaption>
+    </figure>
+  )
+}
+
+function DunningCadence() {
+  const steps = [
+    { day: 'Day 1', email: 'Email 1' },
+    { day: 'Day 3', email: 'Email 2' },
+    { day: 'Day 7', email: 'Email 3' },
+    { day: 'Day 14', email: 'Email 4' },
+    { day: 'Day 21', email: 'Email 5' },
+  ]
+  const x0 = 60, x1 = 692, y = 62
+  return (
+    <figure className="my-8">
+      <svg viewBox="0 0 752 110" className="w-full h-auto" role="img" aria-label="A typical dunning email cadence: emails on day 1, 3, 7, 14 and 21">
+        <line x1={x0} y1={y} x2={x1} y2={y} stroke="#e5e7eb" strokeWidth="3" />
+        {steps.map((s, i) => {
+          const x = x0 + (i * (x1 - x0)) / (steps.length - 1)
+          return (
+            <g key={i} fontFamily="Segoe UI, Arial, sans-serif">
+              <text x={x} y={y - 22} textAnchor="middle" fontSize="12" fontWeight="600" fill="#4f46e5">{s.email}</text>
+              <circle cx={x} cy={y} r="8" fill="#4f46e5" stroke="#fff" strokeWidth="2" />
+              <text x={x} y={y + 28} textAnchor="middle" fontSize="13" fontWeight="600" fill="#374151">{s.day}</text>
+            </g>
+          )
+        })}
+      </svg>
+      <figcaption className="mt-3 text-center text-sm text-gray-400">A typical recovery email cadence (Pro plan, 5 emails). Each is AI-written for the decline reason.</figcaption>
+    </figure>
+  )
+}
+
 // FAQ lives in one array so the visible Q&A (rendered below) and the FAQPage
 // JSON-LD (emitted in app/blog/[slug]/page.tsx) are always word-for-word identical.
 export const faqs: Faq[] = [
@@ -85,6 +148,8 @@ export default function Article() {
         <LI><Strong>Cancellation / retention flows</Strong> — intercepting voluntary cancellations with a pause or discount offer.</LI>
         <LI><Strong>Analytics</Strong> — showing recovery rate and revenue saved so you know it is working.</LI>
       </UL>
+
+      <RecoveryPipeline />
 
       <H2 id="how-to-choose">How to choose: five questions that matter</H2>
       <P>
@@ -333,6 +398,8 @@ export default function Article() {
         <LI><Strong>Protect your sender reputation.</Strong> Always include one-click unsubscribe and suppress bounced or complaint addresses, or your recovery emails will start landing in spam.</LI>
         <LI><Strong>Recover the past, not just the future.</Strong> The single biggest missed opportunity in dunning is old failures nobody ever followed up on. Scan backward before you do anything else.</LI>
       </OL>
+
+      <DunningCadence />
 
       <Callout title="A note on SCA and 3D Secure">
         If you sell to customers in Europe, some declines are caused by{' '}

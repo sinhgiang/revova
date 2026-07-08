@@ -106,7 +106,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
 
-        <article className="pt-6">
+        {post.hero && (
+          <figure className="mt-8 -mx-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <picture>
+              <source srcSet={`${post.hero}.avif`} type="image/avif" />
+              <img
+                src={`${post.hero}.webp`}
+                alt={post.heroAlt ?? post.title}
+                width={1200}
+                height={600}
+                fetchPriority="high"
+                className="w-full h-auto rounded-2xl border border-gray-100"
+              />
+            </picture>
+          </figure>
+        )}
+
+        <article className="pt-8">
           <Body />
         </article>
 
