@@ -236,12 +236,54 @@ function declineCodesHeroSVG() {
   </svg>`
 }
 
+// Hero for "Churnkey alternatives": an expensive price tag swapped for a cheap
+// one — the core promise (same recovery, far less money).
+function churnkeyAlternativesHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="cheap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.3" cy="0.4" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.38"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.82" cy="0.4" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.28"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- expensive tag -->
+    <g transform="translate(150,232)">
+      <rect width="270" height="136" rx="20" fill="#1a1a2b" stroke="#33334d" stroke-width="1.5"/>
+      <text x="135" y="66" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="800" fill="#8b8ba7">$199</text>
+      <line x1="42" y1="52" x2="228" y2="52" stroke="#f43f5e" stroke-width="5"/>
+      <text x="135" y="104" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="600" fill="#6b6b85">/mo · Churnkey</text>
+    </g>
+
+    <!-- arrow -->
+    <path d="M452 300 L556 300" fill="none" stroke="#34d399" stroke-width="6" stroke-linecap="round"/>
+    <path d="M544 286 l20 14 l-20 14 z" fill="#34d399"/>
+
+    <!-- cheap tag -->
+    <g transform="translate(600,214)">
+      <rect width="300" height="172" rx="22" fill="url(#cheap)"/>
+      <text x="150" y="82" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="66" font-weight="800" fill="#ffffff">$29</text>
+      <text x="150" y="120" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#e0e7ff">/mo · alternatives from</text>
+      <g transform="translate(214,-20)"><rect width="120" height="40" rx="20" fill="#10b981"/><text x="60" y="27" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#fff">-85%</text></g>
+    </g>
+
+    <g transform="translate(150,120)">
+      <rect width="52" height="52" rx="15" fill="url(#cheap)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
   { slug: 'what-is-involuntary-churn', svg: involuntaryChurnHeroSVG() },
   { slug: 'dunning-email-examples-templates', svg: dunningEmailHeroSVG() },
   { slug: 'stripe-decline-codes-explained', svg: declineCodesHeroSVG() },
+  { slug: 'churnkey-alternatives', svg: churnkeyAlternativesHeroSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

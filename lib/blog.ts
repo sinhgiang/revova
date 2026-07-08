@@ -88,6 +88,20 @@ export const posts: BlogPost[] = [
     hero: '/blog/stripe-decline-codes-explained-hero',
     heroAlt: 'A declined card with three colour-coded Stripe decline code chips',
   },
+  {
+    slug: 'churnkey-alternatives',
+    title: 'Churnkey Alternatives: 6 Cheaper Payment Recovery Tools (2026)',
+    description:
+      'The best Churnkey alternatives in 2026, compared — Revova, Churn Buster, Stunning, Baremetrics Recover and Paddle Retain — with pricing, a savings breakdown, and how to switch.',
+    excerpt:
+      'Churnkey starts around $199/mo. Here are the best cheaper alternatives — with a monthly-cost chart, a comparison table, annual savings, and a no-code guide to switching.',
+    date: '2026-07-08',
+    author: 'Revova',
+    category: 'Comparison',
+    readingMinutes: 12,
+    hero: '/blog/churnkey-alternatives-hero',
+    heroAlt: 'A crossed-out $199 Churnkey price tag replaced by a $29 alternative, 85% cheaper',
+  },
 ]
 
 // Newest first for listings.

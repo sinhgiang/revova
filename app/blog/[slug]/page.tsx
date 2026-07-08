@@ -10,6 +10,7 @@ import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/componen
 import WhatIsInvoluntaryChurn, { faqs as churnFaqs } from '@/components/blog/articles/what-is-involuntary-churn'
 import DunningEmailExamples, { faqs as dunningFaqs } from '@/components/blog/articles/dunning-email-examples-templates'
 import StripeDeclineCodes, { faqs as declineFaqs } from '@/components/blog/articles/stripe-decline-codes-explained'
+import ChurnkeyAlternatives, { faqs as churnkeyFaqs } from '@/components/blog/articles/churnkey-alternatives'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
@@ -19,6 +20,7 @@ const bodies: Record<string, ComponentType> = {
   'what-is-involuntary-churn': WhatIsInvoluntaryChurn,
   'dunning-email-examples-templates': DunningEmailExamples,
   'stripe-decline-codes-explained': StripeDeclineCodes,
+  'churnkey-alternatives': ChurnkeyAlternatives,
 }
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
@@ -28,6 +30,7 @@ const faqsBySlug: Record<string, Faq[]> = {
   'what-is-involuntary-churn': churnFaqs,
   'dunning-email-examples-templates': dunningFaqs,
   'stripe-decline-codes-explained': declineFaqs,
+  'churnkey-alternatives': churnkeyFaqs,
 }
 
 export function generateStaticParams() {
