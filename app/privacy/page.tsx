@@ -55,6 +55,7 @@ export default function PrivacyPage() {
               <li><strong>Stripe</strong> — to access your payment data (see <a href="https://stripe.com/privacy" className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">Stripe Privacy Policy</a>).</li>
               <li><strong>Resend</strong> — to deliver emails (your customers&apos; email addresses are shared with Resend for delivery).</li>
               <li><strong>Anthropic / Google</strong> — AI providers used to generate email content. We pass only non-identifiable context (failure reason, general industry) — no customer PII.</li>
+              <li><strong>Google Analytics &amp; Google Ads</strong> — used, only with your consent, to measure website traffic and advertising performance (see Cookies &amp; Consent below). You can opt out via our cookie banner.</li>
             </ul>
           </section>
 
@@ -77,10 +78,18 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-3">7. Cookies</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">7. Cookies &amp; Consent</h2>
             <p>
-              Revova uses only essential cookies for authentication (Supabase session cookie).
-              We do not use tracking or advertising cookies.
+              Revova always uses <strong>essential cookies</strong> for authentication (a Supabase
+              session cookie) — these are required for the app to work. With your{' '}
+              <strong>consent</strong>, we also use <strong>analytics and advertising cookies</strong>,
+              including Google Analytics and Google Ads, to measure and improve our marketing.
+            </p>
+            <p className="mt-3">
+              For visitors in the EEA, UK and Switzerland we implement <strong>Google Consent Mode
+              v2</strong>: no analytics or advertising cookies are set until you accept them in our
+              cookie banner, and you can reject them at any time. Non-essential cookies default to
+              &quot;denied&quot; until you opt in.
             </p>
           </section>
 
