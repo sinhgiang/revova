@@ -56,6 +56,7 @@ export default function PrivacyPage() {
               <li><strong>Resend</strong> — to deliver emails (your customers&apos; email addresses are shared with Resend for delivery).</li>
               <li><strong>Anthropic / Google</strong> — AI providers used to generate email content. We pass only non-identifiable context (failure reason, general industry) — no customer PII.</li>
               <li><strong>Google Analytics &amp; Google Ads</strong> — used, only with your consent, to measure website traffic and advertising performance (see Cookies &amp; Consent below). You can opt out via our cookie banner.</li>
+              <li><strong>Meta (Facebook Pixel)</strong> — used, only with your consent, to measure and optimize our Facebook and Instagram ads. For visitors in the EEA and UK, the Meta Pixel does not load or collect any data until you accept it.</li>
             </ul>
           </section>
 
@@ -83,13 +84,14 @@ export default function PrivacyPage() {
               Revova always uses <strong>essential cookies</strong> for authentication (a Supabase
               session cookie) — these are required for the app to work. With your{' '}
               <strong>consent</strong>, we also use <strong>analytics and advertising cookies</strong>,
-              including Google Analytics and Google Ads, to measure and improve our marketing.
+              including Google (Analytics and Ads) and Meta (Facebook Pixel), to measure and improve
+              our marketing.
             </p>
             <p className="mt-3">
               For visitors in the EEA, UK and Switzerland we implement <strong>Google Consent Mode
-              v2</strong>: no analytics or advertising cookies are set until you accept them in our
-              cookie banner, and you can reject them at any time. Non-essential cookies default to
-              &quot;denied&quot; until you opt in.
+              v2</strong>, and the <strong>Meta Pixel does not load until you opt in</strong>: no
+              analytics or advertising cookies are set until you accept them in our cookie banner, and
+              you can reject them at any time. Non-essential cookies default to &quot;denied&quot;.
             </p>
           </section>
 

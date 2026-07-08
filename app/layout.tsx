@@ -50,6 +50,11 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 },
   },
+  // Meta (Facebook) domain verification — set NEXT_PUBLIC_FB_DOMAIN_VERIFICATION
+  // in the environment to emit <meta name="facebook-domain-verification" ...>.
+  ...(process.env.NEXT_PUBLIC_FB_DOMAIN_VERIFICATION
+    ? { verification: { other: { 'facebook-domain-verification': process.env.NEXT_PUBLIC_FB_DOMAIN_VERIFICATION } } }
+    : {}),
 }
 
 export const viewport: Viewport = {
