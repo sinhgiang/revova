@@ -27,7 +27,7 @@ export const homeFaqs: Faq[] = [
   },
   {
     q: `Will these emails annoy my customers?`,
-    a: `No — our AI writes emails that feel like they came from you personally, not a robot. They're warm, empathetic, and sent at the right time of day (8:30am customer timezone). We have 0 reported spam complaints across all customers.`,
+    a: `No — our AI writes emails that feel like they came from you personally, not a robot. They're warm, empathetic, and sent at the right time of day (8:30am customer timezone). Every email includes a one-click unsubscribe, and bounced or spam-flagged addresses are automatically suppressed to protect your sender reputation.`,
   },
   {
     q: `How long does setup take? Do I need a developer?`,
@@ -51,11 +51,11 @@ export const homeFaqs: Faq[] = [
   },
   {
     q: `How much will I actually recover?`,
-    a: `Our customers average 65–80% recovery rate. Stripe's built-in retries alone recover about 30–40%. Revova's AI emails recover the remaining 35–50% on top of that. The difference is huge at scale.`,
+    a: `It depends on your failure mix, but recovery rates are meaningful: Stripe's built-in retries alone typically recover about 30–40% of failed charges, and well-timed, personalized dunning emails on top of that can recover a large additional share — industry benchmarks commonly put total recoverable revenue in the 40–60% range. The Lost Revenue Finder shows you a real number from your own account before you commit to anything.`,
   },
   {
     q: `What's your money-back guarantee?`,
-    a: `30-day full refund, no questions asked. If Revova doesn't recover more in revenue than it costs you in the first 30 days, email us and we'll refund the full amount. We've only had 3 refund requests in our history.`,
+    a: `30-day full refund, no questions asked. If Revova doesn't recover more in revenue than it costs you in the first 30 days, email support@revova.io within 30 days of your first payment and we'll refund the full amount. See our Refund & Cancellation policy for details.`,
   },
   {
     q: `Does Revova work outside the US?`,
@@ -170,5 +170,36 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
       name: it.name,
       item: `${SITE.url}${it.path ? `/${it.path}` : ''}`,
     })),
+  }
+}
+
+// Article structured data for blog posts — helps Google rich results and lets
+// AI answer engines (ChatGPT, Perplexity, Google AI Overviews) cite the post.
+export function blogPostingSchema(post: {
+  slug: string
+  title: string
+  description: string
+  date: string
+  updated?: string
+  author?: string
+}) {
+  const url = `${SITE.url}/blog/${post.slug}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    dateModified: post.updated ?? post.date,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    author: { '@type': 'Organization', name: post.author ?? SITE.name, url: SITE.url },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE.name,
+      url: SITE.url,
+      logo: { '@type': 'ImageObject', url: `${SITE.url}/icon` },
+    },
+    image: `${SITE.url}/opengraph-image`,
   }
 }

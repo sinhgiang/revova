@@ -768,6 +768,7 @@ export default function LandingPage() {
           <p className="text-sm text-gray-400">© 2026 Revova · AI-powered payment recovery for indie hackers</p>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link href="/about" className="text-sm text-gray-400 hover:text-gray-600">About</Link>
+            <Link href="/blog" className="text-sm text-gray-400 hover:text-gray-600">Blog</Link>
             <Link href="/contact" className="text-sm text-gray-400 hover:text-gray-600">Contact</Link>
             <Link href="/pricing" className="text-sm text-gray-400 hover:text-gray-600">Pricing</Link>
             <Link href="/refund" className="text-sm text-gray-400 hover:text-gray-600">Refunds</Link>
