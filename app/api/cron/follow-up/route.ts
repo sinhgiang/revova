@@ -261,14 +261,28 @@ export async function GET(request: NextRequest) {
     // The card-update URL. Non-Stripe processors stored it up front; Stripe we
     // fetch live from the hosted invoice.
     let updateCardUrl = payment.update_card_url ?? '#'
+    let alreadyPaid = false
     if (isStripe) {
       try {
         const stripe = new Stripe(account.access_token)
         const invoice = await stripe.invoices.retrieve(payment.stripe_invoice_id)
+        // Detect a customer who already paid — either by updating their card on
+        // the hosted invoice page or paying it directly. Also catches self-service
+        // recoveries that don't come through our failure webhook.
+        alreadyPaid = invoice.status === 'paid'
         updateCardUrl = invoice.hosted_invoice_url ?? '#'
       } catch (e) {
         console.error(`[Cron] Could not fetch invoice ${payment.stripe_invoice_id}:`, e)
       }
+    }
+
+    // Never send a dunning email to someone who has already paid — stop the
+    // whole sequence the moment we detect the payment succeeded.
+    if (alreadyPaid) {
+      await handleRecoverySuccess(payment, account)
+      recovered++
+      console.log(`[Cron] ✓ Already paid (self-service) → ${payment.customer_email}, sequence stopped`)
+      continue
     }
 
     // Generate AI email (Claude → Gemini → template fallback)
