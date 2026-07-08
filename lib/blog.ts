@@ -32,6 +32,20 @@ export const posts: BlogPost[] = [
     hero: '/blog/best-payment-recovery-dunning-tools-2026-hero',
     heroAlt: 'Illustration of subscription revenue bars with failed payments being recovered back up',
   },
+  {
+    slug: 'how-to-recover-failed-stripe-payments',
+    title: 'How to Recover Failed Stripe Payments: A 2026 Step-by-Step Guide',
+    description:
+      'Recover failed Stripe payments in 2026: smart retries, personalized dunning emails, pre-dunning, SCA handling and recovering past failures — a clear step-by-step guide.',
+    excerpt:
+      'Smart retries, personalized dunning emails, pre-dunning, SCA handling, and recovering the failures you’ve already lost — the full Stripe recovery stack, step by step.',
+    date: '2026-07-08',
+    author: 'Revova',
+    category: 'Guide',
+    readingMinutes: 11,
+    hero: '/blog/how-to-recover-failed-stripe-payments-hero',
+    heroAlt: 'A declined credit card recovered via a retry arc into a green checkmark',
+  },
 ]
 
 // Newest first for listings.

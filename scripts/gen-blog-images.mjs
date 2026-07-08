@@ -71,8 +71,56 @@ function recoveryHeroSVG() {
   </svg>`
 }
 
+// Hero for the "how to recover failed Stripe payments" guide: a card that was
+// declined, a retry arc, and a recovered (green check) badge — the exact story.
+function stripeRecoveryHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.3" cy="0.35" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.75" cy="0.7" r="0.6"><stop offset="0" stop-color="#10b981" stop-opacity="0.28"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- credit card -->
+    <g transform="translate(190,200)">
+      <rect width="400" height="248" rx="24" fill="url(#card)"/>
+      <rect y="46" width="400" height="40" fill="#000" fill-opacity="0.28"/>
+      <rect x="34" y="120" width="60" height="46" rx="8" fill="#fbbf24" fill-opacity="0.9"/>
+      <g fill="#fff" fill-opacity="0.85">
+        <circle cx="150" cy="200" r="7"/><circle cx="170" cy="200" r="7"/><circle cx="190" cy="200" r="7"/>
+        <circle cx="228" cy="200" r="7"/><circle cx="248" cy="200" r="7"/><circle cx="268" cy="200" r="7"/>
+      </g>
+      <!-- declined tag -->
+      <g transform="translate(250,116)">
+        <rect width="120" height="34" rx="17" fill="#f43f5e"/>
+        <text x="60" y="23" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="800" fill="#fff">DECLINED</text>
+      </g>
+    </g>
+
+    <!-- retry arc from card to check -->
+    <path d="M640 300 C 720 230, 800 230, 858 288" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 14"/>
+    <path d="M846 268 l18 22 l-27 6 z" fill="#34d399"/>
+
+    <!-- recovered badge -->
+    <g transform="translate(900,324)">
+      <circle r="74" fill="#10b981"/>
+      <path d="M-32 4 l20 22 l40 -46" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(190,120)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
+  { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

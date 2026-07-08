@@ -209,6 +209,33 @@ export function InlineCTA({ children }: { children: ReactNode }) {
   )
 }
 
+// Responsive horizontal bar chart (SVG). Always ships width/height so it never
+// collapses to zero height. pct is 0–100; value is the label shown at the bar end.
+export function BarChart({ bars, caption }: { bars: { label: string; pct: number; value: string }[]; caption?: string }) {
+  const rowH = 46, padY = 10, x0 = 210, x1 = 690, vb = 760
+  const h = bars.length * rowH + padY * 2
+  return (
+    <figure className="my-8">
+      <svg viewBox={`0 0 ${vb} ${h}`} width={vb} height={h} className="w-full h-auto" role="img"
+        aria-label={`Bar chart: ${bars.map((b) => `${b.label} ${b.value}`).join(', ')}`}>
+        {bars.map((b, i) => {
+          const y = padY + i * rowH + rowH / 2
+          const w = Math.max(4, (Math.min(100, b.pct) / 100) * (x1 - x0))
+          return (
+            <g key={i} fontFamily="Segoe UI, Arial, sans-serif">
+              <text x={x0 - 14} y={y + 5} textAnchor="end" fontSize="14" fontWeight="600" fill="#374151">{b.label}</text>
+              <rect x={x0} y={y - 12} width={x1 - x0} height="24" rx="7" fill="#eef2ff" />
+              <rect x={x0} y={y - 12} width={w} height="24" rx="7" fill="#4f46e5" />
+              <text x={x0 + w + 10} y={y + 5} fontSize="13" fontWeight="700" fill="#4f46e5">{b.value}</text>
+            </g>
+          )
+        })}
+      </svg>
+      {caption && <figcaption className="mt-3 text-center text-sm text-gray-400">{caption}</figcaption>}
+    </figure>
+  )
+}
+
 // On-page FAQ that is fed from the same data array used for FAQPage JSON-LD,
 // so the visible Q&A and the structured data can never drift apart.
 export function FAQ({ items }: { items: Faq[] }) {

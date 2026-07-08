@@ -6,16 +6,19 @@ import { posts, getPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
 import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
+import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/components/blog/articles/how-to-recover-failed-stripe-payments'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
   'best-payment-recovery-dunning-tools-2026': BestPaymentRecoveryTools2026,
+  'how-to-recover-failed-stripe-payments': HowToRecoverFailedStripePayments,
 }
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
   'best-payment-recovery-dunning-tools-2026': bestToolsFaqs,
+  'how-to-recover-failed-stripe-payments': stripeFaqs,
 }
 
 export function generateStaticParams() {
