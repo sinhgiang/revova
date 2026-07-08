@@ -127,7 +127,7 @@ Keep a running log (in `lib/blog.ts` comments or a notes file) of what each arti
 
 ## Part 7 — Visual Formats Library (mandatory: 3–4 per article)
 
-**Hard rule (minimum images):** every article ships **at least 3 images/graphics**, and they must be of **different types** — never three of the same. The baseline mix is **1 AVIF hero + ≥2 distinct inline graphics** (e.g. a flow diagram + a timeline, or a chart + a spectrum). On top of that, use **3–4 distinct visual *formats*** overall (StatCards, ProsCons, CompareTable, etc.); **≥1 in the first third**; a data table never stands alone (pair it with another visual); never repeat one format twice in one article. Build them as reusable components in `components/blog/prose.tsx` so they are self-contained and mobile-safe. (We already have `CompareTable`, `Callout`, `CTA`, `StatCards`, `ProsCons`, `KeyTakeaways`, `InlineCTA`, `FAQ` — extend from there, and add article-specific inline SVG diagrams.)
+**Hard rule (minimum images):** every article ships **at least 2 images/graphics — aim for 3–4** — of **different types** (never all the same). **Every image must be relevant to the article&apos;s actual topic** — no generic, off-topic filler. Each image is sourced one of two ways: **(a) downloaded free and legally** (Openverse, Wikimedia, Unsplash, Pexels) — look at it before using it, then convert to AVIF+WebP with sharp and set real dimensions; or **(b) designed in code** — an on-brand SVG rasterized to AVIF (hero) via `scripts/gen-blog-images.mjs`, or a responsive inline SVG diagram (for flows, timelines, charts). A baseline mix is **1 hero + ≥1 relevant inline graphic**. On top of that, use **3–4 distinct visual *formats*** overall (StatCards, ProsCons, CompareTable, etc.); **≥1 in the first third**; a data table never stands alone; never repeat one format twice. Build reusable pieces in `components/blog/prose.tsx` (`CompareTable`, `Callout`, `CTA`, `StatCards`, `ProsCons`, `KeyTakeaways`, `InlineCTA`, `FAQ`) and add article-specific inline SVG diagrams.
 
 The toolbox, re-mapped to SaaS/payment-recovery uses:
 
@@ -190,7 +190,7 @@ Every article should offer **one value-first, email-worthy interaction**. For Re
 
 SaaS articles lean on *diagrams and real screenshots*, not stock photos.
 
-1. **Minimum 3 images/graphics per article, of varied types (mandatory).** At least: 1 AVIF hero + 2 distinct inline SVG graphics (e.g. a flow diagram, a timeline, a chart, a positioning spectrum). Add product screenshots (dashboard, Lost Revenue Finder result, a real recovery email) where they help. Longer or data-heavy articles should carry more. Never ship three of the same graphic — variety is the point.
+1. **At least 2 images/graphics per article — aim for 3–4 — of varied types, all relevant to the topic (mandatory).** Each is either downloaded free and legally (then converted to AVIF+WebP) or designed in code (an AVIF hero, or inline SVG diagrams like a flow, a timeline, a chart, a positioning spectrum). Add product screenshots (dashboard, Lost Revenue Finder result, a real recovery email) where they help. Longer or data-heavy articles should carry more. Never ship several of the same graphic, and never a generic off-topic image — relevance and variety are the point.
 2. **Never fabricate.** Screenshots must be of the real product (a demo/sample account is fine and should be labelled illustrative). Do not mock up numbers we present as real results.
 3. **Format:** next-gen (WebP/AVIF) on-page, quality tuned small; keep a `.jpg`/PNG for `og:image` / `twitter:image` (social crawlers). Always set real `width`/`height` to prevent layout shift (CLS). We currently auto-generate the OG image via `app/opengraph-image.tsx` — per-article custom OG images are a future enhancement.
 4. **Diagrams beat photos** for our topic — a clean "failed charge → smart retry → AI email → recovered" SVG earns more trust than a stock laptop photo.
@@ -243,7 +243,7 @@ Do all of these in **one pass**:
 - [ ] One H1; H2→H3 hierarchy; every H2 answer-first.
 - [ ] Answer-first intro (~180–200 words), keyword in sentence 1.
 - [ ] Entity density ≥ 15 / 1,000 words (pull from the Part 3 bank); honest voice; **zero fabricated proof**; no AI-flag phrases.
-- [ ] **≥3 images/graphics of varied types** (1 AVIF hero + ≥2 distinct inline SVG graphics); 3–4 visual formats overall (≥1 in first third; table never alone).
+- [ ] **≥2 images/graphics (aim 3–4), varied types, all relevant to the topic** (free-sourced→AVIF, or code-designed hero/SVG); 3–4 visual formats overall (≥1 in first third; table never alone).
 - [ ] Inline CTAs: 2–3 plan + 1 free-scan + 1 feature, contextually placed, price before button.
 - [ ] A value-first lead path (free Lost Revenue scan link, or the calculator widget).
 - [ ] Real product screenshots / SVG diagrams where they help; dimensions set; nothing faked.
