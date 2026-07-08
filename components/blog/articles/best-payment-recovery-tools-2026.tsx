@@ -16,7 +16,7 @@ function RecoveryPipeline() {
   const bw = 158, h = 60, gap = 30, y = 34
   return (
     <figure className="my-8">
-      <svg viewBox="0 0 752 116" className="w-full h-auto" role="img" aria-label="How Revova recovers a failed payment: failed charge, smart retry, AI recovery email, recovered">
+      <svg viewBox="0 0 752 116" width="752" height="116" className="w-full h-auto" role="img" aria-label="How Revova recovers a failed payment: failed charge, smart retry, AI recovery email, recovered">
         {nodes.map((n, i) => {
           const x = i * (bw + gap)
           return (
@@ -50,7 +50,7 @@ function PriceSpectrum() {
   ]
   return (
     <figure className="my-8">
-      <svg viewBox="0 0 760 170" className="w-full h-auto" role="img" aria-label="Price positioning of payment recovery tools from budget to premium: Revova $29, Stunning ~$100, Baremetrics ~$129, Churn Buster ~$149, Churnkey ~$199">
+      <svg viewBox="0 0 760 170" width="760" height="170" className="w-full h-auto" role="img" aria-label="Price positioning of payment recovery tools from budget to premium: Revova $29, Stunning ~$100, Baremetrics ~$129, Churn Buster ~$149, Churnkey ~$199">
         <line x1={x0} y1={axisY} x2={x1} y2={axisY} stroke="#e5e7eb" strokeWidth="3" />
         <text x={x0} y={18} fontSize="12" fontWeight="700" fill="#9ca3af" fontFamily="Segoe UI, Arial, sans-serif">$ BUDGET</text>
         <text x={x1} y={18} fontSize="12" fontWeight="700" fill="#9ca3af" textAnchor="end" fontFamily="Segoe UI, Arial, sans-serif">PREMIUM $$$</text>
@@ -85,7 +85,7 @@ function DunningCadence() {
   const x0 = 60, x1 = 692, y = 62
   return (
     <figure className="my-8">
-      <svg viewBox="0 0 752 110" className="w-full h-auto" role="img" aria-label="A typical dunning email cadence: emails on day 1, 3, 7, 14 and 21">
+      <svg viewBox="0 0 752 110" width="752" height="110" className="w-full h-auto" role="img" aria-label="A typical dunning email cadence: emails on day 1, 3, 7, 14 and 21">
         <line x1={x0} y1={y} x2={x1} y2={y} stroke="#e5e7eb" strokeWidth="3" />
         {steps.map((s, i) => {
           const x = x0 + (i * (x1 - x0)) / (steps.length - 1)
