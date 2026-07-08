@@ -277,6 +277,38 @@ function churnkeyAlternativesHeroSVG() {
   </svg>`
 }
 
+// Hero for the churn-reduction pillar: a churn line trending down (good) with a
+// green downward badge.
+function reduceChurnHeroSVG() {
+  const pts = [[210, 200], [370, 250], [530, 288], [690, 356], [860, 396], [1000, 430]]
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join(' ')
+  const area = `${line} L1000 486 L210 486 Z`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="lf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6366f1" stop-opacity="0.42"/><stop offset="1" stop-color="#6366f1" stop-opacity="0.02"/></linearGradient>
+      <radialGradient id="glow" cx="0.3" cy="0.35" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.82" cy="0.75" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.28"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+    <line x1="180" y1="486" x2="1020" y2="486" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+    <path d="${area}" fill="url(#lf)"/>
+    <path d="${line}" fill="none" stroke="#6366f1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(1000,430)">
+      <circle r="46" fill="#10b981" stroke="#0a0a16" stroke-width="8"/>
+      <path d="M0 -18 L0 16 M-15 1 L0 18 L15 1" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="210" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#e5e7eb">Churn</text>
+    <text x="330" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#34d399">down</text>
+    <g transform="translate(210,96)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
@@ -284,6 +316,7 @@ const targets = [
   { slug: 'dunning-email-examples-templates', svg: dunningEmailHeroSVG() },
   { slug: 'stripe-decline-codes-explained', svg: declineCodesHeroSVG() },
   { slug: 'churnkey-alternatives', svg: churnkeyAlternativesHeroSVG() },
+  { slug: 'how-to-reduce-saas-churn', svg: reduceChurnHeroSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

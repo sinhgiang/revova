@@ -102,6 +102,20 @@ export const posts: BlogPost[] = [
     hero: '/blog/churnkey-alternatives-hero',
     heroAlt: 'A crossed-out $199 Churnkey price tag replaced by a $29 alternative, 85% cheaper',
   },
+  {
+    slug: 'how-to-reduce-saas-churn',
+    title: 'How to Reduce SaaS Churn: The Complete 2026 Guide',
+    description:
+      'A complete guide to reducing SaaS churn: split it into involuntary (failed payments) and voluntary, prioritize by impact vs effort, and follow a 30-day playbook with real levers.',
+    excerpt:
+      'Split churn into involuntary and voluntary, start with the quick wins, and follow a 30-day playbook — measuring, recovering failed payments, cancel flows, onboarding and more.',
+    date: '2026-07-08',
+    author: 'Revova',
+    category: 'Guide',
+    readingMinutes: 16,
+    hero: '/blog/how-to-reduce-saas-churn-hero',
+    heroAlt: 'A churn rate line trending downward with a green downward badge',
+  },
 ]
 
 // Newest first for listings.

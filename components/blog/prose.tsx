@@ -290,6 +290,54 @@ export function BarChart({ bars, caption }: { bars: { label: string; pct: number
   )
 }
 
+// Impact-vs-effort priority matrix (2x2 quadrant). effort/impact are 0–100.
+// width/height set so it never collapses.
+export function PriorityMatrix({
+  items, caption,
+}: {
+  items: { label: string; effort: number; impact: number; left?: boolean }[]
+  caption?: string
+}) {
+  const x0 = 100, x1 = 680, y0 = 46, y1 = 330
+  const midX = (x0 + x1) / 2, midY = (y0 + y1) / 2
+  const px = (e: number) => x0 + (e / 100) * (x1 - x0)
+  const py = (i: number) => y0 + ((100 - i) / 100) * (y1 - y0)
+  return (
+    <figure className="my-8">
+      <svg viewBox="0 0 760 400" width={760} height={400} className="w-full h-auto" role="img"
+        aria-label={`Impact versus effort matrix of churn tactics: ${items.map((i) => i.label).join(', ')}`}>
+        <rect x={x0} y={y0} width={midX - x0} height={midY - y0} fill="#ecfdf5" />
+        <rect x={midX} y={y0} width={x1 - midX} height={midY - y0} fill="#eef2ff" />
+        <rect x={x0} y={midY} width={midX - x0} height={y1 - midY} fill="#f9fafb" />
+        <rect x={midX} y={midY} width={x1 - midX} height={y1 - midY} fill="#fff1f2" />
+        <g fontFamily="Segoe UI, Arial, sans-serif" fontSize="12" fontWeight="700" opacity="0.75">
+          <text x={x0 + 12} y={y0 + 22} fill="#059669">QUICK WINS</text>
+          <text x={x1 - 12} y={y0 + 22} textAnchor="end" fill="#4f46e5">BIG BETS</text>
+          <text x={x0 + 12} y={y1 - 12} fill="#9ca3af">FILL-INS</text>
+          <text x={x1 - 12} y={y1 - 12} textAnchor="end" fill="#e11d48">DESELECT</text>
+        </g>
+        <line x1={x0} y1={midY} x2={x1} y2={midY} stroke="#e5e7eb" strokeWidth="1.5" strokeDasharray="4 4" />
+        <line x1={midX} y1={y0} x2={midX} y2={y1} stroke="#e5e7eb" strokeWidth="1.5" strokeDasharray="4 4" />
+        <line x1={x0} y1={y0} x2={x0} y2={y1} stroke="#d1d5db" strokeWidth="1.5" />
+        <line x1={x0} y1={y1} x2={x1} y2={y1} stroke="#d1d5db" strokeWidth="1.5" />
+        <text x={(x0 + x1) / 2} y={y1 + 30} textAnchor="middle" fontSize="13" fontWeight="700" fill="#6b7280" fontFamily="Segoe UI, Arial, sans-serif">Effort →</text>
+        <text x={x0 - 22} y={(y0 + y1) / 2} textAnchor="middle" fontSize="13" fontWeight="700" fill="#6b7280" fontFamily="Segoe UI, Arial, sans-serif" transform={`rotate(-90 ${x0 - 22} ${(y0 + y1) / 2})`}>Impact →</text>
+        {items.map((it, i) => {
+          const cx = px(it.effort), cy = py(it.impact)
+          const quick = it.effort < 50 && it.impact >= 50
+          return (
+            <g key={i} fontFamily="Segoe UI, Arial, sans-serif">
+              <circle cx={cx} cy={cy} r="8" fill={quick ? '#10b981' : '#4f46e5'} stroke="#fff" strokeWidth="2" />
+              <text x={it.left ? cx - 14 : cx + 14} y={cy + 5} textAnchor={it.left ? 'end' : 'start'} fontSize="13.5" fontWeight="600" fill="#374151">{it.label}</text>
+            </g>
+          )
+        })}
+      </svg>
+      {caption && <figcaption className="mt-3 text-center text-sm text-gray-400">{caption}</figcaption>}
+    </figure>
+  )
+}
+
 // Donut chart with legend (SVG). Segments should sum to ~100. width/height set.
 export function DonutChart({
   segments, centerLabel, centerSub, caption,
