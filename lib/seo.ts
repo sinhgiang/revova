@@ -193,7 +193,12 @@ export function blogPostingSchema(post: {
     dateModified: post.updated ?? post.date,
     url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    author: { '@type': 'Organization', name: post.author ?? SITE.name, url: SITE.url },
+    author: {
+      '@type': 'Person',
+      name: post.author ?? SITE.name,
+      image: `${SITE.url}/authors/sinh-yang.webp`,
+      url: `${SITE.url}/about`,
+    },
     publisher: {
       '@type': 'Organization',
       name: SITE.name,

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import type { ComponentType } from 'react'
 import { notFound } from 'next/navigation'
-import { posts, getPost } from '@/lib/blog'
+import { posts, getPost, sortedPosts, AUTHOR, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
 import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
@@ -65,6 +65,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+// Cover image for a related-post card (absolute-fills its relative parent).
+function RelatedCover({ post }: { post: BlogPost }) {
+  if (!post.hero) return <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600" />
+  return (
+    <picture>
+      <source srcSet={`${post.hero}.avif`} type="image/avif" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`${post.hero}.webp`}
+        alt={post.heroAlt ?? post.title}
+        width={1200}
+        height={600}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+      />
+    </picture>
+  )
+}
+
+// The 3 articles to show at the bottom — the next posts after this one, wrapping
+// around, so every article surfaces a different, non-repeating trio.
+function relatedFor(slug: string): BlogPost[] {
+  const i = sortedPosts.findIndex((p) => p.slug === slug)
+  const ordered = [...sortedPosts.slice(i + 1), ...sortedPosts.slice(0, Math.max(0, i))]
+  return ordered.slice(0, 3)
+}
+
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = getPost(slug)
@@ -72,6 +98,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post || !Body) notFound()
 
   const postFaqs = faqsBySlug[slug]
+  const related = relatedFor(slug)
 
   return (
     <div className="min-h-screen bg-white">
@@ -115,12 +142,20 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </h1>
 
         <div className="flex items-center gap-3 pb-8 mb-2 border-b border-gray-100">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
-            R
-          </div>
+          <picture>
+            <source srcSet={`${AUTHOR.avatar}.avif`} type="image/avif" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${AUTHOR.avatar}.webp`}
+              alt={AUTHOR.name}
+              width={44}
+              height={44}
+              className="w-11 h-11 rounded-full object-cover border border-gray-100"
+            />
+          </picture>
           <div className="text-sm">
             <p className="font-semibold text-gray-900">{post.author}</p>
-            <p className="text-gray-400">AI payment recovery for subscription businesses</p>
+            <p className="text-gray-400">{AUTHOR.role}</p>
           </div>
         </div>
 
@@ -145,8 +180,28 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <Body />
         </article>
 
-        <div className="mt-16 pt-8 border-t border-gray-100">
-          <Link href="/blog" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">← Back to all articles</Link>
+        <div className="mt-16 pt-10 border-t border-gray-100">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Keep reading</h2>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {related.map((rp) => (
+              <Link
+                key={rp.slug}
+                href={`/blog/${rp.slug}`}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 transition-all hover:border-indigo-300 hover:shadow-lg hover:shadow-gray-100"
+              >
+                <div className="relative aspect-[16/9] overflow-hidden bg-gray-50">
+                  <RelatedCover post={rp} />
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="mb-1.5 text-[11px] font-semibold text-indigo-600">{rp.category}</span>
+                  <h3 className="text-[15px] font-bold leading-snug text-gray-900 transition-colors group-hover:text-indigo-700 line-clamp-2">{rp.title}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-8">
+            <Link href="/blog" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">← Back to all articles</Link>
+          </div>
         </div>
       </main>
 

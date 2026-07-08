@@ -3,6 +3,14 @@
 // components/blog/articles/* and are wired to slugs in app/blog/[slug]/page.tsx,
 // so this file stays lightweight and importable from the sitemap.
 
+// The bylined author for every article (real name + photo = E-E-A-T).
+export const AUTHOR = {
+  name: 'Sinh Yang',
+  avatar: '/authors/sinh-yang', // .avif + .webp in public/authors
+  role: 'Founder of Revova',
+  bio: 'Sinh Yang is the founder of Revova. He writes about payment recovery, dunning, and reducing churn for subscription businesses.',
+} as const
+
 export type BlogPost = {
   slug: string
   title: string
@@ -26,7 +34,7 @@ export const posts: BlogPost[] = [
     excerpt:
       'Churnkey, Churn Buster, Stunning, Baremetrics Recover, Paddle Retain and Revova — what each is good at, roughly what it costs, and which one fits your stage and stack.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Comparison',
     readingMinutes: 15,
     hero: '/blog/best-payment-recovery-dunning-tools-2026-hero',
@@ -40,7 +48,7 @@ export const posts: BlogPost[] = [
     excerpt:
       'Smart retries, personalized dunning emails, pre-dunning, SCA handling, and recovering the failures you’ve already lost — the full Stripe recovery stack, step by step.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Guide',
     readingMinutes: 11,
     hero: '/blog/how-to-recover-failed-stripe-payments-hero',
@@ -54,7 +62,7 @@ export const posts: BlogPost[] = [
     excerpt:
       'The churn caused by failed payments, not cancellations — what it is, how it differs from voluntary churn, why it compounds, and the proven stack to reduce it.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Explainer',
     readingMinutes: 10,
     hero: '/blog/what-is-involuntary-churn-hero',
@@ -68,7 +76,7 @@ export const posts: BlogPost[] = [
     excerpt:
       '12 copy-paste templates — a full recovery sequence, emails by decline reason, and special cases — plus the anatomy of a dunning email that converts and 15 subject lines.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Templates',
     readingMinutes: 16,
     hero: '/blog/dunning-email-examples-templates-hero',
@@ -82,7 +90,7 @@ export const posts: BlogPost[] = [
     excerpt:
       'insufficient_funds, expired_card, do_not_honor and the rest — what each Stripe decline code means, whether it’s soft or hard, whether to retry, and how to recover it.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Reference',
     readingMinutes: 15,
     hero: '/blog/stripe-decline-codes-explained-hero',
@@ -96,7 +104,7 @@ export const posts: BlogPost[] = [
     excerpt:
       'Churnkey starts around $199/mo. Here are the best cheaper alternatives — with a monthly-cost chart, a comparison table, annual savings, and a no-code guide to switching.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Comparison',
     readingMinutes: 12,
     hero: '/blog/churnkey-alternatives-hero',
@@ -110,7 +118,7 @@ export const posts: BlogPost[] = [
     excerpt:
       'Split churn into involuntary and voluntary, start with the quick wins, and follow a 30-day playbook — measuring, recovering failed payments, cancel flows, onboarding and more.',
     date: '2026-07-08',
-    author: 'Revova',
+    author: 'Sinh Yang',
     category: 'Guide',
     readingMinutes: 16,
     hero: '/blog/how-to-reduce-saas-churn-hero',

@@ -104,10 +104,10 @@ Global footer + JSON-LD (BlogPosting + Breadcrumb)
 ```
 
 **Rules that matter:**
-- Read time is **computed** (`round(words / 250)`), not hardcoded — keep `lib/blog.ts` `readingMinutes` in sync with the real body. (Current posts hardcode it; move to computed.)
-- Author is a real linked name, never "Admin" or a bare "R".
+- Read time is **computed** (`round(words / 250)`), not hardcoded — keep `lib/blog.ts` `readingMinutes` in sync with the real body.
+- **Author byline (fixed):** every article is bylined **Sinh Yang** (founder) with his photo — avatar at `public/authors/sinh-yang.{avif,webp}`, name/role/bio in the `AUTHOR` const in `lib/blog.ts`, and emitted as a `Person` in the BlogPosting schema. New posts inherit this automatically (set `author: 'Sinh Yang'` in the post metadata).
+- **"Keep reading" is automatic:** the `[slug]` page renders a **3-related-articles** strip at the bottom of every post (`relatedFor()` shows the next posts, wrapping) — no per-article work needed.
 - "Key Takeaways" box near the top doubles as snippet bait and skim-path.
-- Add a "Related articles" strip once we have ≥3 posts in a cluster.
 
 ---
 
