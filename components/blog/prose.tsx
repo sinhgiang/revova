@@ -236,6 +236,95 @@ export function BarChart({ bars, caption }: { bars: { label: string; pct: number
   )
 }
 
+// Donut chart with legend (SVG). Segments should sum to ~100. width/height set.
+export function DonutChart({
+  segments, centerLabel, centerSub, caption,
+}: {
+  segments: { label: string; value: number; color: string; note?: string }[]
+  centerLabel: string
+  centerSub?: string
+  caption?: string
+}) {
+  const total = segments.reduce((s, x) => s + x.value, 0) || 1
+  const cx = 150, cy = 130, r = 92, sw = 42, C = 2 * Math.PI * r
+  let acc = 0
+  return (
+    <figure className="my-8">
+      <svg viewBox="0 0 760 262" width={760} height={262} className="w-full h-auto" role="img"
+        aria-label={`Donut chart: ${segments.map((s) => `${s.label} ${Math.round((s.value / total) * 100)}%`).join(', ')}`}>
+        <g transform={`rotate(-90 ${cx} ${cy})`}>
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#eef2ff" strokeWidth={sw} />
+          {segments.map((s, i) => {
+            const frac = s.value / total
+            const len = frac * C
+            const off = acc * C
+            acc += frac
+            return (
+              <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={s.color} strokeWidth={sw}
+                strokeDasharray={`${len} ${C - len}`} strokeDashoffset={-off} />
+            )
+          })}
+        </g>
+        <text x={cx} y={cy - 2} textAnchor="middle" fontSize="30" fontWeight="800" fill="#111827" fontFamily="Segoe UI, Arial, sans-serif">{centerLabel}</text>
+        {centerSub && <text x={cx} y={cy + 22} textAnchor="middle" fontSize="12.5" fill="#6b7280" fontFamily="Segoe UI, Arial, sans-serif">{centerSub}</text>}
+        <g transform="translate(330,64)" fontFamily="Segoe UI, Arial, sans-serif">
+          {segments.map((s, i) => (
+            <g key={i} transform={`translate(0 ${i * 52})`}>
+              <rect width="16" height="16" rx="4" y="2" fill={s.color} />
+              <text x="26" y="15" fontSize="15" fontWeight="700" fill="#374151">{s.label} · {Math.round((s.value / total) * 100)}%</text>
+              {s.note && <text x="26" y="35" fontSize="13" fill="#6b7280">{s.note}</text>}
+            </g>
+          ))}
+        </g>
+      </svg>
+      {caption && <figcaption className="mt-3 text-center text-sm text-gray-400">{caption}</figcaption>}
+    </figure>
+  )
+}
+
+// Filled area/line chart (SVG). Auto-scales; emphasizes the final point. width/height set.
+export function AreaChart({
+  points, xLabels, caption, endLabel,
+}: {
+  points: number[]
+  xLabels?: string[]
+  caption?: string
+  endLabel?: string
+}) {
+  const w = 760, h = 250, padL = 20, padR = 90, padT = 22, padB = 38
+  const max = Math.max(...points, 1)
+  const n = points.length
+  const X = (i: number) => padL + (i * (w - padL - padR)) / (n - 1)
+  const Y = (v: number) => padT + (1 - v / max) * (h - padT - padB)
+  const line = points.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ')
+  const area = `${line} L${X(n - 1).toFixed(1)} ${h - padB} L${X(0).toFixed(1)} ${h - padB} Z`
+  const lastX = X(n - 1), lastY = Y(points[n - 1])
+  return (
+    <figure className="my-8">
+      <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} className="w-full h-auto" role="img"
+        aria-label={`Area chart rising to ${endLabel ?? points[n - 1]}`}>
+        <defs>
+          <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#4f46e5" stopOpacity="0.28" />
+            <stop offset="1" stopColor="#4f46e5" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        <line x1={padL} y1={h - padB} x2={w - padR} y2={h - padB} stroke="#e5e7eb" strokeWidth="1.5" />
+        <path d={area} fill="url(#areaFill)" />
+        <path d={line} fill="none" stroke="#4f46e5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx={lastX} cy={lastY} r="6" fill="#4f46e5" stroke="#fff" strokeWidth="2" />
+        {endLabel && (
+          <text x={lastX + 12} y={lastY + 4} fontSize="15" fontWeight="800" fill="#4f46e5" fontFamily="Segoe UI, Arial, sans-serif">{endLabel}</text>
+        )}
+        {xLabels && xLabels.map((l, i) => (
+          <text key={i} x={X(i)} y={h - padB + 22} textAnchor="middle" fontSize="12" fill="#9ca3af" fontFamily="Segoe UI, Arial, sans-serif">{l}</text>
+        ))}
+      </svg>
+      {caption && <figcaption className="mt-3 text-center text-sm text-gray-400">{caption}</figcaption>}
+    </figure>
+  )
+}
+
 // On-page FAQ that is fed from the same data array used for FAQPage JSON-LD,
 // so the visible Q&A and the structured data can never drift apart.
 export function FAQ({ items }: { items: Faq[] }) {

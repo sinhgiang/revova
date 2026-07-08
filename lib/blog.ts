@@ -46,6 +46,20 @@ export const posts: BlogPost[] = [
     hero: '/blog/how-to-recover-failed-stripe-payments-hero',
     heroAlt: 'A declined credit card recovered via a retry arc into a green checkmark',
   },
+  {
+    slug: 'what-is-involuntary-churn',
+    title: 'What Is Involuntary Churn? (And How to Stop It) — 2026 Guide',
+    description:
+      'Involuntary churn is revenue lost to failed payments, not cancellations. Learn what it is, how it differs from voluntary churn, what it costs, and how to reduce it.',
+    excerpt:
+      'The churn caused by failed payments, not cancellations — what it is, how it differs from voluntary churn, why it compounds, and the proven stack to reduce it.',
+    date: '2026-07-08',
+    author: 'Revova',
+    category: 'Explainer',
+    readingMinutes: 10,
+    hero: '/blog/what-is-involuntary-churn-hero',
+    heroAlt: 'A churn ring showing ~30% involuntary, with recoverable revenue rising as coins',
+  },
 ]
 
 // Newest first for listings.

@@ -118,9 +118,52 @@ function stripeRecoveryHeroSVG() {
   </svg>`
 }
 
+// Hero for "what is involuntary churn": a churn ring (voluntary vs involuntary)
+// where the involuntary slice is recoverable — emerald coins rising back up.
+function involuntaryChurnHeroSVG() {
+  const cx = 340, cy = 300, r = 150, sw = 50, C = 2 * Math.PI * r
+  const vol = 0.68
+  const volLen = vol * C
+  const invLen = (1 - vol) * C
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.28" cy="0.4" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.8" cy="0.55" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.3"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="rotate(-90 ${cx} ${cy})">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#23233a" stroke-width="${sw}"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#4b4b6b" stroke-width="${sw}" stroke-dasharray="${volLen} ${C - volLen}"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#6366f1" stroke-width="${sw}" stroke-dasharray="${invLen} ${C - invLen}" stroke-dashoffset="${-volLen}"/>
+    </g>
+    <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="46" font-weight="800" fill="#ffffff">~30%</text>
+    <text x="${cx}" y="${cy + 30}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="600" fill="#9ca3af">involuntary</text>
+
+    <!-- recoverable: emerald coins rising -->
+    <g>
+      <circle cx="760" cy="400" r="26" fill="#10b981" fill-opacity="0.85"/>
+      <circle cx="838" cy="330" r="31" fill="#10b981"/>
+      <circle cx="922" cy="252" r="37" fill="#34d399"/>
+      <path d="M700 430 C 780 360, 860 300, 946 236" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12"/>
+      <path d="M934 214 l20 20 l-27 7 z" fill="#34d399"/>
+      <text x="836" y="336" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#053a2b">$</text>
+    </g>
+
+    <g transform="translate(150,110)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
+  { slug: 'what-is-involuntary-churn', svg: involuntaryChurnHeroSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })
