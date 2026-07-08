@@ -60,6 +60,20 @@ export const posts: BlogPost[] = [
     hero: '/blog/what-is-involuntary-churn-hero',
     heroAlt: 'A churn ring showing ~30% involuntary, with recoverable revenue rising as coins',
   },
+  {
+    slug: 'dunning-email-examples-templates',
+    title: 'Dunning Email Examples: 12 Templates That Recover Failed Payments (2026)',
+    description:
+      '12 copy-paste dunning email templates that recover failed payments — a full sequence, templates by decline reason, subject lines, and the anatomy of one that converts.',
+    excerpt:
+      '12 copy-paste templates — a full recovery sequence, emails by decline reason, and special cases — plus the anatomy of a dunning email that converts and 15 subject lines.',
+    date: '2026-07-08',
+    author: 'Revova',
+    category: 'Templates',
+    readingMinutes: 16,
+    hero: '/blog/dunning-email-examples-templates-hero',
+    heroAlt: 'An envelope representing a recovery email with a green recovered checkmark',
+  },
 ]
 
 // Newest first for listings.

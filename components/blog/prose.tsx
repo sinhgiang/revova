@@ -209,6 +209,33 @@ export function InlineCTA({ children }: { children: ReactNode }) {
   )
 }
 
+// A styled "email" card for showing copy-paste templates inline. The body is
+// passed as children (write <p> lines); `why` adds a highlighted rationale.
+export function EmailExample({
+  tag, subject, children, why,
+}: {
+  tag?: string
+  subject: string
+  children: ReactNode
+  why?: ReactNode
+}) {
+  return (
+    <div className="my-6 rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="bg-gray-50 border-b border-gray-100 px-5 py-3.5">
+        {tag && <div className="text-[11px] font-bold uppercase tracking-wide text-indigo-600 mb-1.5">{tag}</div>}
+        <div className="text-[11px] uppercase tracking-wide text-gray-400">Subject line</div>
+        <div className="font-semibold text-gray-900">{subject}</div>
+      </div>
+      <div className="px-5 py-4 text-[15px] leading-7 text-gray-700 space-y-3 [&_p]:m-0">{children}</div>
+      {why && (
+        <div className="bg-indigo-50/60 border-t border-indigo-100 px-5 py-3 text-sm text-indigo-900/85">
+          <strong className="font-semibold">Why it works:</strong> {why}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Responsive horizontal bar chart (SVG). Always ships width/height so it never
 // collapses to zero height. pct is 0–100; value is the label shown at the bar end.
 export function BarChart({ bars, caption }: { bars: { label: string; pct: number; value: string }[]; caption?: string }) {

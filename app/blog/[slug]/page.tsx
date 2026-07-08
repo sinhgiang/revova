@@ -8,6 +8,7 @@ import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
 import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/components/blog/articles/how-to-recover-failed-stripe-payments'
 import WhatIsInvoluntaryChurn, { faqs as churnFaqs } from '@/components/blog/articles/what-is-involuntary-churn'
+import DunningEmailExamples, { faqs as dunningFaqs } from '@/components/blog/articles/dunning-email-examples-templates'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
@@ -15,6 +16,7 @@ const bodies: Record<string, ComponentType> = {
   'best-payment-recovery-dunning-tools-2026': BestPaymentRecoveryTools2026,
   'how-to-recover-failed-stripe-payments': HowToRecoverFailedStripePayments,
   'what-is-involuntary-churn': WhatIsInvoluntaryChurn,
+  'dunning-email-examples-templates': DunningEmailExamples,
 }
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
@@ -22,6 +24,7 @@ const faqsBySlug: Record<string, Faq[]> = {
   'best-payment-recovery-dunning-tools-2026': bestToolsFaqs,
   'how-to-recover-failed-stripe-payments': stripeFaqs,
   'what-is-involuntary-churn': churnFaqs,
+  'dunning-email-examples-templates': dunningFaqs,
 }
 
 export function generateStaticParams() {

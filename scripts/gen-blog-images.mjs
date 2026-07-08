@@ -160,10 +160,49 @@ function involuntaryChurnHeroSVG() {
   </svg>`
 }
 
+// Hero for the dunning-email templates guide: an envelope (the recovery email)
+// with a green "recovered" check badge.
+function dunningEmailHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="env" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.32" cy="0.4" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.78" cy="0.35" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.3"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- envelope -->
+    <g>
+      <rect x="330" y="196" width="470" height="300" rx="26" fill="url(#env)"/>
+      <path d="M330 232 L565 392 L800 232" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="6" stroke-linejoin="round"/>
+      <g fill="#ffffff" fill-opacity="0.85">
+        <rect x="392" y="404" width="200" height="16" rx="8"/>
+        <rect x="392" y="436" width="330" height="14" rx="7"/>
+      </g>
+      <rect x="392" y="404" width="1" height="1" fill="none"/>
+    </g>
+
+    <!-- recovered check badge -->
+    <g transform="translate(778,208)">
+      <circle r="66" fill="#10b981" stroke="#0a0a16" stroke-width="8"/>
+      <path d="M-30 4 l18 20 l38 -44" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(200,150)">
+      <rect width="52" height="52" rx="15" fill="url(#env)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
   { slug: 'what-is-involuntary-churn', svg: involuntaryChurnHeroSVG() },
+  { slug: 'dunning-email-examples-templates', svg: dunningEmailHeroSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })
