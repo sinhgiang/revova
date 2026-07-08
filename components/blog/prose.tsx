@@ -209,6 +209,33 @@ export function InlineCTA({ children }: { children: ReactNode }) {
   )
 }
 
+// A card for documenting a decline code: the code, a soft/hard/auth badge, what
+// it means, and the recommended action.
+export function CodeCard({
+  code, type, meaning, action,
+}: {
+  code: string
+  type: 'soft' | 'hard' | 'auth'
+  meaning: string
+  action: string
+}) {
+  const badge = {
+    soft: { cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', label: 'Soft · retry' },
+    hard: { cls: 'bg-rose-50 text-rose-700 border-rose-200', label: 'Hard · needs new card' },
+    auth: { cls: 'bg-amber-50 text-amber-700 border-amber-200', label: 'Auth · re-authenticate' },
+  }[type]
+  return (
+    <div className="my-4 rounded-xl border border-gray-200 p-5">
+      <div className="flex flex-wrap items-center gap-3 mb-2">
+        <code className="text-[15px] font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded">{code}</code>
+        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${badge.cls}`}>{badge.label}</span>
+      </div>
+      <p className="text-[15px] leading-7 text-gray-700 mb-1.5">{meaning}</p>
+      <p className="text-sm text-gray-500"><strong className="text-gray-700 font-semibold">What to do:</strong> {action}</p>
+    </div>
+  )
+}
+
 // A styled "email" card for showing copy-paste templates inline. The body is
 // passed as children (write <p> lines); `why` adds a highlighted rationale.
 export function EmailExample({

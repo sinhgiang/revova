@@ -198,11 +198,50 @@ function dunningEmailHeroSVG() {
   </svg>`
 }
 
+// Hero for the decline-codes reference: a card plus three colour-coded decline
+// code chips (soft/green, hard/rose, ambiguous/amber).
+function declineCodesHeroSVG() {
+  const chips = [
+    { y: 214, dot: '#34d399', code: 'insufficient_funds' },
+    { y: 292, dot: '#fb7185', code: 'expired_card' },
+    { y: 370, dot: '#fbbf24', code: 'do_not_honor' },
+  ]
+  const chipSvg = chips.map((c) => `
+    <g transform="translate(600,${c.y})">
+      <rect width="340" height="54" rx="14" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+      <circle cx="30" cy="27" r="8" fill="${c.dot}"/>
+      <text x="54" y="34" font-family="Consolas, monospace" font-size="21" font-weight="600" fill="#e5e7eb">${c.code}</text>
+    </g>`).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.28" cy="0.4" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+
+    <g transform="translate(170,214)">
+      <rect width="330" height="206" rx="22" fill="url(#card)"/>
+      <rect y="40" width="330" height="34" fill="#000" fill-opacity="0.28"/>
+      <rect x="28" y="104" width="52" height="40" rx="7" fill="#fbbf24" fill-opacity="0.9"/>
+      <g fill="#fff" fill-opacity="0.85"><circle cx="130" cy="168" r="6"/><circle cx="148" cy="168" r="6"/><circle cx="166" cy="168" r="6"/><circle cx="200" cy="168" r="6"/></g>
+      <g transform="translate(250,-22)"><circle r="30" fill="#f43f5e"/><text y="11" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="800" fill="#fff">!</text></g>
+    </g>
+    ${chipSvg}
+    <g transform="translate(170,120)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
   { slug: 'what-is-involuntary-churn', svg: involuntaryChurnHeroSVG() },
   { slug: 'dunning-email-examples-templates', svg: dunningEmailHeroSVG() },
+  { slug: 'stripe-decline-codes-explained', svg: declineCodesHeroSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

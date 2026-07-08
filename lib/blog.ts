@@ -74,6 +74,20 @@ export const posts: BlogPost[] = [
     hero: '/blog/dunning-email-examples-templates-hero',
     heroAlt: 'An envelope representing a recovery email with a green recovered checkmark',
   },
+  {
+    slug: 'stripe-decline-codes-explained',
+    title: 'Stripe Decline Codes Explained: Every Code & How to Recover (2026)',
+    description:
+      'Every Stripe decline code explained — insufficient_funds, expired_card, do_not_honor and more — with soft vs hard classification, whether to retry, and how to recover each.',
+    excerpt:
+      'insufficient_funds, expired_card, do_not_honor and the rest — what each Stripe decline code means, whether it’s soft or hard, whether to retry, and how to recover it.',
+    date: '2026-07-08',
+    author: 'Revova',
+    category: 'Reference',
+    readingMinutes: 15,
+    hero: '/blog/stripe-decline-codes-explained-hero',
+    heroAlt: 'A declined card with three colour-coded Stripe decline code chips',
+  },
 ]
 
 // Newest first for listings.
