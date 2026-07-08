@@ -38,6 +38,42 @@ function RecoveryPipeline() {
   )
 }
 
+function PriceSpectrum() {
+  const x0 = 70, x1 = 700, axisY = 84, max = 220
+  const px = (price: number) => x0 + (price / max) * (x1 - x0)
+  const tools = [
+    { name: 'Revova', price: 29, above: false, hi: true },
+    { name: 'Stunning', price: 100, above: true, hi: false },
+    { name: 'Baremetrics', price: 129, above: false, hi: false },
+    { name: 'Churn Buster', price: 149, above: true, hi: false },
+    { name: 'Churnkey', price: 199, above: false, hi: false },
+  ]
+  return (
+    <figure className="my-8">
+      <svg viewBox="0 0 760 170" className="w-full h-auto" role="img" aria-label="Price positioning of payment recovery tools from budget to premium: Revova $29, Stunning ~$100, Baremetrics ~$129, Churn Buster ~$149, Churnkey ~$199">
+        <line x1={x0} y1={axisY} x2={x1} y2={axisY} stroke="#e5e7eb" strokeWidth="3" />
+        <text x={x0} y={18} fontSize="12" fontWeight="700" fill="#9ca3af" fontFamily="Segoe UI, Arial, sans-serif">$ BUDGET</text>
+        <text x={x1} y={18} fontSize="12" fontWeight="700" fill="#9ca3af" textAnchor="end" fontFamily="Segoe UI, Arial, sans-serif">PREMIUM $$$</text>
+        {tools.map((t) => {
+          const x = px(t.price)
+          const nameY = t.above ? axisY - 30 : axisY + 34
+          const priceY = t.above ? axisY - 46 : axisY + 50
+          const c = t.hi ? '#4f46e5' : '#94a3b8'
+          return (
+            <g key={t.name} fontFamily="Segoe UI, Arial, sans-serif">
+              <line x1={x} y1={t.above ? axisY - 12 : axisY + 12} x2={x} y2={axisY} stroke={c} strokeWidth="1.5" strokeOpacity="0.5" />
+              <circle cx={x} cy={axisY} r={t.hi ? 8 : 6} fill={c} stroke="#fff" strokeWidth="2" />
+              <text x={x} y={nameY} textAnchor="middle" fontSize="13" fontWeight={t.hi ? 800 : 600} fill={t.hi ? '#3730a3' : '#475569'}>{t.name}</text>
+              <text x={x} y={priceY} textAnchor="middle" fontSize="12" fontWeight="700" fill={t.hi ? '#4f46e5' : '#94a3b8'}>{t.hi ? '$29 · best value' : `~$${t.price}`}</text>
+            </g>
+          )
+        })}
+      </svg>
+      <figcaption className="mt-3 text-center text-sm text-gray-400">Approximate monthly entry prices. Paddle Retain isn&apos;t shown — it charges a percentage of recovered revenue instead.</figcaption>
+    </figure>
+  )
+}
+
 function DunningCadence() {
   const steps = [
     { day: 'Day 1', email: 'Email 1' },
@@ -356,6 +392,8 @@ export default function Article() {
           ['Paddle Retain', '% of recovered revenue', 'Paddle / ProfitWell ecosystem', 'No', 'Pay-on-results preference'],
         ]}
       />
+
+      <PriceSpectrum />
 
       <H2 id="pick-by-situation">Which one should you pick? By situation</H2>
       <H3>You&apos;re an indie hacker or solo founder (under ~$10k MRR)</H3>
