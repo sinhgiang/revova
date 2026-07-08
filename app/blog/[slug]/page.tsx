@@ -4,13 +4,18 @@ import type { ComponentType } from 'react'
 import { notFound } from 'next/navigation'
 import { posts, getPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
-import { blogPostingSchema, breadcrumbSchema } from '@/lib/seo'
-import BestPaymentRecoveryTools2026 from '@/components/blog/articles/best-payment-recovery-tools-2026'
+import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
+import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
   'best-payment-recovery-dunning-tools-2026': BestPaymentRecoveryTools2026,
+}
+
+// Posts that ship an on-page FAQ also emit matching FAQPage structured data.
+const faqsBySlug: Record<string, Faq[]> = {
+  'best-payment-recovery-dunning-tools-2026': bestToolsFaqs,
 }
 
 export function generateStaticParams() {
@@ -48,6 +53,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const Body = bodies[slug]
   if (!post || !Body) notFound()
 
+  const postFaqs = faqsBySlug[slug]
+
   return (
     <div className="min-h-screen bg-white">
       <JsonLd
@@ -58,6 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             { name: 'Blog', path: 'blog' },
             { name: post.title, path: `blog/${post.slug}` },
           ]),
+          ...(postFaqs ? [faqPageSchema(postFaqs)] : []),
         ]}
       />
 

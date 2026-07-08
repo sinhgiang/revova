@@ -26,7 +26,7 @@ export const posts: BlogPost[] = [
     date: '2026-07-08',
     author: 'Revova',
     category: 'Comparison',
-    readingMinutes: 13,
+    readingMinutes: 15,
   },
 ]
 

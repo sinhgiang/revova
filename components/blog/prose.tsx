@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import type { Faq } from '@/lib/seo'
 
 // Shared typographic primitives for blog articles. Keeping them here means every
 // post reads as one consistent, well-set publication instead of ad-hoc markup.
@@ -129,4 +130,96 @@ export function CTA({ heading, body }: { heading: string; body: string }) {
 
 export function Divider() {
   return <hr className="my-12 border-gray-100" />
+}
+
+// Skimmer-bait + featured-snippet box near the top of an article.
+export function KeyTakeaways({ items }: { items: ReactNode[] }) {
+  return (
+    <div className="my-8 rounded-2xl border border-gray-200 bg-gray-50 p-6">
+      <p className="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-4">Key takeaways</p>
+      <ul className="space-y-3">
+        {items.map((it, i) => (
+          <li key={i} className="flex gap-3 text-[16px] leading-7 text-gray-700">
+            <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-500" />
+            <span>{it}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// Hard-number cards — great in the first third of a data/comparison article.
+export function StatCards({ stats }: { stats: { value: string; label: string }[] }) {
+  return (
+    <div className="my-8 grid gap-4 sm:grid-cols-3">
+      {stats.map((s) => (
+        <div key={s.label} className="rounded-2xl border border-gray-200 p-5 text-center">
+          <div className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums">{s.value}</div>
+          <div className="mt-1.5 text-sm leading-snug text-gray-500">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Two-column pros/cons visual.
+export function ProsCons({ pros, cons }: { pros: string[]; cons: string[] }) {
+  return (
+    <div className="my-7 grid gap-4 md:grid-cols-2">
+      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+        <p className="mb-3 flex items-center gap-2 text-sm font-bold text-emerald-800">
+          <span className="text-emerald-500">✓</span> Pros
+        </p>
+        <ul className="space-y-2 text-[15px] leading-6 text-emerald-900/80">
+          {pros.map((p, i) => (
+            <li key={i} className="flex gap-2"><span className="text-emerald-500">+</span><span>{p}</span></li>
+          ))}
+        </ul>
+      </div>
+      <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5">
+        <p className="mb-3 flex items-center gap-2 text-sm font-bold text-rose-800">
+          <span className="text-rose-500">✕</span> Cons
+        </p>
+        <ul className="space-y-2 text-[15px] leading-6 text-rose-900/80">
+          {cons.map((c, i) => (
+            <li key={i} className="flex gap-2"><span className="text-rose-400">–</span><span>{c}</span></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// Compact, price-first inline call-to-action for mid-article.
+export function InlineCTA({ children }: { children: ReactNode }) {
+  return (
+    <div className="my-8 flex flex-col gap-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="text-[15px] leading-6 text-indigo-900/90">{children}</div>
+      <div className="flex flex-shrink-0 items-center gap-4">
+        <span className="text-sm font-semibold text-indigo-900/70">$29–79/mo · free trial</span>
+        <Link
+          href="/signup"
+          className="whitespace-nowrap rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 transition-colors"
+        >
+          Start free →
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// On-page FAQ that is fed from the same data array used for FAQPage JSON-LD,
+// so the visible Q&A and the structured data can never drift apart.
+export function FAQ({ items }: { items: Faq[] }) {
+  return (
+    <div className="mt-6 divide-y divide-gray-100 border-t border-gray-100">
+      {items.map((f, i) => (
+        <div key={i} className="py-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{f.q}</h3>
+          <p className="text-[16px] leading-7 text-gray-600">{f.a}</p>
+        </div>
+      ))}
+    </div>
+  )
 }
