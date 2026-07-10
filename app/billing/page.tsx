@@ -1,65 +1,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { CheckCircle, Zap, Shield, TrendingUp, Star, Lock } from 'lucide-react'
+import { CheckCircle, Zap, Shield, TrendingUp, Lock } from 'lucide-react'
 import { Sidebar } from '@/components/layout/sidebar'
 import { AdminBar } from '@/components/admin/admin-bar'
 import { getPlanFor } from '@/lib/plan'
+import { PricingTabs, type PlanUrls, type Period } from './pricing-tabs'
 
 export const dynamic = 'force-dynamic'
 
-const PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 29,
-    description: 'Perfect for indie hackers just starting out',
-    limit: 'Up to 50 recoveries/month',
-    features: [
-      'Up to 50 failed payment recoveries/mo',
-      'AI-personalized 4-email sequence (Day 1,3,7,14)',
-      'Daily smart payment auto-retry',
-      'Pre-dunning expiry alerts',
-      'Works with 5 payment processors',
-      'Auto spam/bounce suppression',
-      'Slack & Telegram alerts + in-app banner',
-      'Real-time recovery dashboard',
-      'GDPR export & delete tools',
-    ],
-    polar_env: 'NEXT_PUBLIC_POLAR_STARTER_URL',
-    popular: false,
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 79,
-    description: 'For SaaS companies growing fast',
-    limit: 'Unlimited recoveries',
-    features: [
-      'Everything in Starter, plus:',
-      'Unlimited failed payment recoveries',
-      'AI-personalized 5-email sequence (Day 1,3,7,14,21)',
-      'SMS recovery + hard/soft decline routing',
-      'Recovery emails in 8 languages',
-      'Winback campaigns (Day 3, 14, 30)',
-      'In-app cancel flow + A/B testing',
-      '1-month-free + LTV retention offers',
-      'Churn risk scoring',
-      'Open/click analytics + revenue forecast',
-      'Weekly digest + priority support',
-    ],
-    polar_env: 'NEXT_PUBLIC_POLAR_PRO_URL',
-    popular: true,
-  },
-]
-
-function buildPolarUrl(baseUrl: string, customerEmail: string): string {
-  if (!baseUrl || baseUrl === '#') return '#'
+function buildPolarUrl(baseUrl: string | undefined, customerEmail: string, fallback: string): string {
+  const base = baseUrl && baseUrl.trim() ? baseUrl : fallback
+  if (!base || base === '#') return '#'
   try {
-    const url = new URL(baseUrl)
+    const url = new URL(base)
     if (customerEmail) url.searchParams.set('customer_email', customerEmail)
     return url.toString()
   } catch {
-    return baseUrl
+    return base
   }
 }
 
@@ -85,17 +42,32 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
 
   const plan = await getPlanFor(supabase as any, user.id)
   const isActive = subscription?.status === 'active'
+  const email = user.email ?? ''
 
-  // Build Polar URLs with customer email so webhook can identify the user
-  const starterUrl = buildPolarUrl(
-    process.env.NEXT_PUBLIC_POLAR_STARTER_URL ?? '#',
-    user.email ?? ''
-  )
-  const proUrl = buildPolarUrl(
-    process.env.NEXT_PUBLIC_POLAR_PRO_URL ?? '#',
-    user.email ?? ''
-  )
-  const planUrls: Record<string, string> = { starter: starterUrl, pro: proUrl }
+  // Each (plan × billing term) is its own Polar product/checkout link. A term is
+  // only offered once its Polar product exists (env var set) — otherwise its
+  // tab is hidden so we never display one price but charge another.
+  const env = {
+    starterM: process.env.NEXT_PUBLIC_POLAR_STARTER_URL,
+    starter6: process.env.NEXT_PUBLIC_POLAR_STARTER_6MO_URL,
+    starterA: process.env.NEXT_PUBLIC_POLAR_STARTER_ANNUAL_URL,
+    proM: process.env.NEXT_PUBLIC_POLAR_PRO_URL,
+    pro6: process.env.NEXT_PUBLIC_POLAR_PRO_6MO_URL,
+    proA: process.env.NEXT_PUBLIC_POLAR_PRO_ANNUAL_URL,
+  }
+  const b = (envUrl: string | undefined) => (envUrl && envUrl.trim() ? buildPolarUrl(envUrl, email, '#') : '')
+
+  const planUrls: PlanUrls = {
+    starter: { monthly: b(env.starterM), '6month': b(env.starter6), annual: b(env.starterA) } as Record<Period, string>,
+    pro: { monthly: b(env.proM), '6month': b(env.pro6), annual: b(env.proA) } as Record<Period, string>,
+  }
+
+  // A term is available if at least one plan has a real checkout link for it.
+  const availablePeriods: Period[] = [
+    ...(planUrls.starter.monthly || planUrls.pro.monthly ? (['monthly'] as Period[]) : []),
+    ...(planUrls.starter['6month'] || planUrls.pro['6month'] ? (['6month'] as Period[]) : []),
+    ...(planUrls.starter.annual || planUrls.pro.annual ? (['annual'] as Period[]) : []),
+  ]
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -151,69 +123,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {PLANS.map((plan) => (
-          <div
-            key={plan.id}
-            className={`relative bg-white rounded-2xl p-8 ${
-              plan.popular
-                ? 'border-2 border-indigo-500 shadow-lg'
-                : 'border border-gray-200 shadow-sm'
-            }`}
-          >
-            {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-indigo-500 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
-                  <Star className="w-3 h-3" /> Most Popular
-                </span>
-              </div>
-            )}
-
-            <div className="mb-6">
-              <div className="inline-flex items-center justify-center w-10 h-10 bg-indigo-100 rounded-xl mb-3">
-                <Zap className="w-5 h-5 text-indigo-600" />
-              </div>
-              <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">{plan.name}</p>
-              <div className="mt-1">
-                <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-                <span className="text-gray-500">/month</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
-              <p className="text-xs font-medium text-indigo-600 mt-2">{plan.limit}</p>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              {plan.features.map((feature) => (
-                feature.endsWith('plus:') ? (
-                  <li key={feature} className="text-sm font-bold text-gray-900 pt-1">{feature}</li>
-                ) : (
-                  <li key={feature} className="flex items-center gap-3 text-sm text-gray-700">
-                    <CheckCircle className={`w-4 h-4 flex-shrink-0 ${plan.popular ? 'text-indigo-500' : 'text-emerald-500'}`} />
-                    {feature}
-                  </li>
-                )
-              ))}
-            </ul>
-
-            {isActive && subscription?.plan_id === plan.id ? (
-              <div className="text-center py-3 bg-emerald-50 rounded-xl text-emerald-700 font-medium text-sm">
-                ✓ Current Plan
-              </div>
-            ) : (
-              <a
-                href={planUrls[plan.id]}
-                className={`block w-full text-center font-semibold py-3 px-6 rounded-xl transition-all ${
-                  plan.popular
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-90'
-                    : 'bg-gray-900 text-white hover:bg-gray-800'
-                }`}
-              >
-                {isActive ? 'Switch to this plan' : 'Start Free Trial'}
-              </a>
-            )}
-          </div>
-        ))}
-      </div>
+      <PricingTabs urls={planUrls} availablePeriods={availablePeriods} currentPlanId={subscription?.plan_id ?? null} isActive={isActive} />
 
       <div className="mt-10 grid grid-cols-3 gap-4 text-center">
         <div className="bg-gray-50 rounded-xl p-4">
@@ -234,7 +144,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       </div>
 
       <p className="text-center text-xs text-gray-400 mt-6">
-        Recover just 1 payment and Revova pays for itself. Average customer recovers 8–12 payments/month.
+        Longer terms cost less per month — pick monthly to stay flexible, or 6-month / annual to save.
       </p>
     </div>
       </main>
