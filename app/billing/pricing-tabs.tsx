@@ -15,8 +15,8 @@ export interface PlanUrls {
 
 const PERIODS: { id: Period; label: string; sub: string; save?: string }[] = [
   { id: 'monthly', label: 'Monthly', sub: 'Billed every month' },
-  { id: '6month', label: '6 months', sub: 'Billed every 6 months', save: 'Save up to 18%' },
-  { id: 'annual', label: 'Annual', sub: 'Billed once a year', save: 'Save up to 25%' },
+  { id: '6month', label: '6 months', sub: 'Billed every 6 months', save: 'Save 10%' },
+  { id: 'annual', label: 'Annual', sub: 'Billed once a year', save: 'Save 12%' },
 ]
 
 type Price = { perMonth: number; billed: number; save?: number }
@@ -40,8 +40,8 @@ const PLANS: Plan[] = [
     popular: false,
     price: {
       monthly: { perMonth: 29, billed: 29 },
-      '6month': { perMonth: 24, billed: 144, save: 17 },
-      annual: { perMonth: 22, billed: 264, save: 24 },
+      '6month': { perMonth: 26, billed: 156, save: 10 },
+      annual: { perMonth: 25.5, billed: 306, save: 12 },
     },
     features: [
       'Up to 50 failed payment recoveries/mo',
@@ -63,8 +63,8 @@ const PLANS: Plan[] = [
     popular: true,
     price: {
       monthly: { perMonth: 79, billed: 79 },
-      '6month': { perMonth: 65, billed: 390, save: 18 },
-      annual: { perMonth: 59, billed: 708, save: 25 },
+      '6month': { perMonth: 71, billed: 426, save: 10 },
+      annual: { perMonth: 69.5, billed: 834, save: 12 },
     },
     features: [
       'Everything in Starter, plus:',
@@ -81,6 +81,11 @@ const PLANS: Plan[] = [
     ],
   },
 ]
+
+// Whole numbers show plainly ($26); non-round ones show 2 decimals ($25.50).
+function fmt(n: number) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2)
+}
 
 function billedLabel(period: Period, billed: number) {
   if (period === 'monthly') return `$${billed} billed monthly`
@@ -168,7 +173,7 @@ export function PricingTabs({
                 <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">{plan.name}</p>
 
                 <div className="mt-1 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-gray-900">${pr.perMonth}</span>
+                  <span className="text-4xl font-bold text-gray-900">${fmt(pr.perMonth)}</span>
                   <span className="text-gray-500">/month</span>
                 </div>
 
