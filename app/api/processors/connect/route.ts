@@ -25,13 +25,15 @@ export async function POST(request: NextRequest) {
     .eq('user_id', user.id)
     .maybeSingle()
   if (!existingAccount) {
-    await db.from('stripe_accounts').insert({
+    const { error: acctError } = await db.from('stripe_accounts').insert({
       user_id: user.id,
       stripe_account_id: `acct_${processor}_${user.id.replace(/-/g, '').slice(0, 16)}`,
+      access_token: '', // NOT NULL column; real creds live in payment_connections. Empty so every Stripe-only guard (`if (!access_token)`) skips this account.
       business_name: businessName?.trim() || null,
       email: user.email ?? null,
       connected_at: new Date().toISOString(),
     })
+    if (acctError) return NextResponse.json({ error: acctError.message }, { status: 500 })
   } else if (businessName?.trim() && !existingAccount.business_name) {
     // Fill in the business name if it wasn't set yet (used in every email)
     await db.from('stripe_accounts').update({ business_name: businessName.trim() }).eq('user_id', user.id)

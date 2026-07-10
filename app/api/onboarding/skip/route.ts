@@ -21,6 +21,7 @@ export async function POST() {
     const { error } = await db.from('stripe_accounts').insert({
       user_id: user.id,
       stripe_account_id: `acct_pending_${user.id.replace(/-/g, '').slice(0, 16)}`,
+      access_token: '', // NOT NULL column; empty = no Stripe key yet. Every Stripe call guards on `if (!access_token)`, so this is safely skipped.
       business_name: null,
       email: user.email ?? null,
       connected_at: new Date().toISOString(),

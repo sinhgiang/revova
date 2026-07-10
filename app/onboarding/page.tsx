@@ -94,7 +94,17 @@ export default function OnboardingPage() {
   // Enter the app without (or after) connecting. Ensures a placeholder account
   // row exists so the dashboard doesn't bounce back here, then navigates.
   async function goToDashboard() {
-    try { await fetch('/api/onboarding/skip', { method: 'POST' }) } catch {}
+    try {
+      const res = await fetch('/api/onboarding/skip', { method: 'POST' })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        setStep1Error(d.error || 'Could not continue right now. Please try again.')
+        return
+      }
+    } catch {
+      setStep1Error('Could not continue right now. Please try again.')
+      return
+    }
     router.push('/dashboard')
   }
 
