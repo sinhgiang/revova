@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Zap, Shield, Clock, TrendingUp, Eye, EyeOff, Copy, CheckCircle, ExternalLink } from 'lucide-react'
+import { Zap, Shield, Clock, TrendingUp, Eye, EyeOff, Copy, CheckCircle, ExternalLink, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { createClient } from '@/lib/supabase/client'
+import { ProcessorConnectionSettings } from '@/components/settings/processor-connection-settings'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -23,6 +25,17 @@ export default function OnboardingPage() {
   const [copied, setCopied] = useState(false)
   const [step2Loading, setStep2Loading] = useState(false)
   const [step2Error, setStep2Error] = useState('')
+
+  // Alternative connection paths for merchants who don't use Stripe
+  const [showOther, setShowOther] = useState(false)
+  const [userId, setUserId] = useState('')
+  const appUrl = typeof window !== 'undefined' ? window.location.origin : ''
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id)
+    })
+  }, [])
 
   async function handleConnect() {
     if (!apiKey.startsWith('sk_')) {
@@ -184,6 +197,40 @@ export default function OnboardingPage() {
     )
   }
 
+  // Alternate path: merchant is not on Stripe — connect another processor here.
+  if (showOther) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-2xl text-gray-900">Revova</span>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Connect your payment platform</h1>
+            <p className="text-gray-500 mt-3 text-lg">Not on Stripe? No problem — pick your platform and connect it below.</p>
+          </div>
+
+          <ProcessorConnectionSettings userId={userId} appUrl={appUrl} connectedProcessors={[]} />
+
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Button onClick={() => router.push('/dashboard')} size="lg" className="w-full">
+              Continue to Dashboard →
+            </Button>
+            <button
+              onClick={() => setShowOther(false)}
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Use Stripe instead
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
@@ -208,7 +255,7 @@ export default function OnboardingPage() {
             {[
               { icon: Shield, title: 'Read-only access', desc: 'We only listen for failed payment events. We never move money.' },
               { icon: Clock, title: 'Live in 3 minutes', desc: 'Paste once, Revova monitors 24/7 automatically.' },
-              { icon: TrendingUp, title: 'Average 52% recovery rate', desc: 'AI-personalized emails outperform generic templates by 3x.' },
+              { icon: TrendingUp, title: 'AI-personalized recovery', desc: 'Every email is written for the customer and the exact reason their card failed.' },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
@@ -285,6 +332,23 @@ export default function OnboardingPage() {
           <p className="text-center text-xs text-gray-400 mt-4">
             Your key is encrypted and stored securely · Revova never stores card numbers
           </p>
+
+          {/* Alternative paths — priority: connect a non-Stripe platform, then skip */}
+          <div className="mt-6 pt-5 border-t border-gray-100 space-y-3 text-center">
+            <button
+              onClick={() => setShowOther(true)}
+              className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50/60 px-4 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+            >
+              I don&apos;t use Stripe — connect another platform
+            </button>
+            <p className="text-xs text-gray-400">Paddle · Braintree · Chargebee · Recurly</p>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Skip for now — I&apos;ll set this up later in Settings
+            </button>
+          </div>
         </div>
       </div>
     </div>
