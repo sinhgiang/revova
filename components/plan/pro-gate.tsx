@@ -138,7 +138,7 @@ export function ProGate({ isPro, feature, children }: { isPro: boolean; feature:
                   {mode === 'instant' && (
                     <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-100 px-3.5 py-3 mb-4 text-[13px] leading-5 text-amber-900">
                       <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500" />
-                      <span>You have a card on file. Upgrading <strong>charges the prorated difference for the rest of this month now</strong> — and you unlock all of Pro <strong>instantly</strong>.</span>
+                      <span>Upgrading <strong>charges the prorated difference for the rest of this month now</strong> — and you unlock all of Pro <strong>instantly</strong>.</span>
                     </div>
                   )}
                   {mode === 'checkout' && (
