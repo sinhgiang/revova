@@ -39,3 +39,12 @@ export function billedLabel(period: Period, billed: number): string {
   if (period === '6month') return `$${billed} billed every 6 months`
   return `$${billed} billed yearly`
 }
+
+// Shows the math explicitly so customers don't need a calculator:
+// "$71 × 6 = $426 every 6 months".
+export function billedMathLabel(period: Period, perMonth: number, billed: number): string {
+  if (period === 'monthly') return `Billed $${fmtPrice(billed)} monthly`
+  const months = period === '6month' ? 6 : 12
+  const every = period === '6month' ? 'every 6 months' : 'per year'
+  return `$${fmtPrice(perMonth)} × ${months} = $${billed} ${every}`
+}

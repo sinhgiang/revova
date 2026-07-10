@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { CheckCircle, Star, Zap } from 'lucide-react'
-import { PERIOD_META, PRICING, fmtPrice, billedLabel, type Period } from '@/lib/pricing'
+import { PERIOD_META, PRICING, fmtPrice, billedMathLabel, type Period } from '@/lib/pricing'
 
 // Three billing terms. Each (plan × term) is its own Polar product/checkout link,
 // resolved server-side and passed in via `urls`. Prices come from lib/pricing so
@@ -150,7 +150,7 @@ export function PricingTabs({
 
                 {/* Billed-total + savings line */}
                 <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-gray-500">{billedLabel(period, pr.billed)}</span>
+                  <span className="text-sm text-gray-500">{billedMathLabel(period, pr.perMonth, pr.billed)}</span>
                   {pr.save ? (
                     <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
                       Save {pr.save}%

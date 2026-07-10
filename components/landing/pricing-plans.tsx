@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { CheckCircle, Shield, Lock } from 'lucide-react'
-import { PERIOD_META, PRICING, fmtPrice, billedLabel, type Period } from '@/lib/pricing'
+import { PERIOD_META, PRICING, fmtPrice, billedMathLabel, type Period } from '@/lib/pricing'
 
 // Public pricing cards with a monthly / 6-month / annual selector, shared by the
 // homepage pricing section and the /pricing page so they never drift. CTAs go to
@@ -82,7 +82,7 @@ export function PricingPlans() {
             <span className="text-gray-400 mb-2">/mo</span>
           </div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="text-sm text-gray-500">{billedLabel(period, starter.billed)}</span>
+            <span className="text-sm text-gray-500">{billedMathLabel(period, starter.perMonth, starter.billed)}</span>
             {starter.save ? (
               <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
                 Save {starter.save}%
@@ -127,7 +127,7 @@ export function PricingPlans() {
             <span className="text-gray-400 mb-2">/mo</span>
           </div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="text-sm text-gray-500">{billedLabel(period, pro.billed)}</span>
+            <span className="text-sm text-gray-500">{billedMathLabel(period, pro.perMonth, pro.billed)}</span>
             {pro.save ? (
               <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
                 Save {pro.save}%
