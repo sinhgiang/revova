@@ -91,6 +91,13 @@ export default function OnboardingPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // Enter the app without (or after) connecting. Ensures a placeholder account
+  // row exists so the dashboard doesn't bounce back here, then navigates.
+  async function goToDashboard() {
+    try { await fetch('/api/onboarding/skip', { method: 'POST' }) } catch {}
+    router.push('/dashboard')
+  }
+
   if (step === 2) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -186,7 +193,7 @@ export default function OnboardingPage() {
             </Button>
 
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={goToDashboard}
               className="w-full text-center text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
               Skip for now (setup later in Settings)
@@ -216,7 +223,7 @@ export default function OnboardingPage() {
           <ProcessorConnectionSettings userId={userId} appUrl={appUrl} connectedProcessors={[]} />
 
           <div className="mt-6 flex flex-col items-center gap-3">
-            <Button onClick={() => router.push('/dashboard')} size="lg" className="w-full">
+            <Button onClick={goToDashboard} size="lg" className="w-full">
               Continue to Dashboard →
             </Button>
             <button
@@ -343,7 +350,7 @@ export default function OnboardingPage() {
             </button>
             <p className="text-xs text-gray-400">Paddle · Braintree · Chargebee · Recurly</p>
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={goToDashboard}
               className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
               Skip for now — I&apos;ll set this up later in Settings
