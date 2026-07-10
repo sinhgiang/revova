@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { ADMIN_EMAIL } from '@/lib/admin'
+
+// Founder accounts allowed to run this temporary diagnostic.
+const ALLOWED = ['tubxeebyajtube@gmail.com', 'hmoobmedia@sinhgiang.com', 'admin@sinhgiang.com']
 
 // TEMPORARY diagnostic — admin only. Verifies the Polar upgrade config:
 // is POLAR_ACCESS_TOKEN valid, does POLAR_PRO_PRODUCT_ID resolve to a real Pro
@@ -10,8 +12,8 @@ import { ADMIN_EMAIL } from '@/lib/admin'
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email?.toLowerCase() !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: 'Admin only' }, { status: 403 })
+  if (!user || !ALLOWED.includes(user.email?.toLowerCase() ?? '')) {
+    return NextResponse.json({ error: 'Admin only', youAre: user?.email ?? null }, { status: 403 })
   }
 
   const token = process.env.POLAR_ACCESS_TOKEN
