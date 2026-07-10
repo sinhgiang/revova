@@ -81,10 +81,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // Determine plan from price amount (cents): 2900 = Starter, 7900 = Pro
-    const priceAmount: number =
-      sub.amount ?? sub.price?.amount ?? sub.price?.price_amount ?? 0
-    const planId = priceAmount <= 2900 ? 'starter' : 'pro'
+    // Determine the plan across ALL billing terms (monthly / 6-month / annual).
+    // Primary signal is the PRODUCT NAME — name your Polar products with
+    // "Starter" or "Pro" in them. Fallback normalizes the price to a per-month
+    // figure so a 6-month or annual Starter isn't mistaken for Pro.
+    const productName: string = (
+      sub.product?.name ?? sub.product_name ?? sub.price?.product?.name ?? ''
+    ).toLowerCase()
+    let planId: 'starter' | 'pro'
+    if (productName.includes('pro')) {
+      planId = 'pro'
+    } else if (productName.includes('starter')) {
+      planId = 'starter'
+    } else {
+      const amount: number = sub.amount ?? sub.price?.amount ?? sub.price?.price_amount ?? 0
+      const interval: string =
+        sub.recurring_interval ?? sub.product?.recurring_interval ?? sub.price?.recurring_interval ?? 'month'
+      const count: number = sub.recurring_interval_count ?? sub.price?.recurring_interval_count ?? 1
+      const monthsPerCycle =
+        interval === 'year' ? 12 * count : interval === 'week' ? count / 4 : interval === 'day' ? count / 30 : count
+      const perMonth = monthsPerCycle > 0 ? amount / monthsPerCycle : amount
+      planId = perMonth <= 3000 ? 'starter' : 'pro' // ≤ $30/mo → Starter
+    }
 
     // Map Polar status to our status
     const statusMap: Record<string, string> = {
