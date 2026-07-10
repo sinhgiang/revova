@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { Zap, CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
+import { PricingPlans } from '@/components/landing/pricing-plans'
 
 export default function PricingPage() {
   return (
@@ -35,8 +36,8 @@ export default function PricingPage() {
         <div className="max-w-3xl mx-auto">
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-4">Simple pricing</p>
           <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-5 leading-tight">
-            Recover $2,000/month.<br />
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Pay $29.</span>
+            Recover one payment,<br />
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">and it pays for itself.</span>
           </h1>
           <p className="text-xl text-gray-500 mb-4">
             14-day free trial on all plans. No credit card required.
@@ -51,112 +52,8 @@ export default function PricingPage() {
 
       {/* Plans */}
       <section className="px-6 pb-16">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
-
-          {/* Starter */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-8 text-left shadow-sm hover:shadow-md transition-shadow">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Starter</p>
-            <div className="flex items-end gap-1 mb-1">
-              <span className="text-5xl font-black text-gray-900">$29</span>
-              <span className="text-gray-400 mb-2">/mo</span>
-            </div>
-            <p className="text-gray-500 text-sm mb-5">Perfect for indie hackers with under $20K MRR</p>
-
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 mb-6">
-              <p className="text-sm font-bold text-emerald-800">Break-even math:</p>
-              <p className="text-sm text-emerald-700 mt-1">Recover just <strong>1 payment of $29</strong> and Revova pays for itself. Most users recover 8–15 payments per month.</p>
-            </div>
-
-            <ul className="space-y-2.5 mb-8">
-              {[
-                'Up to 50 failed payment recoveries/mo',
-                'Lost Revenue Finder — scan + win back 90 days',
-                'AI-personalized 4-email sequence',
-                'Day 1 → 3 → 7 → 14 cadence',
-                'Daily smart payment auto-retry',
-                'Pre-dunning expiry alerts',
-                'Works with 5 payment processors',
-                'Auto spam/bounce suppression',
-                'Slack & Telegram notifications',
-                'In-app payment banner widget',
-                'Past / Now / Upcoming dashboard + date filters',
-                'GDPR export & delete tools',
-                '14-day free trial',
-              ].map(f => (
-                <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="block w-full text-center bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition-colors">
-              Start my free trial
-            </Link>
-          </div>
-
-          {/* Pro */}
-          <div className="bg-white rounded-2xl border-2 border-indigo-500 p-8 text-left shadow-xl relative">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
-                Most Popular
-              </span>
-            </div>
-            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-3">Pro</p>
-            <div className="flex items-end gap-1 mb-1">
-              <span className="text-5xl font-black text-gray-900">$79</span>
-              <span className="text-gray-400 mb-2">/mo</span>
-            </div>
-            <p className="text-gray-500 text-sm mb-5">For growing SaaS teams with $20K+ MRR</p>
-
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
-              <p className="text-sm font-bold text-indigo-800">Average Pro customer recovers:</p>
-              <p className="text-xl font-black text-indigo-700 mt-0.5">$2,100–$4,500/month</p>
-              <p className="text-xs text-indigo-500 mt-0.5">= 26–56× ROI on your subscription</p>
-            </div>
-
-            <ul className="space-y-2.5 mb-8">
-              {[
-                'Everything in Starter, plus:',
-                'Unlimited failed payment recoveries',
-                'Lost Revenue Finder — full 12-month scan + win-back',
-                'AI-personalized 5-email sequence',
-                'Hard/soft decline smart routing',
-                'SMS recovery from your own number',
-                'Emails in 8 languages',
-                'Winback campaigns (Day 3, 14, 30)',
-                'In-app cancel flow + A/B testing',
-                '1-month-free retention offer',
-                'LTV-based retention offers',
-                'Churn risk scoring',
-                'Email open & click analytics',
-                'Revenue recovery forecast',
-                'Weekly digest performance report',
-                'GDPR tools + DPA on request',
-                'Priority support (reply within 4h)',
-              ].map(f => (
-                <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
-                  <CheckCircle className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="block w-full text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-200">
-              Start my free trial
-            </Link>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-6 text-sm text-gray-400 mt-8">
-          {[
-            { icon: Shield, text: '30-day money-back guarantee' },
-            { icon: Lock, text: 'No credit card to start' },
-            { icon: CheckCircle, text: 'Cancel anytime, instantly' },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2">
-              <Icon className="w-4 h-4 text-gray-300 flex-shrink-0" />
-              {text}
-            </div>
-          ))}
+        <div className="max-w-4xl mx-auto">
+          <PricingPlans />
         </div>
       </section>
 

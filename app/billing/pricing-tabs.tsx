@@ -2,24 +2,17 @@
 
 import { useState } from 'react'
 import { CheckCircle, Star, Zap } from 'lucide-react'
+import { PERIOD_META, PRICING, fmtPrice, billedLabel, type Period } from '@/lib/pricing'
 
 // Three billing terms. Each (plan × term) is its own Polar product/checkout link,
-// resolved server-side and passed in via `urls`. Longer terms are cheaper per
-// month — this lifts both conversion and the amount collected up front.
-export type Period = 'monthly' | '6month' | 'annual'
+// resolved server-side and passed in via `urls`. Prices come from lib/pricing so
+// the in-app and public pricing never drift.
+export type { Period }
 
 export interface PlanUrls {
   starter: Record<Period, string>
   pro: Record<Period, string>
 }
-
-const PERIODS: { id: Period; label: string; sub: string; save?: string }[] = [
-  { id: 'monthly', label: 'Monthly', sub: 'Billed every month' },
-  { id: '6month', label: '6 months', sub: 'Billed every 6 months', save: 'Save 10%' },
-  { id: 'annual', label: 'Annual', sub: 'Billed once a year', save: 'Save 12%' },
-]
-
-type Price = { perMonth: number; billed: number; save?: number }
 
 interface Plan {
   id: 'starter' | 'pro'
@@ -27,7 +20,6 @@ interface Plan {
   description: string
   limit: string
   popular: boolean
-  price: Record<Period, Price>
   features: string[]
 }
 
@@ -38,11 +30,6 @@ const PLANS: Plan[] = [
     description: 'Perfect for indie hackers just starting out',
     limit: 'Up to 50 recoveries/month',
     popular: false,
-    price: {
-      monthly: { perMonth: 29, billed: 29 },
-      '6month': { perMonth: 26, billed: 156, save: 10 },
-      annual: { perMonth: 25.5, billed: 306, save: 12 },
-    },
     features: [
       'Up to 50 failed payment recoveries/mo',
       'AI-personalized 4-email sequence (Day 1,3,7,14)',
@@ -61,11 +48,6 @@ const PLANS: Plan[] = [
     description: 'For SaaS companies growing fast',
     limit: 'Unlimited recoveries',
     popular: true,
-    price: {
-      monthly: { perMonth: 79, billed: 79 },
-      '6month': { perMonth: 71, billed: 426, save: 10 },
-      annual: { perMonth: 69.5, billed: 834, save: 12 },
-    },
     features: [
       'Everything in Starter, plus:',
       'Unlimited failed payment recoveries',
@@ -82,17 +64,6 @@ const PLANS: Plan[] = [
   },
 ]
 
-// Whole numbers show plainly ($26); non-round ones show 2 decimals ($25.50).
-function fmt(n: number) {
-  return Number.isInteger(n) ? String(n) : n.toFixed(2)
-}
-
-function billedLabel(period: Period, billed: number) {
-  if (period === 'monthly') return `$${billed} billed monthly`
-  if (period === '6month') return `$${billed} billed every 6 months`
-  return `$${billed} billed yearly`
-}
-
 export function PricingTabs({
   urls,
   availablePeriods,
@@ -106,7 +77,7 @@ export function PricingTabs({
 }) {
   // Only show terms that have a Polar product configured. Prefer 6-month as the
   // default (nudges a longer term), else the first available term.
-  const visiblePeriods = PERIODS.filter((p) => availablePeriods.includes(p.id))
+  const visiblePeriods = PERIOD_META.filter((p) => availablePeriods.includes(p.id))
   const initial: Period = availablePeriods.includes('6month')
     ? '6month'
     : availablePeriods[0] ?? 'monthly'
@@ -148,7 +119,7 @@ export function PricingTabs({
       {/* Plan cards */}
       <div className="grid gap-6 md:grid-cols-2">
         {PLANS.map((plan) => {
-          const pr = plan.price[period]
+          const pr = PRICING[plan.id][period]
           const url = urls[plan.id][period]
           const isCurrent = isActive && currentPlanId === plan.id
           return (
@@ -173,7 +144,7 @@ export function PricingTabs({
                 <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">{plan.name}</p>
 
                 <div className="mt-1 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-gray-900">${fmt(pr.perMonth)}</span>
+                  <span className="text-4xl font-bold text-gray-900">${fmtPrice(pr.perMonth)}</span>
                   <span className="text-gray-500">/month</span>
                 </div>
 

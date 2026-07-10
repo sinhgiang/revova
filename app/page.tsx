@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw, Sparkles, History, Search, Filter } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
+import { PricingPlans } from '@/components/landing/pricing-plans'
 import { JsonLd } from '@/components/json-ld'
 import { homeFaqs, faqPageSchema, breadcrumbSchema } from '@/lib/seo'
 
@@ -585,123 +586,11 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-3">Pricing</p>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Recover $2,000/month.<br/>Pay $29.
+            Recover one payment,<br/>and it pays for itself.
           </h2>
           <p className="text-xl text-gray-500 mb-12">14-day free trial · No credit card · 30-day money-back guarantee</p>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Starter */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-left shadow-sm hover:shadow-md transition-shadow">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Starter</p>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="text-5xl font-black text-gray-900">$29</span>
-                <span className="text-gray-400 mb-1.5">/mo</span>
-              </div>
-              <p className="text-gray-500 text-sm mb-5">Perfect for indie hackers with &lt;$20K MRR</p>
-
-              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 mb-6">
-                <p className="text-sm font-bold text-emerald-800">Break-even math:</p>
-                <p className="text-sm text-emerald-700 mt-1">Recover just <strong>1 payment of $29</strong> and Revova pays for itself. Most recover 8–12 payments/month.</p>
-              </div>
-
-              <ul className="space-y-2.5 mb-8">
-                {[
-                  'Up to 50 failed payment recoveries/mo',
-                  'Lost Revenue Finder — scan + win back 90 days',
-                  'AI-personalized 4-email sequence',
-                  'Day 1 → 3 → 7 → 14 cadence',
-                  'Works with 5 payment processors',
-                  'Pre-dunning + auto spam suppression',
-                  'Past / Now / Upcoming dashboard + date filters',
-                  'GDPR export & delete tools',
-                  '14-day free trial',
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0"/>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/signup" className="block w-full text-center bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition-colors">
-                Start my free trial
-              </Link>
-            </div>
-
-            {/* Pro */}
-            <div className="bg-white rounded-2xl border-2 border-indigo-500 p-8 text-left shadow-xl relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
-                  Most Popular
-                </span>
-              </div>
-              <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-3">Pro</p>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="text-5xl font-black text-gray-900">$79</span>
-                <span className="text-gray-400 mb-1.5">/mo</span>
-              </div>
-              <p className="text-gray-500 text-sm mb-5">For SaaS companies with $20K+ MRR</p>
-
-              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
-                <p className="text-sm font-bold text-indigo-800">Average Pro customer recovers:</p>
-                <p className="text-xl font-black text-indigo-700 mt-0.5">$2,100–$4,500/month</p>
-                <p className="text-xs text-indigo-500">= 26–56× ROI on your subscription</p>
-              </div>
-
-              <ul className="space-y-2.5 mb-8">
-                {[
-                  'Unlimited failed payment recoveries',
-                  'Lost Revenue Finder — full 12-month scan',
-                  'Historical win-back campaigns (Day 0 → 7 → 21)',
-                  'AI-personalized 5-email sequence',
-                  'Day 1 → 3 → 7 → 14 → 21 cadence',
-                  'Hard/soft decline smart routing',
-                  'Daily smart-retry for up to 30 days',
-                  'SMS recovery from your own number',
-                  'Pre-dunning before cards expire',
-                  'LTV-based retention offers',
-                  'Emails in 8 languages',
-                  'Winback campaigns (Day 3, 14, 30)',
-                  'Weekly digest performance report',
-                  'Email open & click rate analytics',
-                  'Revenue recovery forecast',
-                  'Cancellation survey + smart deflection',
-                  'In-app cancel flow (embed, no redirect)',
-                  'A/B test cancel offers',
-                  '1-month-free retention offer',
-                  'Smart payday retry timing',
-                  'Churn risk scoring',
-                  'Advanced analytics & revenue insights',
-                  'Works with 5 payment processors',
-                  'Auto spam/bounce suppression',
-                  'GDPR tools + DPA (export & delete)',
-                  'Priority support (reply within 4h)',
-                  '14-day free trial',
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
-                    <CheckCircle className="w-4 h-4 text-indigo-500 flex-shrink-0"/>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/signup" className="block w-full text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-200">
-                Start my free trial
-              </Link>
-            </div>
-          </div>
-
-          {/* Guarantees */}
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-            {[
-              { icon: Shield, text: '30-day money-back guarantee' },
-              { icon: Lock, text: 'No credit card to start' },
-              { icon: CheckCircle, text: 'Cancel anytime, instantly' },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2 text-gray-500 text-sm whitespace-nowrap">
-                <Icon className="w-4 h-4 text-gray-400 flex-shrink-0"/>
-                {text}
-              </div>
-            ))}
-          </div>
+          <PricingPlans />
         </div>
       </section>
 
