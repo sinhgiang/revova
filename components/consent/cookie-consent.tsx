@@ -17,7 +17,8 @@ import Link from 'next/link'
 // (CAPI) for Meta and enhanced conversions for Google — both need secrets.
 
 const STORAGE_KEY = 'revova_cookie_consent'
-const GTAG_ID = process.env.NEXT_PUBLIC_GTAG_ID
+// Google Analytics 4 / Google Ads measurement ID (public). Env can override.
+const GTAG_ID = process.env.NEXT_PUBLIC_GTAG_ID ?? 'G-5ZHE1GWDEK'
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID
 const HAS_TRACKING = Boolean(GTAG_ID || FB_PIXEL_ID)
 
