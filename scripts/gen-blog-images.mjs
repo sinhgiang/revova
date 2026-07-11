@@ -309,7 +309,46 @@ function reduceChurnHeroSVG() {
   </svg>`
 }
 
+// Hero for the Revova product review: an on-brand "scorecard" card showing a
+// 4.5/5 rating badge and a few feature check chips — signals a thorough review.
+function revovaReviewHeroSVG() {
+  const chips = ['No-code setup', 'AI recovery emails', 'Lost Revenue Finder']
+  const chipSvg = chips.map((c, i) => `
+    <g transform="translate(600,${230 + i * 70})">
+      <rect width="360" height="52" rx="14" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+      <g transform="translate(24,26)"><circle r="11" fill="#10b981"/><path d="M-5 0 l3.5 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <text x="52" y="33" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="600" fill="#e5e7eb">${c}</text>
+    </g>`).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.3" cy="0.35" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.8" cy="0.7" r="0.55"><stop offset="0" stop-color="#9333ea" stop-opacity="0.3"/><stop offset="1" stop-color="#9333ea" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- rating card -->
+    <g transform="translate(150,214)">
+      <rect width="330" height="230" rx="24" fill="url(#card)"/>
+      <text x="40" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#e0e7ff" letter-spacing="2">REVIEW</text>
+      <text x="40" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="86" font-weight="800" fill="#ffffff">4.5</text>
+      <text x="205" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#e0e7ff">/ 5</text>
+      <text x="40" y="190" font-family="Segoe UI, Arial, sans-serif" font-size="26" letter-spacing="3" fill="#fde68a">★★★★<tspan fill="#c7b3ff">★</tspan></text>
+    </g>
+    ${chipSvg}
+
+    <g transform="translate(150,120)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'revova-review-2026', svg: revovaReviewHeroSVG() },
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },
   { slug: 'what-is-involuntary-churn', svg: involuntaryChurnHeroSVG() },

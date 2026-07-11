@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'revova-review-2026',
+    title: 'Revova Review (2026): An Honest, In-Depth Look at the Payment-Recovery Tool',
+    description:
+      'A candid, in-depth Revova review for 2026 — setup, the AI recovery email engine, the Lost Revenue Finder, pricing, pros and cons, and who it is (and isn’t) for.',
+    excerpt:
+      'A candid, feature-by-feature review of Revova — no-code setup, the AI recovery email sequence, the Lost Revenue Finder, honest pros and cons, pricing, and who it’s for.',
+    date: '2026-07-11',
+    author: 'Sinh Yang',
+    category: 'Review',
+    readingMinutes: 14,
+    hero: '/blog/revova-review-2026-hero',
+    heroAlt: 'A Revova product review scorecard with a 4.5 out of 5 rating badge on a dark, on-brand background',
+  },
+  {
     slug: 'best-payment-recovery-dunning-tools-2026',
     title: 'The 6 Best Payment Recovery (Dunning) Tools in 2026, Compared',
     description:

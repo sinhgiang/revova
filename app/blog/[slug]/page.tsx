@@ -12,10 +12,12 @@ import DunningEmailExamples, { faqs as dunningFaqs } from '@/components/blog/art
 import StripeDeclineCodes, { faqs as declineFaqs } from '@/components/blog/articles/stripe-decline-codes-explained'
 import ChurnkeyAlternatives, { faqs as churnkeyFaqs } from '@/components/blog/articles/churnkey-alternatives'
 import HowToReduceSaasChurn, { faqs as reduceChurnFaqs } from '@/components/blog/articles/how-to-reduce-saas-churn'
+import RevovaReview2026, { faqs as revovaReviewFaqs } from '@/components/blog/articles/revova-review-2026'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'revova-review-2026': RevovaReview2026,
   'best-payment-recovery-dunning-tools-2026': BestPaymentRecoveryTools2026,
   'how-to-recover-failed-stripe-payments': HowToRecoverFailedStripePayments,
   'what-is-involuntary-churn': WhatIsInvoluntaryChurn,
@@ -27,6 +29,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'revova-review-2026': revovaReviewFaqs,
   'best-payment-recovery-dunning-tools-2026': bestToolsFaqs,
   'how-to-recover-failed-stripe-payments': stripeFaqs,
   'what-is-involuntary-churn': churnFaqs,
