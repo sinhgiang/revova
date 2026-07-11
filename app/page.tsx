@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Zap, TrendingUp, Mail, Shield, ArrowRight, CheckCircle, Clock, DollarSign, AlertCircle, ChevronDown, Lock, X, Globe, RotateCcw, BarChart3, MessageSquare, CreditCard, RefreshCw, Sparkles, History, Search, Filter } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 import { PricingPlans } from '@/components/landing/pricing-plans'
+import { DemoVideo } from '@/components/landing/demo-video'
 import { JsonLd } from '@/components/json-ld'
 import { homeFaqs, faqPageSchema, breadcrumbSchema } from '@/lib/seo'
 
@@ -21,6 +22,7 @@ export default function LandingPage() {
             <span className="font-bold text-gray-900 text-lg">Revova</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
+            <a href="#demo" className="hover:text-gray-900 transition-colors">Demo</a>
             <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How it works</a>
             <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
             <a href="#faq" className="hover:text-gray-900 transition-colors">FAQ</a>
@@ -164,6 +166,35 @@ export default function LandingPage() {
                 />
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── DEMO VIDEO — see it in action ── */}
+      <section id="demo" className="px-6 py-24 bg-white scroll-mt-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-4">See it in action</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Watch Revova win back a failed payment<br/>
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">start to finish.</span>
+          </h2>
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-10">
+            In about 4 minutes you&apos;ll see the whole flow: connect your payment processor in one step,
+            then watch Revova detect a failed payment, send AI-written recovery emails, and win the revenue
+            back — all on autopilot. No code, no engineers, nothing to babysit.
+          </p>
+
+          <DemoVideo videoId="YnSJ8RanICI" title="Revova — product demo" />
+
+          <div className="mt-10 flex flex-col items-center gap-2">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold px-8 py-4 rounded-2xl hover:bg-indigo-700 transition-colors text-lg shadow-lg shadow-indigo-200"
+            >
+              Start my 14-day free trial
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <p className="text-sm text-gray-400">No credit card · Setup in 3 minutes</p>
           </div>
         </div>
       </section>
