@@ -347,7 +347,53 @@ function revovaReviewHeroSVG() {
   </svg>`
 }
 
+// Hero for the "Revova vs competitors" comparison: Revova's $29 card lit up in
+// brand colour beside a stack of greyed, higher competitor price tags.
+function revovaVsHeroSVG() {
+  const rivals = [
+    { name: 'Churnkey', price: '$199' },
+    { name: 'Churn Buster', price: '$149' },
+    { name: 'Baremetrics', price: '$129' },
+    { name: 'Stunning', price: '$110' },
+  ]
+  const rivalSvg = rivals.map((r, i) => `
+    <g transform="translate(660,${186 + i * 66})">
+      <rect width="300" height="50" rx="12" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+      <text x="20" y="32" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#8b8ba7">${r.name}</text>
+      <text x="280" y="32" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#6b6b85">${r.price}/mo</text>
+    </g>`).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="win" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.28" cy="0.4" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.42"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.82" cy="0.7" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.26"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- Revova winner card -->
+    <g transform="translate(150,214)">
+      <rect width="330" height="196" rx="24" fill="url(#win)"/>
+      <text x="40" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#e0e7ff" letter-spacing="2">REVOVA</text>
+      <text x="40" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="82" font-weight="800" fill="#ffffff">$29</text>
+      <text x="215" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" fill="#e0e7ff">/mo</text>
+      <g transform="translate(214,-20)"><rect width="120" height="40" rx="20" fill="#10b981"/><text x="60" y="27" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="#fff">best value</text></g>
+    </g>
+
+    <text x="540" y="316" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#4b4b6b">vs</text>
+    ${rivalSvg}
+
+    <g transform="translate(150,120)">
+      <rect width="52" height="52" rx="15" fill="url(#win)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'revova-vs-competitors-2026', svg: revovaVsHeroSVG() },
   { slug: 'revova-review-2026', svg: revovaReviewHeroSVG() },
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },
   { slug: 'how-to-recover-failed-stripe-payments', svg: stripeRecoveryHeroSVG() },

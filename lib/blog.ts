@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'revova-vs-competitors-2026',
+    title: 'Revova vs Churnkey, Churn Buster, Stunning & More (2026 Comparison)',
+    description:
+      'Revova compared head-to-head with Churnkey, Paddle Retain, Churn Buster, Stunning, Baremetrics Recover and Stripe’s native retries — pricing, features, and which to pick.',
+    excerpt:
+      'Head-to-head: Revova vs Churnkey, Paddle Retain, Churn Buster, Stunning, Baremetrics Recover and DIY Stripe retries — honest pros, cons, pricing, and who each is for.',
+    date: '2026-07-11',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 15,
+    hero: '/blog/revova-vs-competitors-2026-hero',
+    heroAlt: 'Revova’s $29 price card highlighted next to greyed-out competitor price tags on a dark background',
+  },
+  {
     slug: 'revova-review-2026',
     title: 'Revova Review (2026): An Honest, In-Depth Look at the Payment-Recovery Tool',
     description:
