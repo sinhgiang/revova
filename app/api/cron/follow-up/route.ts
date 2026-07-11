@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
-import { generateRecoveryEmail, getDeclineSeverity } from '@/lib/ai/email-generator'
+import { generateRecoveryEmail, getDeclineClass } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
 import { sendSlackNotification } from '@/lib/slack'
 import { sendTelegramNotification } from '@/lib/telegram'
@@ -223,17 +223,19 @@ export async function GET(request: NextRequest) {
     const nextEmailNum: number = payment.emails_sent + 1
     if (nextEmailNum < 2 || nextEmailNum > 5) { skipped++; continue }
 
-    // Hard vs. soft decline routing is a Pro feature — non-Pro use the standard
-    // (soft) cadence for every decline type.
-    const severity = plan.isPro ? getDeclineSeverity(payment.decline_code) : 'soft'
-    if (severity === 'hard' && nextEmailNum > 3) {
+    // Decline-class routing is a Pro feature — non-Pro use the standard (soft)
+    // cadence for every decline type. Hard declines (need a new card) and auth
+    // failures (3-D Secure — need verifying) both use the short 3-email track.
+    const declineClass = plan.isPro ? getDeclineClass(payment.decline_code) : 'soft'
+    const shortTrack = declineClass === 'hard' || declineClass === 'auth'
+    if (shortTrack && nextEmailNum > 3) {
       await db.from('failed_payments').update({ status: 'max_emails_reached' }).eq('id', payment.id)
       skipped++
       continue
     }
 
-    // Custom or default timing (hard declines use faster schedule, skip custom timing)
-    const daysToWait = severity === 'hard'
+    // Custom or default timing (short-track declines use the faster schedule).
+    const daysToWait = shortTrack
       ? (HARD_DAYS_AFTER_PREV[nextEmailNum] ?? 3)
       : getDaysAfterPrev(account, nextEmailNum)
 

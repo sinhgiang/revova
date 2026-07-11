@@ -48,16 +48,18 @@ export default function LandingPage() {
 
           {/* Headline — loss aversion */}
           <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6">
-            15% of your Stripe payments<br/>
+            The revenue you already earned<br/>
             <span className="bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-              are failing right now.
+              is quietly slipping away.
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-white/55 max-w-2xl mx-auto mb-3 leading-relaxed">
-            Revova automatically sends AI-personalized recovery emails so you get that revenue back — without lifting a finger.
+            Expired cards, bank declines, and missed verifications silently drain subscription revenue every month.
+            Revova shows you exactly how much you&apos;re losing — then recovers it automatically with AI-personalized
+            emails in 8 languages.
           </p>
-          <p className="text-base text-white/35 mb-10">Setup in 3 minutes. Works while you sleep.</p>
+          <p className="text-base text-white/35 mb-10">No code. Setup in 3 minutes. Works while you sleep.</p>
 
           {/* Primary CTA — first-person + risk reversal */}
           <div className="flex flex-col items-center gap-3 mb-4">
@@ -103,13 +105,14 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-yellow-500/70"/>
               <div className="w-3 h-3 rounded-full bg-green-500/70"/>
               <div className="flex-1 bg-white/5 rounded h-5 mx-4"/>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-white/40 bg-white/5 px-2 py-0.5 rounded flex-shrink-0">Example</span>
             </div>
             <div className="p-5">
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {[
-                  { label: 'Revenue Recovered', value: '$4,280', sub: '+23% vs last month', c: 'emerald' },
+                  { label: 'Revenue Recovered', value: '$4,280', sub: 'recovered this month', c: 'emerald' },
                   { label: 'Emails Sent', value: '47', sub: 'across 5-email sequence', c: 'indigo' },
-                  { label: 'Recovery Rate', value: '71%', sub: 'Industry avg: 47%', c: 'purple' },
+                  { label: 'Recovery Rate', value: '71%', sub: 'example figure', c: 'purple' },
                 ].map(({ label, value, sub, c }) => (
                   <div key={label} className="bg-white/5 rounded-xl p-4">
                     <p className="text-white/40 text-xs mb-1">{label}</p>

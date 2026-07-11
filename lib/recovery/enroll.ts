@@ -36,6 +36,12 @@ export async function enrollFailedPayment(
     return
   }
 
+  // Optional holdout control (opt-in via REVOVA_HOLDOUT_PCT) — see the Stripe
+  // webhook + 20260711_holdout.sql. Off by default; the column is only written
+  // when enabled, so this changes nothing until you add the column + set the env.
+  const holdoutPct = Number(process.env.REVOVA_HOLDOUT_PCT ?? 0)
+  const isHoldout = holdoutPct > 0 && Math.floor(Math.random() * 100) < holdoutPct
+
   // De-dupe on (user_id, invoice id) without depending on a DB unique constraint:
   // if we've already recorded this failure, don't send email #1 again.
   const { data: existing } = await db
@@ -67,6 +73,7 @@ export async function enrollFailedPayment(
       status: 'pending',
       emails_sent: 0,
       update_card_url: ev.updateCardUrl ?? null,
+      ...(holdoutPct > 0 ? { holdout: isHoldout } : {}),
     })
     .select()
     .single()
@@ -98,6 +105,13 @@ export async function enrollFailedPayment(
       console.log(`[${processor}] Monthly recovery cap reached — recorded, not emailing`)
       return
     }
+  }
+
+  // Holdout control: recorded, but intentionally not emailed — its natural
+  // recovery is the baseline Analytics measures incremental lift against.
+  if (isHoldout) {
+    console.log(`[${processor}] Holdout control — recorded, not emailing`)
+    return
   }
 
   const updateUrl = ev.updateCardUrl ?? '#'

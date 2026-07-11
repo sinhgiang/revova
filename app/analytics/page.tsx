@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { formatCurrency } from '@/lib/utils'
 import { getPlanFor } from '@/lib/plan'
+import { getDeclineClass } from '@/lib/ai/email-generator'
 import { ProGate } from '@/components/plan/pro-gate'
 import { getAppContext } from '@/lib/impersonate'
 import { ImpersonationBanner } from '@/components/admin/impersonate-controls'
@@ -48,6 +49,37 @@ export default async function AnalyticsPage() {
   }, {})
   const sortedCodes = Object.entries(codeMap).sort(([, a], [, b]) => (b as number) - (a as number))
   const maxCode = (sortedCodes[0]?.[1] as number) ?? 1
+
+  // Group failures by CLASS so merchants see the split that actually matters:
+  // soft (retry), hard (needs a new card), and auth (3-D Secure / SCA — needs
+  // verification, not a new card). The auth slice is where EU/UK recoverable
+  // money hides — surfacing it answers "are you separating these?".
+  const classMeta = {
+    soft: { label: 'Soft — retry', color: 'bg-emerald-500', hint: 'Insufficient funds & temporary declines — usually recover on a retry.' },
+    auth: { label: 'Needs verification (3-D Secure)', color: 'bg-amber-500', hint: 'Bank authentication (SCA) not completed — recovered by verifying, not a new card.' },
+    hard: { label: 'Hard — needs new card', color: 'bg-rose-500', hint: 'Lost/stolen/blocked cards — the customer must add a different card.' },
+  } as const
+  const classCounts = all.reduce((acc: Record<string, number>, p: any) => {
+    const cl = getDeclineClass(p.decline_code ?? null)
+    acc[cl] = (acc[cl] ?? 0) + 1
+    return acc
+  }, {})
+
+  // Incremental lift (honest measurement): if a holdout group exists (a small
+  // sample left on the processor's own retries as a control), the value Revova
+  // adds is the recovery-rate LIFT over that control — not the gross total, since
+  // some charges would have recovered anyway. Reading p.holdout is safe even if
+  // the column doesn't exist yet (it's simply undefined → no holdout, no card).
+  const holdoutRows = all.filter((p: any) => p.holdout === true)
+  const treatmentRows = all.filter((p: any) => p.holdout !== true)
+  const rate = (rows: any[]) => (rows.length ? rows.filter((p) => p.status === 'recovered').length / rows.length : 0)
+  const hasHoldout = holdoutRows.length >= 10 && treatmentRows.length >= 10
+  const treatmentRate = rate(treatmentRows)
+  const holdoutRate = rate(holdoutRows)
+  const liftPct = hasHoldout ? Math.max(0, Math.round((treatmentRate - holdoutRate) * 100)) : null
+  const incrementalRecovered = hasHoldout
+    ? Math.round(totalRecovered * (treatmentRate > 0 ? Math.max(0, (treatmentRate - holdoutRate) / treatmentRate) : 0))
+    : null
 
   // Email sequence funnel
   const funnel = [0, 1, 2, 3, 4, 5].map(n => all.filter((p: any) => p.emails_sent === n).length)
@@ -168,6 +200,27 @@ export default async function AnalyticsPage() {
             ))}
           </div>
 
+          {/* Honest measurement: incremental lift vs a holdout control (Item 2) */}
+          {hasHoldout ? (
+            <div className="bg-white rounded-xl border border-indigo-100 p-6 shadow-sm mb-6">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-gray-900">Incremental lift vs holdout</h3>
+                <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">the revenue Revova actually adds</span>
+              </div>
+              <p className="text-xs text-gray-400 mb-4">A small holdout group is left on your processor&apos;s own retries as a control. This is the recovery Revova adds <em>on top</em> — not the gross total, since some charges would have recovered anyway.</p>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4"><p className="text-xs text-gray-400 mb-1">With Revova</p><p className="text-2xl font-bold text-emerald-600">{Math.round(treatmentRate * 100)}%</p></div>
+                <div className="bg-gray-50 rounded-lg p-4"><p className="text-xs text-gray-400 mb-1">Holdout (control)</p><p className="text-2xl font-bold text-gray-500">{Math.round(holdoutRate * 100)}%</p></div>
+                <div className="bg-gray-50 rounded-lg p-4"><p className="text-xs text-gray-400 mb-1">Incremental recovered</p><p className="text-2xl font-bold text-indigo-600">{formatCurrency(incrementalRecovered ?? 0, currency)}</p><p className="text-xs text-gray-400 mt-0.5">+{liftPct}% lift</p></div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-400 mb-6 -mt-2">
+              &ldquo;Revenue Recovered&rdquo; is the gross amount recovered while Revova was active. Some charges may also
+              recover through your processor&apos;s own retries, so treat it as gross recovery, not pure added lift.
+            </p>
+          )}
+
           {/* Recovery progress bar */}
           <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-6">
             <div className="flex items-center justify-between mb-3">
@@ -199,6 +252,18 @@ export default async function AnalyticsPage() {
             {/* Decline reasons */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-4">Top Decline Reasons</h3>
+              {all.length > 0 && (
+                <div className="mb-4 pb-4 border-b border-gray-50 space-y-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">By type</p>
+                  {(['soft', 'auth', 'hard'] as const).filter((k) => (classCounts[k] ?? 0) > 0).map((k) => (
+                    <div key={k} className="flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${classMeta[k].color}`} />
+                      <span className="text-sm text-gray-700 flex-1">{classMeta[k].label}</span>
+                      <span className="text-sm font-semibold text-gray-900">{classCounts[k]}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               {sortedCodes.length === 0 ? (
                 <p className="text-sm text-gray-400">No data yet</p>
               ) : (

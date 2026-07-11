@@ -388,7 +388,7 @@ export default function RevovaReview2026() {
           ['Baremetrics Recover', '~$129/mo add-on', 'None', 'Partial'],
         ]}
       />
-      <P className="sr-only">Approximate market pricing as of 2026; always confirm on each vendor&apos;s site.</P>
+      <p className="sr-only">Approximate market pricing as of 2026; always confirm on each vendor&apos;s site.</p>
 
       <P>
         The break-even math is simple and, importantly, honest: recover a single failed payment and the tool

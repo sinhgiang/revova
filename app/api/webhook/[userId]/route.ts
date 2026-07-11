@@ -53,7 +53,27 @@ export async function POST(
   if (event.type === 'invoice.payment_failed') {
     const invoice = event.data.object as Stripe.Invoice
     const chargeObj = (invoice as any).charge as Stripe.Charge | null
-    const declineCode = (chargeObj?.failure_code ?? 'generic_decline') as DeclineCode
+    let declineCode = (chargeObj?.failure_code ?? 'generic_decline') as DeclineCode
+
+    // Detect 3-D Secure / SCA authentication failures. These frequently have NO
+    // failed charge (so no failure_code) — the PaymentIntent is just left needing
+    // action. They must be recovered with a "verify with your bank" email, not an
+    // "update your card" email, or EU/UK recovery looks far worse than it is.
+    try {
+      if (declineCode === 'generic_decline' || chargeObj?.failure_code == null) {
+        const pi = (invoice as any).payment_intent
+        let piObj: any = pi && typeof pi === 'object' ? pi : null
+        if (!piObj && typeof pi === 'string') {
+          piObj = await stripeClient.paymentIntents.retrieve(pi)
+        }
+        if (
+          piObj?.status === 'requires_action' ||
+          piObj?.last_payment_error?.code === 'authentication_required'
+        ) {
+          declineCode = 'authentication_required' as DeclineCode
+        }
+      }
+    } catch { /* best-effort — never block the recovery flow */ }
 
     // Fetch the customer from Stripe to fill in email/name and the phone number.
     // Phone is NEVER on the invoice, so we always fetch when a customer exists —
@@ -76,6 +96,14 @@ export async function POST(
       }
     }
 
+    // Optional holdout (opt-in via REVOVA_HOLDOUT_PCT): leave a small % of
+    // failures on the processor's own retries as a control, so Analytics can
+    // measure Revova's INCREMENTAL lift rather than gross recovery. Off by
+    // default — the `holdout` column is only written when this is enabled, so
+    // nothing changes until you add the column + set the env var.
+    const holdoutPct = Number(process.env.REVOVA_HOLDOUT_PCT ?? 0)
+    const isHoldout = holdoutPct > 0 && Math.floor(Math.random() * 100) < holdoutPct
+
     const { data: payment, error } = await db
       .from('failed_payments')
       .upsert({
@@ -92,6 +120,7 @@ export async function POST(
         stripe_customer_id: invoice.customer as string,
         country: null,
         emails_sent: 0,
+        ...(holdoutPct > 0 ? { holdout: isHoldout } : {}),
       })
       .select()
       .single()
@@ -124,6 +153,13 @@ export async function POST(
 
     if (isBlacklisted) {
       console.log('[Webhook] Email blacklisted — skipping:', payment.customer_email)
+      return NextResponse.json({ received: true })
+    }
+
+    // Holdout control: recorded above, but intentionally NOT emailed/retried by
+    // Revova — its natural recovery is the baseline we measure lift against.
+    if (isHoldout) {
+      console.log('[Webhook] Holdout control — recorded, not emailing (measures incremental lift)')
       return NextResponse.json({ received: true })
     }
 

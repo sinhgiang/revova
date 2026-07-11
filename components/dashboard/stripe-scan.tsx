@@ -19,6 +19,10 @@ type ScanData = {
   actionableDays: number
   tier: string
   isPro: boolean
+  // 3-D Secure / SCA authentication failures over 12 months — the easily
+  // recoverable slice (needs a quick verification, not a new card).
+  authCount?: number
+  authAmount?: number
   // Set by the API for a non-Stripe processor whose read-scan isn't wired yet.
   scanSupported?: boolean
   processor?: string
@@ -208,6 +212,18 @@ export function StripeScan({ accountId }: { accountId: string }) {
                   <strong>{data!.expiringCount}</strong> cards expiring soon
                 </span>
               )}
+            </div>
+          )}
+
+          {/* 3-D Secure / SCA slice — where EU/UK recoverable money hides */}
+          {(data?.authCount ?? 0) > 0 && (
+            <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-100 px-4 py-3 mb-4 text-sm text-amber-900">
+              <CreditCard className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+              <span>
+                <strong>{data!.authCount}</strong> of these are bank-verification (3-D Secure / SCA) failures —{' '}
+                <strong>{formatCurrency(data!.authAmount ?? 0, currency)}</strong>. The card is fine; these recover with a
+                quick verification, not a new card.
+              </span>
             </div>
           )}
 

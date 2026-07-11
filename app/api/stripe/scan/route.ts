@@ -119,6 +119,13 @@ export async function POST(request: NextRequest) {
       m3: { count: 0, amount: 0 },
       y1: { count: 0, amount: 0 },
     }
+    // Track authentication (3-D Secure / SCA) failures separately over 12 months.
+    // These need a "verify with your bank" flow, not a new card — surfacing the
+    // split tells EU/UK merchants where the *easily* recoverable money actually is.
+    let authCount = 0, authAmount = 0
+    const isAuthFail = (c: any) =>
+      c?.failure_code === 'authentication_required' ||
+      c?.outcome?.reason === 'authentication_required'
 
     // Prefer the Search API: it returns ONLY failed charges, so we page through a
     // few hundred records instead of every charge the merchant ever made. We
@@ -136,6 +143,7 @@ export async function POST(request: NextRequest) {
         for (const c of res.data) {
           currency = c.currency ?? currency
           bucket(periods, c.created, c.amount ?? 0, cut30, cut90)
+          if (isAuthFail(c)) { authCount++; authAmount += c.amount ?? 0 }
         }
         page = res.has_more ? res.next_page : undefined
       } while (page)
@@ -144,6 +152,7 @@ export async function POST(request: NextRequest) {
       // the window (all pages, no cap) and filter to failed ones.
       scannedVia = 'list'
       periods.d30 = { count: 0, amount: 0 }; periods.m3 = { count: 0, amount: 0 }; periods.y1 = { count: 0, amount: 0 }
+      authCount = 0; authAmount = 0
       let starting_after: string | undefined
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -152,6 +161,7 @@ export async function POST(request: NextRequest) {
           if (c.status !== 'failed') continue
           currency = c.currency ?? currency
           bucket(periods, c.created, c.amount ?? 0, cut30, cut90)
+          if (isAuthFail(c)) { authCount++; authAmount += c.amount ?? 0 }
         }
         if (!charges.has_more || charges.data.length === 0) break
         starting_after = charges.data[charges.data.length - 1].id
@@ -163,6 +173,9 @@ export async function POST(request: NextRequest) {
       ok: true,
       failedCount, recoverable, currency, expiringCount, activeCount,
       periods,
+      // 3-D Secure / SCA authentication failures over 12 months — the easily
+      // recoverable slice (needs verification, not a new card).
+      authCount, authAmount,
       // Back-compat fields (some callers read these): total over 12 months.
       lostCount: periods.y1.count, lostAmount: periods.y1.amount,
       actionableDays, tier: plan.tier, isPro: plan.isPro,

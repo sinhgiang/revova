@@ -11,6 +11,10 @@ const DECLINE_CONTEXT: Record<string, string> = {
   lost_card: 'The card has been reported as lost.',
   stolen_card: 'The card has been reported as stolen.',
   generic_decline: 'The card was declined for an unspecified reason.',
+  // Not a lack of funds — the bank needs the customer to verify the payment
+  // (3-D Secure / Strong Customer Authentication). Common in the EU/UK. The fix
+  // is to CONFIRM the payment, not to replace the card.
+  authentication_required: 'The payment needs the customer to verify it with their bank (3-D Secure / Strong Customer Authentication). The card itself is fine — the charge just needs to be confirmed.',
 }
 
 const SEQUENCE_CONTEXT: Record<number, string> = {
@@ -31,11 +35,36 @@ export function getDeclineSeverity(code: string | null): 'hard' | 'soft' {
   return HARD_DECLINE_CODES.has(code ?? '') ? 'hard' : 'soft'
 }
 
+// Authentication failures (3-D Secure / SCA) are a THIRD class, distinct from
+// soft/hard declines. The card works; the customer simply never completed the
+// bank verification. These must NOT be treated as "update your card" — they need
+// a re-authentication prompt, or EU/UK recovery rates look far worse than reality.
+const AUTH_DECLINE_CODES = new Set([
+  'authentication_required', 'authentication_declined',
+  'card_authentication_required', 'payment_intent_authentication_failure',
+])
+
+export type DeclineClass = 'soft' | 'hard' | 'auth'
+
+export function getDeclineClass(code: string | null): DeclineClass {
+  if (AUTH_DECLINE_CODES.has(code ?? '')) return 'auth'
+  return HARD_DECLINE_CODES.has(code ?? '') ? 'hard' : 'soft'
+}
+
 // Hard declines: max 3 emails, faster cadence (days 1, 3, 7)
 const HARD_SEQUENCE_CONTEXT: Record<number, string> = {
   1: 'First email (Day 1) for a hard bank decline. Be warm but clear: the card was blocked and they need to use a different card. Emphasize how quick the fix is.',
   2: 'Second email (Day 3) for a hard decline. Their card was blocked by the bank. Gently urge them to add a new card so they don\'t lose access.',
   3: 'Final email (Day 7) for a hard bank decline. This is the last attempt. Be respectful but clear that this may be their last chance to keep their account active.',
+}
+
+// Auth failures (3-D Secure / SCA): the card is fine — the customer just needs
+// to CONFIRM/VERIFY the payment with their bank. Short 3-email cadence, and the
+// language is "confirm/verify", never "update your card".
+const AUTH_SEQUENCE_CONTEXT: Record<number, string> = {
+  1: 'First email (Day 1) for a payment that needs bank verification (3-D Secure). Reassure them their card is fine — the bank just needs them to confirm the payment. Make it feel like a 20-second tap, not a problem.',
+  2: 'Second email (Day 3) for an unconfirmed 3-D Secure payment. Friendly nudge: the payment is still waiting for their quick verification with the bank so their subscription keeps running.',
+  3: 'Final email (Day 7) for an unconfirmed 3-D Secure payment. Last reminder — respectful and clear that the payment needs verifying now to avoid an interruption, and that it only takes a moment.',
 }
 
 function buildPrompt(params: {
@@ -47,6 +76,7 @@ function buildPrompt(params: {
   sequenceContext: string
   updateCardUrl: string
   emailSequence: number
+  mode?: 'recover' | 'authenticate'
   language?: string
   customNote?: string
 }): string {
@@ -54,6 +84,15 @@ function buildPrompt(params: {
   const langInstruction = lang
     ? `1. Write entirely in ${lang}. Every word — subject, preview, body — must be in ${lang}. Do NOT use English.`
     : '1. Write in English only.'
+
+  // Authentication (3-D Secure / SCA) failures need a DIFFERENT ask: the card is
+  // fine, so we tell the customer to confirm/verify the payment with their bank —
+  // never to "update" or "replace" their card, which would confuse them.
+  const authenticate = params.mode === 'authenticate'
+  const linkLabel = authenticate ? 'Verify / confirm-payment link' : 'Card update link'
+  const ctaRule = authenticate
+    ? '4. The card is valid — do NOT ask them to update or replace it. Ask them to CONFIRM / VERIFY the payment with their bank using the link (e.g. "confirm your payment", "verify with your bank"). This is 3-D Secure / bank authentication, not a card problem.'
+    : '4. Include the update card link as a clear CTA but do not use "click here" — use natural language like "update your payment details"'
 
   return `You are a professional customer success email writer for ${params.businessName}.
 
@@ -64,18 +103,19 @@ Write a payment recovery email with these details:
 - Decline reason: ${params.declineInfo}
 - Sequence: Email #${params.emailSequence}
 - Tone guidance: ${params.sequenceContext}
-- Card update link: ${params.updateCardUrl}
+- ${linkLabel}: ${params.updateCardUrl}
 
 Rules:
 ${langInstruction}
 2. Subject line must be personal and conversational — never use words like FREE, URGENT, ACT NOW, CLICK HERE, WINNER, GUARANTEED, OFFER, DEAL, LIMITED TIME, or excessive punctuation like !!! or ALL CAPS
 3. Body should be 3-4 short paragraphs max
-4. Include the update card link as a clear CTA but do not use "click here" — use natural language like "update your payment details"
+${ctaRule}
 5. Never be rude or threatening
 6. Sound like a human colleague, not an automated system
 7. Preview text should make them want to open the email — be specific, not generic
 8. Never mention money-back guarantees, discounts, or promotional offers unless explicitly instructed below
-9. Keep sentences short and conversational — avoid corporate jargon${params.customNote ? `\n10. Special instructions from the business (follow these carefully): "${params.customNote}"` : ''}
+9. Keep sentences short and conversational — avoid corporate jargon
+10. Adapt the tone AND wording specifically to the decline reason above — an insufficient-funds message, an expired-card message, and a bank-verification message should each read differently, not like a generic "your payment failed" template${params.customNote ? `\n11. Special instructions from the business (follow these carefully): "${params.customNote}"` : ''}
 
 Respond in this exact JSON format:
 {
@@ -212,9 +252,38 @@ function fallbackEmail(params: {
   formattedAmount: string
   updateCardUrl: string
   emailSequence: number
+  mode?: 'recover' | 'authenticate'
 }): EmailTemplate {
   const { customerName, businessName, formattedAmount, updateCardUrl, emailSequence } = params
   const name = customerName && customerName !== 'there' ? customerName : 'there'
+
+  // Authentication (3-D Secure / SCA): the card is fine — ask them to CONFIRM the
+  // payment with their bank, never to "update" their card.
+  if (params.mode === 'authenticate') {
+    const authSubjects = [
+      `Quick verification needed for your ${businessName} payment`,
+      `Your ${businessName} payment is waiting for bank verification`,
+      `${businessName}: please confirm your payment with your bank`,
+    ]
+    const subject = authSubjects[Math.min(emailSequence - 1, authSubjects.length - 1)]
+    const body = `Hi ${name},
+
+Your recent payment of ${formattedAmount} for ${businessName} just needs a quick confirmation with your bank — your card is fine, this is a standard security check (3-D Secure).
+
+It only takes a moment. Please confirm the payment using the link below so your subscription keeps running without any interruption:
+
+${updateCardUrl}
+
+If you have any questions, just reply to this email — we're happy to help.
+
+Best,
+The ${businessName} Team`
+    return {
+      subject,
+      previewText: `A quick bank verification will complete your ${formattedAmount} payment.`,
+      body,
+    }
+  }
 
   const subjects = [
     `Your ${businessName} payment of ${formattedAmount} didn't go through`,
@@ -380,15 +449,18 @@ export async function generateRecoveryEmail(params: {
   language?: string
   customNote?: string
 }): Promise<EmailTemplate> {
-  const severity = getDeclineSeverity(params.declineCode)
+  const declineClass = getDeclineClass(params.declineCode)
   const declineInfo = params.declineCode
     ? DECLINE_CONTEXT[params.declineCode] ?? DECLINE_CONTEXT.generic_decline
     : DECLINE_CONTEXT.generic_decline
 
-  const isHard = severity === 'hard'
-  const sequenceContext = isHard
-    ? (HARD_SEQUENCE_CONTEXT[params.emailSequence] ?? HARD_SEQUENCE_CONTEXT[3])
-    : (SEQUENCE_CONTEXT[params.emailSequence] ?? SEQUENCE_CONTEXT[1])
+  // Pick the cadence + tone by class: auth (verify) → hard (new card) → soft (retry).
+  const sequenceContext =
+    declineClass === 'auth'
+      ? (AUTH_SEQUENCE_CONTEXT[params.emailSequence] ?? AUTH_SEQUENCE_CONTEXT[3])
+      : declineClass === 'hard'
+        ? (HARD_SEQUENCE_CONTEXT[params.emailSequence] ?? HARD_SEQUENCE_CONTEXT[3])
+        : (SEQUENCE_CONTEXT[params.emailSequence] ?? SEQUENCE_CONTEXT[1])
 
   const formattedAmount = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -404,6 +476,7 @@ export async function generateRecoveryEmail(params: {
     sequenceContext,
     updateCardUrl: params.updateCardUrl,
     emailSequence: params.emailSequence,
+    mode: declineClass === 'auth' ? 'authenticate' : 'recover',
     language: params.language,
     customNote: params.customNote,
   })
@@ -414,6 +487,7 @@ export async function generateRecoveryEmail(params: {
     formattedAmount,
     updateCardUrl: params.updateCardUrl,
     emailSequence: params.emailSequence,
+    mode: declineClass === 'auth' ? 'authenticate' : 'recover',
   })
 
   // Free-first cascade: Groq → Gemini → Claude → static template

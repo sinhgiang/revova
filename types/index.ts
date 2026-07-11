@@ -9,6 +9,7 @@ export type DeclineCode =
   | 'lost_card'
   | 'stolen_card'
   | 'generic_decline'
+  | 'authentication_required'
 
 export interface FailedPayment {
   id: string
