@@ -51,6 +51,30 @@ export function getDeclineClass(code: string | null): DeclineClass {
   return HARD_DECLINE_CODES.has(code ?? '') ? 'hard' : 'soft'
 }
 
+// Per-customer audience detection (B2B vs B2C). A single merchant often has
+// both, so we adapt tone PER CUSTOMER — better than one global toggle. Consumer
+// mailbox domains → B2C (warm, personal); anything else → likely B2B (a business
+// address, so keep it professional and it may be forwarded to finance/AP).
+const CONSUMER_DOMAINS = new Set([
+  'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.uk', 'ymail.com',
+  'hotmail.com', 'hotmail.co.uk', 'outlook.com', 'live.com', 'msn.com',
+  'icloud.com', 'me.com', 'mac.com', 'aol.com', 'proton.me', 'protonmail.com',
+  'gmx.com', 'gmx.net', 'mail.com', 'yandex.com', 'zoho.com', 'qq.com', '163.com',
+])
+
+export type Audience = 'b2b' | 'b2c'
+
+export function inferAudience(email: string | null | undefined): Audience {
+  const domain = (email ?? '').split('@')[1]?.toLowerCase().trim()
+  if (!domain) return 'b2c'
+  return CONSUMER_DOMAINS.has(domain) ? 'b2c' : 'b2b'
+}
+
+const AUDIENCE_HINT: Record<Audience, string> = {
+  b2b: 'This is a business customer (work email). Keep the tone professional and efficient. It is fine to acknowledge they may need to forward this to whoever handles billing or finance, and to frame it around their company\'s subscription/invoice.',
+  b2c: 'This is an individual customer. Keep the tone warm, personal and friendly — like a short note from a real person, not a corporate billing department.',
+}
+
 // Hard declines: max 3 emails, faster cadence (days 1, 3, 7)
 const HARD_SEQUENCE_CONTEXT: Record<number, string> = {
   1: 'First email (Day 1) for a hard bank decline. Be warm but clear: the card was blocked and they need to use a different card. Emphasize how quick the fix is.',
@@ -77,6 +101,7 @@ function buildPrompt(params: {
   updateCardUrl: string
   emailSequence: number
   mode?: 'recover' | 'authenticate'
+  audience?: Audience
   language?: string
   customNote?: string
 }): string {
@@ -103,6 +128,7 @@ Write a payment recovery email with these details:
 - Decline reason: ${params.declineInfo}
 - Sequence: Email #${params.emailSequence}
 - Tone guidance: ${params.sequenceContext}
+- Audience: ${AUDIENCE_HINT[params.audience ?? 'b2c']}
 - ${linkLabel}: ${params.updateCardUrl}
 
 Rules:
@@ -115,7 +141,7 @@ ${ctaRule}
 7. Preview text should make them want to open the email — be specific, not generic
 8. Never mention money-back guarantees, discounts, or promotional offers unless explicitly instructed below
 9. Keep sentences short and conversational — avoid corporate jargon
-10. Adapt the tone AND wording specifically to the decline reason above — an insufficient-funds message, an expired-card message, and a bank-verification message should each read differently, not like a generic "your payment failed" template${params.customNote ? `\n11. Special instructions from the business (follow these carefully): "${params.customNote}"` : ''}
+10. Adapt the tone AND wording specifically to the decline reason above AND to the audience above — an insufficient-funds message, an expired-card message, and a bank-verification message should each read differently, and a business customer should read differently from an individual, not like a generic "your payment failed" template${params.customNote ? `\n11. Special instructions from the business (follow these carefully): "${params.customNote}"` : ''}
 
 Respond in this exact JSON format:
 {
@@ -477,6 +503,7 @@ export async function generateRecoveryEmail(params: {
     updateCardUrl: params.updateCardUrl,
     emailSequence: params.emailSequence,
     mode: declineClass === 'auth' ? 'authenticate' : 'recover',
+    audience: inferAudience(params.customerEmail),
     language: params.language,
     customNote: params.customNote,
   })

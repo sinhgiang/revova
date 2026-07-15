@@ -475,6 +475,46 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── PEACE OF MIND — always-on monitoring / confidence ── */}
+      <section className="px-6 py-24 bg-gradient-to-b from-indigo-50/60 to-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-4">Always on</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 text-balance">
+              Stop checking Stripe.<br/>
+              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Revova watches it for you.</span>
+            </h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+              Failed payments don&apos;t wait for business hours — and neither does Revova. It monitors every charge
+              across all your processors, around the clock, so you never have to wonder whether revenue is quietly leaking.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5 mb-12">
+            {[
+              { icon: Clock, title: '24/7 monitoring', body: 'Every payment, every processor, watched in real time — nights, weekends and holidays included. Nothing slips through while you sleep.' },
+              { icon: Shield, title: 'Caught before it costs you', body: 'Pre-dunning spots cards before they expire and prompts the customer early, so failures are prevented — not just chased after the fact.' },
+              { icon: MessageSquare, title: 'You stay in the loop, effortlessly', body: 'Instant Slack & Telegram alerts, a weekly digest, and a live dashboard. Glance in whenever you like; ignore it the rest of the time.' },
+            ].map(({ icon: Icon, title, body }) => (
+              <div key={title} className="bg-white rounded-2xl border border-gray-100 p-7 shadow-sm text-left">
+                <div className="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-indigo-600"/>
+                </div>
+                <p className="font-semibold text-gray-900 mb-1.5">{title}</p>
+                <p className="text-sm text-gray-500 leading-relaxed">{body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-xl md:text-2xl font-semibold text-gray-900 leading-relaxed text-balance">
+              That&apos;s the real product: not just money recovered once, but the quiet confidence that your revenue
+              isn&apos;t slipping away — <span className="text-indigo-600">every single month.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ── HONEST PROOF: see it before you pay ── */}
       <section className="px-6 py-24 bg-gray-900 text-white">
         <div className="max-w-5xl mx-auto">
