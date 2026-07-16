@@ -97,6 +97,9 @@ export default function ChurnkeyAlternativeLP() {
           <div className="mt-9 flex flex-col items-center gap-4">
             <Cta />
             <TrustLine />
+            <p className="max-w-md text-sm text-white/40">
+              Connecting is <span className="text-white/70">read-only</span> — Revova only reads failed payments. It never moves money or stores card numbers.
+            </p>
           </div>
         </div>
       </section>

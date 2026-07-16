@@ -63,7 +63,7 @@ export default function RecoverFailedPaymentsLP() {
       <section className="bg-[#060612] px-6 pt-16 pb-20 text-center text-white">
         <div className="mx-auto max-w-3xl">
           <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-1.5 text-sm text-white/70">
-            <Zap className="h-3.5 w-3.5 text-indigo-400" /> Automated payment recovery — no code
+            <Zap className="h-3.5 w-3.5 text-indigo-400" /> Payment recovery for SaaS &amp; subscription businesses
           </span>
           <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight md:text-6xl">
             Recover the revenue you&apos;re losing<br />
@@ -79,6 +79,9 @@ export default function RecoverFailedPaymentsLP() {
           <div className="mt-9 flex flex-col items-center gap-4">
             <Cta />
             <TrustLine />
+            <p className="max-w-md text-sm text-white/40">
+              Connecting is <span className="text-white/70">read-only</span> — Revova only reads failed payments. It never moves money or stores card numbers.
+            </p>
           </div>
 
           {/* Illustrative product mockup */}

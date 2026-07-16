@@ -97,6 +97,15 @@ export function StripeScan({ accountId }: { accountId: string }) {
   const hasNow = (data?.failedCount ?? 0) > 0 || (data?.expiringCount ?? 0) > 0
   const hasAnyLoss = periods.y1.count > 0
   const comingSoon = data?.scanSupported === false
+
+  // 3-D Secure / SCA slice. A LARGE share on recurring charges usually isn't a
+  // card problem — it points to a setup issue (off_session not set / mandate not
+  // authenticated up front) that no dunning email can fix. When it's high, we
+  // surface a diagnostic ("here's WHY it keeps happening"), not just a note.
+  const scaCount = data?.authCount ?? 0
+  const scaAmount = data?.authAmount ?? 0
+  const scaShare = periods.y1.count > 0 ? scaCount / periods.y1.count : 0
+  const scaDiagnostic = scaCount >= 5 && scaShare >= 0.2
   const processorName = data?.processor ? data.processor.charAt(0).toUpperCase() + data.processor.slice(1) : 'your processor'
 
   return (
@@ -215,16 +224,34 @@ export function StripeScan({ accountId }: { accountId: string }) {
             </div>
           )}
 
-          {/* 3-D Secure / SCA slice — where EU/UK recoverable money hides */}
-          {(data?.authCount ?? 0) > 0 && (
-            <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-100 px-4 py-3 mb-4 text-sm text-amber-900">
-              <CreditCard className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-              <span>
-                <strong>{data!.authCount}</strong> of these are bank-verification (3-D Secure / SCA) failures —{' '}
-                <strong>{formatCurrency(data!.authAmount ?? 0, currency)}</strong>. The card is fine; these recover with a
-                quick verification, not a new card.
-              </span>
-            </div>
+          {/* 3-D Secure / SCA slice — a note when small, a diagnostic when large */}
+          {scaCount > 0 && (
+            scaDiagnostic ? (
+              <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3.5 mb-4 text-sm text-amber-900">
+                <p className="font-semibold flex items-start gap-1.5 mb-1.5">
+                  <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  A lot of your failures are bank-verification (3-D Secure) challenges — that&apos;s usually a setup issue
+                </p>
+                <p className="leading-6 pl-6">
+                  <strong>{scaCount}</strong> of your failures ({formatCurrency(scaAmount, currency)}, ~{Math.round(scaShare * 100)}% of the total)
+                  are 3-D Secure / SCA challenges on renewals. On recurring charges that usually isn&apos;t a card problem —
+                  off-session renewals on a properly authenticated mandate shouldn&apos;t be challenged. It often means{' '}
+                  <code className="bg-amber-100 px-1 rounded text-[13px]">off_session</code> isn&apos;t set, or the mandate
+                  wasn&apos;t authenticated up front. No email fixes that — the next renewal fails the same way, so it&apos;s
+                  worth fixing upstream in your integration. Revova still recovers the current ones with a
+                  &ldquo;confirm your payment&rdquo; flow.
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-100 px-4 py-3 mb-4 text-sm text-amber-900">
+                <CreditCard className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong>{scaCount}</strong> of these are bank-verification (3-D Secure / SCA) failures —{' '}
+                  <strong>{formatCurrency(scaAmount, currency)}</strong>. The card is fine; these recover with a
+                  quick verification, not a new card.
+                </span>
+              </div>
+            )
           )}
 
           {/* ── Healthy note when a completed scan found nothing ── */}
