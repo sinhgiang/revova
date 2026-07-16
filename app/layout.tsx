@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { JsonLd } from '@/components/json-ld'
 import { CookieConsent } from '@/components/consent/cookie-consent'
+import { SignupEventListener } from '@/components/analytics/signup-listener'
 import { SITE, organizationSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={[organizationSchema(), websiteSchema(), softwareApplicationSchema()]} />
         {children}
         <CookieConsent />
+        <SignupEventListener />
       </body>
     </html>
   )

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Zap, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SocialLogins } from '@/components/auth/social-logins'
+import { trackSignUp } from '@/lib/analytics/track-signup'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -26,6 +27,9 @@ export default function SignupPage() {
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) { setError(error.message); setLoading(false); return }
+    // Account created — fire the GA4 sign_up conversion once, right here,
+    // regardless of whether email confirmation is required below.
+    trackSignUp('email')
     // Auto-confirm ON → we have a session, go straight to onboarding.
     if (data.session) { router.push('/onboarding'); return }
     // Email confirmation required → tell the user to check their inbox.
