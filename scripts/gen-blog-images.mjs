@@ -392,7 +392,58 @@ function revovaVsHeroSVG() {
   </svg>`
 }
 
+// Hero for "Paddle vs Stripe for Subscriptions": two processor cards side by
+// side — Stripe (indigo/purple, "2.9% + 30¢") and Paddle (amber/orange,
+// "MoR · handles VAT") — with a "VS" divider. Neither card is styled as the
+// loser; the point is the structural trade-off, not a winner.
+function paddleVsStripeHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="stripeCard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <linearGradient id="paddleCard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fb923c"/><stop offset="1" stop-color="#ea580c"/></linearGradient>
+      <radialGradient id="glow" cx="0.26" cy="0.32" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.84" cy="0.68" r="0.55"><stop offset="0" stop-color="#ea580c" stop-opacity="0.28"/><stop offset="1" stop-color="#ea580c" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- Stripe card -->
+    <g transform="translate(110,168)">
+      <rect width="380" height="300" rx="26" fill="url(#stripeCard)"/>
+      <text x="36" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#e0e7ff" letter-spacing="2">STRIPE</text>
+      <text x="36" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600" fill="#e0e7ff" opacity="0.85">Payment facilitator</text>
+      <g transform="translate(36,158)">
+        <rect width="308" height="66" rx="16" fill="#0a0a16" fill-opacity="0.28"/>
+        <text x="20" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#ffffff">2.9% + 30&#162;</text>
+      </g>
+      <text x="36" y="262" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#e0e7ff" opacity="0.8">You handle VAT / sales tax</text>
+    </g>
+
+    <text x="600" y="336" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="800" fill="#6b6b85">VS</text>
+
+    <!-- Paddle card -->
+    <g transform="translate(710,168)">
+      <rect width="380" height="300" rx="26" fill="url(#paddleCard)"/>
+      <text x="36" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#fff7ed" letter-spacing="2">PADDLE</text>
+      <text x="36" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600" fill="#fff7ed" opacity="0.85">Merchant of Record</text>
+      <g transform="translate(36,158)">
+        <rect width="308" height="66" rx="16" fill="#0a0a16" fill-opacity="0.28"/>
+        <text x="20" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#ffffff">MoR &#183; handles VAT</text>
+      </g>
+      <text x="36" y="262" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#fff7ed" opacity="0.8">~5% + 50&#162; all-in fee</text>
+    </g>
+
+    <g transform="translate(110,90)">
+      <rect width="52" height="52" rx="15" fill="url(#stripeCard)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'paddle-vs-stripe-subscriptions', svg: paddleVsStripeHeroSVG() },
   { slug: 'revova-vs-competitors-2026', svg: revovaVsHeroSVG() },
   { slug: 'revova-review-2026', svg: revovaReviewHeroSVG() },
   { slug: 'best-payment-recovery-dunning-tools-2026', svg: recoveryHeroSVG() },

@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'paddle-vs-stripe-subscriptions',
+    title: 'Paddle vs Stripe for Subscriptions (2026): Fees, Recovery & Which to Pick',
+    description:
+      'Paddle vs Stripe for subscription billing in 2026: fee math, who handles VAT and sales tax, Smart Retries vs Paddle Retain, and which to pick by founder stage.',
+    excerpt:
+      'Stripe’s 2.9% + 30¢ vs Paddle’s all-in Merchant-of-Record fee — who handles VAT and sales tax, how Smart Retries compares to Paddle Retain, and a clear verdict by founder stage.',
+    date: '2026-07-12',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 16,
+    hero: '/blog/paddle-vs-stripe-subscriptions-hero',
+    heroAlt: 'Two dark processor cards side by side — Stripe badged "2.9% + 30¢" and Paddle badged "MoR · handles VAT" — illustrating the Merchant-of-Record fee trade-off',
+  },
+  {
     slug: 'revova-vs-competitors-2026',
     title: 'Revova vs Churnkey, Churn Buster, Stunning & More (2026 Comparison)',
     description:
