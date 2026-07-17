@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'stripe-smart-retries-explained',
+    title: 'Stripe Smart Retries Explained: How They Work (and What They Miss)',
+    description:
+      'How Stripe Smart Retries actually works: the ML retry-timing model, how to configure it, what a typical retry window looks like, and the gaps a dunning sequence still needs to close.',
+    excerpt:
+      'Smart Retries alone typically recovers 30–40% of failed charges — but it never emails a customer, never branches by decline reason, and never touches a charge that failed before it was turned on.',
+    date: '2026-07-16',
+    author: 'Sinh Yang',
+    category: 'Reference',
+    readingMinutes: 17,
+    hero: '/blog/stripe-smart-retries-explained-hero',
+    heroAlt: 'A dark two-week calendar strip showing a handful of ML-picked retry attempt days lighting up with rising confidence, ending in a green success checkmark',
+  },
+  {
     slug: 'dunning-email-sequence-setup-guide',
     title: 'How to Set Up a Dunning Email Sequence That Recovers Revenue (2026)',
     description:

@@ -18,10 +18,12 @@ import PaddleVsStripeSubscriptions, { faqs as paddleVsStripeFaqs } from '@/compo
 import HowMuchRevenueLostToFailedPayments, { faqs as revenueLostFaqs } from '@/components/blog/articles/how-much-revenue-lost-to-failed-payments'
 import WhatIsDunning, { faqs as dunningFaqs2 } from '@/components/blog/articles/what-is-dunning'
 import DunningEmailSequenceSetupGuide, { faqs as dunningSetupFaqs } from '@/components/blog/articles/dunning-email-sequence-setup-guide'
+import StripeSmartRetriesExplained, { faqs as smartRetriesFaqs } from '@/components/blog/articles/stripe-smart-retries-explained'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'stripe-smart-retries-explained': StripeSmartRetriesExplained,
   'dunning-email-sequence-setup-guide': DunningEmailSequenceSetupGuide,
   'what-is-dunning': WhatIsDunning,
   'how-much-revenue-lost-to-failed-payments': HowMuchRevenueLostToFailedPayments,
@@ -39,6 +41,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'stripe-smart-retries-explained': smartRetriesFaqs,
   'dunning-email-sequence-setup-guide': dunningSetupFaqs,
   'what-is-dunning': dunningFaqs2,
   'how-much-revenue-lost-to-failed-payments': revenueLostFaqs,

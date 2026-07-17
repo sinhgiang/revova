@@ -658,7 +658,73 @@ function dunningSetupPanelHeroSVG() {
   </svg>`
 }
 
+// Hero for "Stripe Smart Retries Explained": a two-week calendar strip where
+// most days are dim (no attempt) and a handful are lit as ML-picked retry
+// attempts of rising confidence, ending in a green success burst — distinct
+// from the envelope/timeline and config-panel heroes above, this one is about
+// *timing intelligence*, not communication.
+function smartRetriesCalendarHeroSVG() {
+  const days = 14
+  const attemptDays = { 2: 0.32, 5: 0.55, 9: 0.78, 13: 1 }
+  const stripX = 120, stripY = 240, cellW = 68, cellGap = 6, cellH = 92
+
+  const cells = Array.from({ length: days }, (_, i) => {
+    const x = stripX + i * (cellW + cellGap)
+    const isAttempt = i in attemptDays
+    const conf = attemptDays[i] ?? 0
+    const isFinal = i === 13
+    const fill = isAttempt ? (isFinal ? '#10b981' : '#312e81') : '#14142c'
+    const stroke = isAttempt ? (isFinal ? '#34d399' : '#6366f1') : '#26264a'
+    const dotOpacity = isAttempt ? 0.35 + conf * 0.65 : 0
+    return `
+      <g>
+        <rect x="${x}" y="${stripY}" width="${cellW}" height="${cellH}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="${isAttempt ? 2 : 1}"/>
+        <text x="${x + cellW / 2}" y="${stripY + 24}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="${isAttempt ? '#e0e7ff' : '#4b4b6b'}">D${i + 1}</text>
+        ${isAttempt ? `<circle cx="${x + cellW / 2}" cy="${stripY + 58}" r="16" fill="${isFinal ? '#10b981' : '#818cf8'}" opacity="${dotOpacity}"/>` : ''}
+        ${isFinal ? `<path d="M${x + cellW / 2 - 8} ${stripY + 58} l6 7 l12 -15" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+      </g>`
+  }).join('')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.28" r="0.65"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.92" cy="0.75" r="0.5"><stop offset="0" stop-color="#10b981" stop-opacity="0.3"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(120,64)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="120" y="160" font-size="30" font-weight="800" fill="#f1f5f9">Smart Retries</text>
+      <text x="120" y="192" font-size="16" fill="#9ca3af">ML-timed re-attempts, not a fixed daily interval</text>
+    </g>
+
+    <!-- "not smart" reference row, faint, above the strip -->
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#5a5a7a">
+      <text x="120" y="222">Fixed interval: retries every 24h regardless of outcome</text>
+    </g>
+
+    ${cells}
+
+    <!-- ML chip -->
+    <g transform="translate(945,60)">
+      <rect width="135" height="46" rx="23" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+      <circle cx="26" cy="23" r="8" fill="#a5b4fc"/>
+      <circle cx="44" cy="23" r="8" fill="#818cf8" opacity="0.7"/>
+      <text x="62" y="29" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">ML timing</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'stripe-smart-retries-explained', svg: smartRetriesCalendarHeroSVG() },
   { slug: 'dunning-email-sequence-setup-guide', svg: dunningSetupPanelHeroSVG() },
   { slug: 'what-is-dunning', svg: dunningSequenceHeroSVG() },
   { slug: 'how-much-revenue-lost-to-failed-payments', svg: revenueAtRiskGaugeHeroSVG() },
