@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'sca-3d-secure-explained',
+    title: 'SCA and 3D Secure Explained: Why European Card Payments Fail (2026)',
+    description:
+      'What PSD2 Strong Customer Authentication and 3D Secure actually require, why subscription renewals trigger authentication_required with no customer present, and how to route it in your dunning sequence.',
+    excerpt:
+      'SCA is the EU rule requiring two-factor authentication on payments; 3D Secure is how issuers enforce it. Here is why that breaks unattended subscription renewals — and how to fix it.',
+    date: '2026-07-17',
+    author: 'Sinh Yang',
+    category: 'Explainer',
+    readingMinutes: 18,
+    hero: '/blog/sca-3d-secure-explained-hero',
+    heroAlt: 'A phone showing a 3D Secure bank-app approval prompt next to an authenticated card panel, with a small PSD2/SCA EU badge',
+  },
+  {
     slug: 'stripe-smart-retries-explained',
     title: 'Stripe Smart Retries Explained: How They Work (and What They Miss)',
     description:

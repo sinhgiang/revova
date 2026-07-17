@@ -723,7 +723,80 @@ function smartRetriesCalendarHeroSVG() {
   </svg>`
 }
 
+// Hero for "SCA and 3D Secure Explained": a phone showing a 3D Secure challenge
+// prompt (bank push notification) next to a locked/authenticated card, with an
+// EU-flag-toned accent — distinct from the calendar/panel/timeline heroes above,
+// this one is about identity verification at the moment of charge, not timing
+// or communication cadence.
+function scaAuthChallengeHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <linearGradient id="eu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#1e40af"/></linearGradient>
+      <radialGradient id="glow" cx="0.24" cy="0.3" r="0.65"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.86" cy="0.7" r="0.55"><stop offset="0" stop-color="#1e40af" stop-opacity="0.35"/><stop offset="1" stop-color="#1e40af" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(150,64)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+
+    <!-- EU stars ring, small badge top-right -->
+    <g transform="translate(970,80)">
+      <circle r="42" fill="url(#eu)" stroke="#3b82f6" stroke-width="1.5"/>
+      ${Array.from({ length: 12 }, (_, i) => {
+        const ang = (i / 12) * Math.PI * 2 - Math.PI / 2
+        const r = 27
+        const x = Math.cos(ang) * r, y = Math.sin(ang) * r
+        return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="#fde047"/>`
+      }).join('')}
+      <text x="0" y="65" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#93c5fd">PSD2 / SCA</text>
+    </g>
+
+    <!-- phone with 3DS challenge -->
+    <g transform="translate(150,150)">
+      <rect width="230" height="360" rx="30" fill="#12122a" stroke="#2a2a4d" stroke-width="2"/>
+      <rect x="14" y="14" width="202" height="332" rx="18" fill="#0d0d20"/>
+      <text x="115" y="60" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#8b8ba7">CONFIRM PAYMENT</text>
+      <rect x="34" y="90" width="162" height="70" rx="14" fill="#161628" stroke="#33334d"/>
+      <text x="115" y="118" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#c7d2fe">Revova Subscription</text>
+      <text x="115" y="142" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#fff">€49.00</text>
+      <circle cx="115" cy="220" r="34" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+      <path d="M100 220 a15 15 0 1 1 30 0 a15 15 0 1 1 -30 0" fill="none" stroke="#fbbf24" stroke-width="3"/>
+      <text x="115" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#fbbf24">?</text>
+      <rect x="34" y="272" width="162" height="42" rx="21" fill="url(#brand)"/>
+      <text x="115" y="298" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Approve in app</text>
+    </g>
+
+    <!-- lock + card, "authenticated" side -->
+    <g transform="translate(560,190)">
+      <rect width="300" height="188" rx="20" fill="#14142c" stroke="#26264a" stroke-width="1.5"/>
+      <rect x="24" y="24" width="252" height="60" rx="10" fill="#1e1b4b"/>
+      <circle cx="52" cy="54" r="14" fill="#6366f1"/>
+      <text x="80" y="50" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#c7d2fe">Card ending 4242</text>
+      <text x="80" y="68" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#818cf8">Renewal — Day 0</text>
+      <g transform="translate(24,108)">
+        <circle cx="18" cy="18" r="18" fill="#0f2e22" stroke="#10b981" stroke-width="2"/>
+        <path d="M11 18 l5 6 l11 -14" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="46" y="14" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#6ee7b7">Authenticated</text>
+        <text x="46" y="32" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">2 of 3 SCA factors confirmed</text>
+      </g>
+    </g>
+    <g transform="translate(560,406)">
+      <rect width="300" height="70" rx="16" fill="#2a1a12" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="20" y="30" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fbbf24">authentication_required</text>
+      <text x="20" y="52" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#d1a35c">No customer present to complete challenge</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'sca-3d-secure-explained', svg: scaAuthChallengeHeroSVG() },
   { slug: 'stripe-smart-retries-explained', svg: smartRetriesCalendarHeroSVG() },
   { slug: 'dunning-email-sequence-setup-guide', svg: dunningSetupPanelHeroSVG() },
   { slug: 'what-is-dunning', svg: dunningSequenceHeroSVG() },
