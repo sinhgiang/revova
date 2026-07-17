@@ -15,10 +15,12 @@ import HowToReduceSaasChurn, { faqs as reduceChurnFaqs } from '@/components/blog
 import RevovaReview2026, { faqs as revovaReviewFaqs } from '@/components/blog/articles/revova-review-2026'
 import RevovaVsCompetitors2026, { faqs as revovaVsFaqs } from '@/components/blog/articles/revova-vs-competitors-2026'
 import PaddleVsStripeSubscriptions, { faqs as paddleVsStripeFaqs } from '@/components/blog/articles/paddle-vs-stripe-subscriptions'
+import HowMuchRevenueLostToFailedPayments, { faqs as revenueLostFaqs } from '@/components/blog/articles/how-much-revenue-lost-to-failed-payments'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'how-much-revenue-lost-to-failed-payments': HowMuchRevenueLostToFailedPayments,
   'paddle-vs-stripe-subscriptions': PaddleVsStripeSubscriptions,
   'revova-vs-competitors-2026': RevovaVsCompetitors2026,
   'revova-review-2026': RevovaReview2026,
@@ -33,6 +35,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'how-much-revenue-lost-to-failed-payments': revenueLostFaqs,
   'paddle-vs-stripe-subscriptions': paddleVsStripeFaqs,
   'revova-vs-competitors-2026': revovaVsFaqs,
   'revova-review-2026': revovaReviewFaqs,

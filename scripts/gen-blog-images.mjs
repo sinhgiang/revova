@@ -442,7 +442,79 @@ function paddleVsStripeHeroSVG() {
   </svg>`
 }
 
+// Hero for "How Much Revenue Are You Losing to Failed Payments?": a risk
+// gauge dial (emerald -> amber -> rose zones) with a needle pointing into the
+// risk zone, plus a stack of bills leaking coins — the loss/benchmark theme.
+function revenueAtRiskGaugeHeroSVG() {
+  const cx = 350
+  const cy = 470
+  const r = 230
+  const trackW = 40
+
+  const toXY = (deg, radius = r) => {
+    const rad = (deg * Math.PI) / 180
+    return [cx + radius * Math.cos(rad), cy - radius * Math.sin(rad)]
+  }
+  const arcPath = (a0, a1) => {
+    const [x0, y0] = toXY(a0)
+    const [x1, y1] = toXY(a1)
+    const large = Math.abs(a0 - a1) > 180 ? 1 : 0
+    return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`
+  }
+
+  const needleAngle = 42
+  const [nx, ny] = toXY(needleAngle, 150)
+
+  const drips = [
+    { cx: 940, cy: 300, r: 10 },
+    { cx: 978, cy: 356, r: 13 },
+    { cx: 1006, cy: 422, r: 16 },
+  ]
+  const dripSvg = drips
+    .map((d) => `<circle cx="${d.cx}" cy="${d.cy}" r="${d.r}" fill="#f43f5e" fill-opacity="0.9"/>`)
+    .join('\n    ')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.26" cy="0.3" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.86" cy="0.62" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.26"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+      <linearGradient id="bills" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#059669"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <path d="${arcPath(180, 0)}" fill="none" stroke="#1c1c30" stroke-width="${trackW + 10}" stroke-linecap="round"/>
+    <path d="${arcPath(180, 100)}" fill="none" stroke="#10b981" stroke-width="${trackW}" stroke-linecap="round"/>
+    <path d="${arcPath(100, 55)}" fill="none" stroke="#fbbf24" stroke-width="${trackW}" stroke-linecap="round"/>
+    <path d="${arcPath(55, 0)}" fill="none" stroke="#f43f5e" stroke-width="${trackW}" stroke-linecap="round"/>
+
+    <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#e5e7eb" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="17" fill="#e5e7eb"/>
+    <circle cx="${cx}" cy="${cy}" r="9" fill="#0a0a16"/>
+
+    <text x="${cx}" y="${cy - 150}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="800" fill="#ffffff">5&#8211;10%</text>
+    <text x="${cx}" y="${cy - 108}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="600" fill="#9ca3af">of revenue at risk / cycle</text>
+
+    <g transform="translate(860,150)">
+      <rect width="220" height="30" rx="7" fill="url(#bills)"/>
+      <rect y="16" width="220" height="30" rx="7" fill="url(#bills)" fill-opacity="0.88"/>
+      <rect y="32" width="220" height="30" rx="7" fill="url(#bills)" fill-opacity="0.76"/>
+      <circle cx="110" cy="24" r="9" fill="#ffffff" fill-opacity="0.5"/>
+      <path d="M150 62 C 170 100, 180 150, 118 158" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 10"/>
+    </g>
+    ${dripSvg}
+
+    <g transform="translate(150,110)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'how-much-revenue-lost-to-failed-payments', svg: revenueAtRiskGaugeHeroSVG() },
   { slug: 'paddle-vs-stripe-subscriptions', svg: paddleVsStripeHeroSVG() },
   { slug: 'revova-vs-competitors-2026', svg: revovaVsHeroSVG() },
   { slug: 'revova-review-2026', svg: revovaReviewHeroSVG() },

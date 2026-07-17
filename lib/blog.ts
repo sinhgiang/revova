@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'how-much-revenue-lost-to-failed-payments',
+    title: 'How Much Revenue Are You Losing to Failed Payments? (2026 Benchmarks)',
+    description:
+      'Industry benchmarks show 5–10% of subscription charges fail per cycle. Calculate your own failed-payment revenue loss in 5 minutes, then get the exact number.',
+    excerpt:
+      'Most subscription businesses lose 2–6% of MRR to failed payments nobody recovers. Here are the 2026 benchmark ranges, the levers that move your number, and a 5-minute formula to estimate your own.',
+    date: '2026-07-13',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 16,
+    hero: '/blog/how-much-revenue-lost-to-failed-payments-hero',
+    heroAlt: 'A dark gauge dial showing 5–10% of revenue at risk from failed payments, with a leaking stack of bills dripping coins, representing unrecovered subscription revenue loss',
+  },
+  {
     slug: 'paddle-vs-stripe-subscriptions',
     title: 'Paddle vs Stripe for Subscriptions (2026): Fees, Recovery & Which to Pick',
     description:
