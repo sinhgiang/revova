@@ -23,10 +23,12 @@ import ScaAndThreeDSecureExplained, { faqs as scaFaqs } from '@/components/blog/
 import HistoricalPaymentRecoveryGuide, { faqs as historicalRecoveryFaqs } from '@/components/blog/articles/historical-payment-recovery-guide'
 import ChurnBusterAlternatives, { faqs as churnBusterFaqs } from '@/components/blog/articles/churn-buster-alternatives'
 import ReduceAnnualPlanRenewalFailures, { faqs as annualRenewalFaqs } from '@/components/blog/articles/reduce-annual-plan-renewal-failures'
+import SoftDeclineVsHardDecline, { faqs as softHardDeclineFaqs } from '@/components/blog/articles/soft-decline-vs-hard-decline'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'soft-decline-vs-hard-decline': SoftDeclineVsHardDecline,
   'reduce-annual-plan-renewal-failures': ReduceAnnualPlanRenewalFailures,
   'churn-buster-alternatives': ChurnBusterAlternatives,
   'historical-payment-recovery-guide': HistoricalPaymentRecoveryGuide,
@@ -49,6 +51,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'soft-decline-vs-hard-decline': softHardDeclineFaqs,
   'reduce-annual-plan-renewal-failures': annualRenewalFaqs,
   'churn-buster-alternatives': churnBusterFaqs,
   'historical-payment-recovery-guide': historicalRecoveryFaqs,

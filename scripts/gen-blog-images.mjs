@@ -1031,7 +1031,81 @@ function annualCardDecayHeroSVG() {
   </svg>`
 }
 
+// Hero for "Soft Decline vs Hard Decline": a single decline signal at top
+// forks into two branches — left path (soft, emerald) loops back through a
+// retry-clock icon to a green check; right path (hard, rose) runs straight to
+// a cracked-card icon and an envelope asking for a new card. The fork/branch
+// shape is the whole story — one failed charge, two structurally different
+// fixes — distinct from every prior card/calendar/leaderboard hero used so far.
+function declineForkHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glowSoft" cx="0.22" cy="0.65" r="0.5"><stop offset="0" stop-color="#10b981" stop-opacity="0.32"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glowHard" cx="0.8" cy="0.65" r="0.5"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.3"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glowSoft)"/>
+    <rect width="${W}" height="${H}" fill="url(#glowHard)"/>
+
+    <g transform="translate(110,54)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+
+    <!-- the single decline event -->
+    <g transform="translate(600,110)">
+      <rect x="-100" y="-26" width="200" height="52" rx="26" fill="#1c1c38" stroke="#3f3f6b" stroke-width="2"/>
+      <text x="0" y="7" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e2e8f0">CHARGE DECLINED</text>
+    </g>
+
+    <!-- fork lines -->
+    <path d="M600 136 C 600 200, 330 190, 330 250" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+    <path d="M600 136 C 600 200, 870 190, 870 250" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- soft branch -->
+    <g transform="translate(330,320)">
+      <rect x="-96" y="-34" width="192" height="40" rx="12" fill="#052e21" stroke="#10b981" stroke-width="1.5"/>
+      <text x="0" y="-8" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" fill="#34d399">SOFT — retry</text>
+      <g transform="translate(-52,50)">
+        <circle r="34" fill="none" stroke="#10b981" stroke-width="4"/>
+        <path d="M0 -34 A34 34 0 0 1 30 -16" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 -30 l10 4 l-4 10 z" fill="#10b981"/>
+        <path d="M-8 6 l8 9 l16 -19" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <g transform="translate(52,50)">
+        <circle r="34" fill="#052e21" stroke="#10b981" stroke-width="2"/>
+        <path d="M-14 2 l10 12 l20 -26" fill="none" stroke="#34d399" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="0" y="118" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6ee7b7">card is fine — wait it out</text>
+    </g>
+
+    <!-- hard branch -->
+    <g transform="translate(870,320)">
+      <rect x="-96" y="-34" width="192" height="40" rx="12" fill="#3b0f1c" stroke="#f43f5e" stroke-width="1.5"/>
+      <text x="0" y="-8" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" fill="#fb7185">HARD — ask</text>
+      <g transform="translate(-52,50)">
+        <rect x="-34" y="-22" width="68" height="44" rx="8" fill="#4c1424" stroke="#f43f5e" stroke-width="2"/>
+        <line x1="-34" y1="-4" x2="34" y2="-4" stroke="#f43f5e" stroke-opacity="0.6" stroke-width="6"/>
+        <path d="M-10 -30 l14 30 l10 -20 l10 22" fill="none" stroke="#fb7185" stroke-width="3"/>
+      </g>
+      <g transform="translate(52,50)">
+        <rect x="-32" y="-22" width="64" height="44" rx="6" fill="#4c1424" stroke="#f43f5e" stroke-width="2"/>
+        <path d="M-32 -22 L0 2 L32 -22" fill="none" stroke="#fb7185" stroke-width="2.5"/>
+      </g>
+      <text x="0" y="118" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#fda4af">card is dead — new one needed</text>
+    </g>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="110" y="480" font-size="26" font-weight="800" fill="#f1f5f9">One decline. Two very different fixes.</text>
+      <text x="110" y="512" font-size="15" fill="#9ca3af">Route soft declines to a timed retry and hard declines to an immediate ask — never the other way around.</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'soft-decline-vs-hard-decline', svg: declineForkHeroSVG() },
   { slug: 'reduce-annual-plan-renewal-failures', svg: annualCardDecayHeroSVG() },
   { slug: 'churn-buster-alternatives', svg: churnBusterAlternativesHeroSVG() },
   { slug: 'historical-payment-recovery-guide', svg: historicalScanHeroSVG() },

@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'soft-decline-vs-hard-decline',
+    title: "Soft Decline vs Hard Decline: What's the Difference & How to Handle Each",
+    description:
+      'Not every failed subscription charge is the same problem. Soft declines are temporary and worth retrying; hard declines are permanent and need a new card. Here is how to tell them apart and respond correctly.',
+    excerpt:
+      'Retry a hard decline and you waste attempts on a card that will never work. Email a customer over a soft decline and you nag them over a glitch that would have resolved itself. Here is the framework.',
+    date: '2026-07-21',
+    author: 'Sinh Yang',
+    category: 'Reference',
+    readingMinutes: 16,
+    hero: '/blog/soft-decline-vs-hard-decline-hero',
+    heroAlt: 'A single declined-charge event forking into two paths — a soft, emerald retry loop back to a green checkmark, and a hard, rose path straight to a cracked card and an envelope asking for new details',
+  },
+  {
     slug: 'reduce-annual-plan-renewal-failures',
     title: 'How to Reduce Annual Plan Renewal Failures (2026 Guide)',
     description:
