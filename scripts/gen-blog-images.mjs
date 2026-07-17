@@ -795,7 +795,92 @@ function scaAuthChallengeHeroSVG() {
   </svg>`
 }
 
+// Hero for "Historical Payment Recovery Guide": a 12-month backward timeline of
+// invoice-folder icons, oldest (dead, dim/grey with an x) on the left fading to
+// newest (recoverable, indigo, lit) on the right, with a magnifying-glass "scan"
+// sweeping the recent months and a found-count badge — distinct from the
+// forward-looking calendar/panel/gauge heroes above, this one is about looking
+// backward through already-closed history, not timing a future retry.
+function historicalScanHeroSVG() {
+  const months = 12
+  const stripX = 110, stripY = 250, cellW = 78, cellGap = 8, cellH = 100
+  const deadCount = 6 // oldest 6 months: dead, unrecoverable
+  const foundCount = 4 // next 4 months: backlog, found by the scan
+  // last 2 months: still fresh / already inside a live sequence
+
+  const cells = Array.from({ length: months }, (_, i) => {
+    const x = stripX + i * (cellW + cellGap)
+    const isDead = i < deadCount
+    const isFound = i >= deadCount && i < deadCount + foundCount
+    const isFresh = i >= deadCount + foundCount
+    const fill = isDead ? '#14142c' : isFound ? '#1e1b4b' : '#0f2e22'
+    const stroke = isDead ? '#26264a' : isFound ? '#6366f1' : '#10b981'
+    const opacity = isDead ? 0.55 : 1
+    return `
+      <g opacity="${opacity}">
+        <rect x="${x}" y="${stripY}" width="${cellW}" height="${cellH}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="${isDead ? 1 : 2}"/>
+        <path d="M${x + 14} ${stripY + 16} h${cellW - 28} v10 h-8 l-6 -8 h-${cellW - 44} z" fill="none" stroke="${stroke}" stroke-width="1.5" opacity="0.8"/>
+        ${isDead
+          ? `<path d="M${x + cellW / 2 - 10} ${stripY + 58} l20 20 M${x + cellW / 2 + 10} ${stripY + 58} l-20 20" stroke="#52526b" stroke-width="3" stroke-linecap="round"/>`
+          : isFound
+            ? `<circle cx="${x + cellW / 2}" cy="${stripY + 68}" r="15" fill="#312e81" stroke="#818cf8" stroke-width="2"/><text x="${x + cellW / 2}" y="${stripY + 73}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#c7d2fe">$</text>`
+            : `<path d="M${x + cellW / 2 - 9} ${stripY + 68} l6 7 l12 -15" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`}
+        <text x="${x + cellW / 2}" y="${stripY + cellH - 12}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="${isDead ? '#4b4b6b' : '#9ca3af'}">${i === 0 ? '12mo' : i === months - 1 ? 'Now' : ''}</text>
+      </g>`
+  }).join('')
+
+  const scanCenterIdx = deadCount + foundCount / 2 - 0.5
+  const scanX = stripX + scanCenterIdx * (cellW + cellGap) + cellW / 2
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.2" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.65" r="0.5"><stop offset="0" stop-color="#10b981" stop-opacity="0.28"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+      <radialGradient id="scanGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#818cf8" stop-opacity="0.5"/><stop offset="1" stop-color="#818cf8" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(110,58)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="110" y="150" font-size="30" font-weight="800" fill="#f1f5f9">Lost Revenue Finder</text>
+      <text x="110" y="182" font-size="16" fill="#9ca3af">Scanning already-closed invoices, oldest to newest</text>
+    </g>
+
+    <!-- ruler above the strip -->
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#5a5a7a">
+      <line x1="${stripX}" y1="222" x2="${stripX + months * cellW + (months - 1) * cellGap}" y2="222" stroke="#26264a" stroke-width="1.5"/>
+      <text x="${stripX}" y="212">12 months ago</text>
+      <text x="${stripX + months * cellW + (months - 1) * cellGap}" y="212" text-anchor="end">Today</text>
+    </g>
+
+    ${cells}
+
+    <!-- magnifying glass scanning the "found" band -->
+    <g transform="translate(${scanX.toFixed(1)},${stripY - 18})">
+      <circle r="70" fill="url(#scanGlow)"/>
+      <circle r="26" fill="none" stroke="#c7d2fe" stroke-width="4"/>
+      <line x1="18" y1="18" x2="40" y2="40" stroke="#c7d2fe" stroke-width="5" stroke-linecap="round"/>
+    </g>
+
+    <!-- found-count badge -->
+    <g transform="translate(945,60)">
+      <rect width="145" height="46" rx="23" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+      <circle cx="26" cy="23" r="8" fill="#a5b4fc"/>
+      <text x="42" y="29" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">Backlog found</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'historical-payment-recovery-guide', svg: historicalScanHeroSVG() },
   { slug: 'sca-3d-secure-explained', svg: scaAuthChallengeHeroSVG() },
   { slug: 'stripe-smart-retries-explained', svg: smartRetriesCalendarHeroSVG() },
   { slug: 'dunning-email-sequence-setup-guide', svg: dunningSetupPanelHeroSVG() },

@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'historical-payment-recovery-guide',
+    title: 'The Complete Guide to Historical Payment Recovery: Recovering Old Failed Charges (2026)',
+    description:
+      'Why processors stop retrying failed subscription charges after a bounded window, how to audit your own processor history for the backlog left behind, and how to run a recovery pass without spamming lapsed customers.',
+    excerpt:
+      'Every processor eventually stops retrying a failed charge — and once it does, nothing chases it again. Here is how to find, segment, and recover that backlog responsibly.',
+    date: '2026-07-18',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 18,
+    hero: '/blog/historical-payment-recovery-guide-hero',
+    heroAlt: 'A 12-month timeline of invoice-folder icons fading from dead grey on the left to recoverable indigo near today, with a magnifying glass scanning the recent months',
+  },
+  {
     slug: 'sca-3d-secure-explained',
     title: 'SCA and 3D Secure Explained: Why European Card Payments Fail (2026)',
     description:
