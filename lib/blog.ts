@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'reduce-annual-plan-renewal-failures',
+    title: 'How to Reduce Annual Plan Renewal Failures (2026 Guide)',
+    description:
+      'Annual subscription renewals fail differently than monthly ones — a card has 12 months to expire or get replaced before the one charge that tests it. Here is why, and how pre-dunning and proactive card-expiry detection fix it.',
+    excerpt:
+      'A card valid at signup has had a full year to expire, get reissued, or get replaced by the time an annual renewal tests it once. Here is how to catch that before the charge fails.',
+    date: '2026-07-20',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 17,
+    hero: '/blog/reduce-annual-plan-renewal-failures-hero',
+    heroAlt: 'A row of 12 monthly card icons fading from solid indigo to decayed grey across a year, with one large fragile annual charge hitting the last card versus 12 small resilient monthly charges underneath',
+  },
+  {
     slug: 'churn-buster-alternatives',
     title: 'Churn Buster Alternatives: 6 Cheaper Payment Recovery Tools (2026)',
     description:

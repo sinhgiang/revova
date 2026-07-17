@@ -946,7 +946,93 @@ function churnBusterAlternativesHeroSVG() {
   </svg>`
 }
 
+// Hero for "Reduce Annual Plan Renewal Failures": a row of 12 small card icons
+// tracing one calendar year, fading from solid indigo (fresh) to washed-out grey
+// (decayed) as months pass, ending in one large, single "$" charge burst hitting
+// the last, faded card with a crack/decline mark — versus a thin row of 12 tiny
+// green monthly charge dots underneath that all stay solid the whole way across.
+// The size contrast (one big fragile hit vs many small resilient ones) is the
+// whole story — distinct from every prior calendar/timeline/gauge hero used so far.
+function annualCardDecayHeroSVG() {
+  const n = 12
+  const startX = 150
+  const endX = 1010
+  const stepX = (endX - startX) / (n - 1)
+  const cardY = 150
+  const cardW = 46
+  const cardH = 30
+
+  const cards = []
+  for (let i = 0; i < n; i++) {
+    const x = startX + i * stepX
+    const t = i / (n - 1) // 0 = fresh, 1 = decayed
+    const fill = i < n - 1 ? `rgba(99,102,241,${(1 - t * 0.85).toFixed(2)})` : '#3b1d2e'
+    const stroke = i < n - 1 ? `rgba(129,140,248,${(1 - t * 0.6).toFixed(2)})` : '#f43f5e'
+    cards.push(
+      `<rect x="${x - cardW / 2}" y="${cardY - cardH / 2}" width="${cardW}" height="${cardH}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-dasharray="${i === n - 1 ? '4 3' : '0'}"/>`,
+    )
+    cards.push(
+      `<rect x="${x - cardW / 2}" y="${cardY - cardH / 2 + 7}" width="${cardW}" height="5" fill="${i < n - 1 ? `rgba(199,210,254,${(1 - t * 0.7).toFixed(2)})` : '#f43f5e'}" opacity="${i < n - 1 ? '0.8' : '0.6'}"/>`,
+    )
+  }
+
+  // large single annual charge burst hitting the last (decayed) card
+  const lastX = startX + (n - 1) * stepX
+  const burstY = cardY - 110
+
+  // small monthly dots row underneath, all solid/successful
+  const dotY = 340
+  const dots = []
+  for (let i = 0; i < n; i++) {
+    const x = startX + i * stepX
+    dots.push(`<circle cx="${x}" cy="${dotY}" r="7" fill="#10b981"/>`)
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.15" cy="0.2" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.9" cy="0.25" r="0.5"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.28"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(110,54)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+
+    <g font-family="Segoe UI, Arial, sans-serif" fill="#5a5a7a" font-size="13">
+      <text x="150" y="112">Mo 1</text>
+      <text x="${lastX - 20}" y="112" fill="#f43f5e">Mo 12</text>
+    </g>
+
+    <!-- one big fragile annual charge, aimed at the decayed card -->
+    <g transform="translate(${lastX},${burstY})">
+      <circle r="46" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="3 5" opacity="0.6"/>
+      <circle r="34" fill="#3b1d2e" stroke="#f43f5e" stroke-width="2"/>
+      <text x="0" y="9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#f87171">$</text>
+      <text x="0" y="66" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#f87171">1 charge / year</text>
+    </g>
+    <line x1="${lastX}" y1="${burstY + 50}" x2="${lastX}" y2="${cardY - cardH / 2 - 6}" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4 4" opacity="0.7"/>
+
+    ${cards.join('\n    ')}
+
+    <line x1="${startX - 30}" y1="${dotY}" x2="${endX + 30}" y2="${dotY}" stroke="#26264a" stroke-width="1.5"/>
+    ${dots.join('\n    ')}
+    <text x="${endX + 60}" y="${dotY + 5}" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6ee7b7" font-weight="700">12 charges / year</text>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="150" y="440" font-size="26" font-weight="800" fill="#f1f5f9">One card. Twelve months. One shot.</text>
+      <text x="150" y="472" font-size="15" fill="#9ca3af">Annual renewals ride on a card that had a full year to change — pre-dunning catches it before the charge fires.</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'reduce-annual-plan-renewal-failures', svg: annualCardDecayHeroSVG() },
   { slug: 'churn-buster-alternatives', svg: churnBusterAlternativesHeroSVG() },
   { slug: 'historical-payment-recovery-guide', svg: historicalScanHeroSVG() },
   { slug: 'sca-3d-secure-explained', svg: scaAuthChallengeHeroSVG() },
