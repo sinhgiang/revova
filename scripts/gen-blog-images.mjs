@@ -576,7 +576,90 @@ function dunningSequenceHeroSVG() {
   </svg>`
 }
 
+// Hero for "How to Set Up a Dunning Email Sequence": a config-panel card showing
+// the build checklist ticking off one step at a time (connect -> cadence ->
+// branch -> timing -> test), plus a "SEQUENCE: LIVE" toggle switch — the
+// practical setup story, distinct from the taxonomy/timeline heroes above.
+function dunningSetupPanelHeroSVG() {
+  const steps = [
+    { label: 'Connect processor', state: 'done' },
+    { label: 'Pick cadence', state: 'done' },
+    { label: 'Branch by decline reason', state: 'done' },
+    { label: 'Set send timing', state: 'active' },
+    { label: 'Test &amp; go live', state: 'pending' },
+  ]
+  const panelX = 150, panelY = 132, panelW = 560, panelH = 372
+  const rowH = 62, rowStartY = 96
+
+  const rowSvg = steps.map((s, i) => {
+    const y = rowStartY + i * rowH
+    const dot =
+      s.state === 'done'
+        ? `<circle cx="26" cy="${y}" r="15" fill="#10b981"/>
+           <path d="M${26 - 7} ${y} l5 6 l10 -12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`
+        : s.state === 'active'
+        ? `<circle cx="26" cy="${y}" r="15" fill="#161628" stroke="#f59e0b" stroke-width="3"/>
+           <circle cx="26" cy="${y}" r="6" fill="#f59e0b"/>`
+        : `<circle cx="26" cy="${y}" r="15" fill="#161628" stroke="#33334d" stroke-width="3"/>`
+    const textColor = s.state === 'pending' ? '#6b6b85' : '#e5e7eb'
+    return `
+      <g transform="translate(30,0)" font-family="Segoe UI, Arial, sans-serif">
+        ${dot}
+        <text x="54" y="${y + 6}" font-size="21" font-weight="700" fill="${textColor}">${s.label}</text>
+      </g>`
+  }).join('')
+
+  const doneCount = steps.filter((s) => s.state === 'done').length
+  const barW = panelW - 80
+  const barFill = (doneCount / steps.length) * barW
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.26" cy="0.3" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.88" cy="0.72" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.28"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <!-- config panel -->
+    <g transform="translate(${panelX},${panelY})">
+      <rect width="${panelW}" height="${panelH}" rx="26" fill="#12122a" stroke="#25254a" stroke-width="1.5"/>
+      <text x="34" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="2" fill="#8b8ba7">SEQUENCE SETUP</text>
+      ${rowSvg}
+      <!-- progress bar -->
+      <rect x="34" y="${panelH - 44}" width="${barW}" height="10" rx="5" fill="#20203c"/>
+      <rect x="34" y="${panelH - 44}" width="${barFill}" height="10" rx="5" fill="url(#brand)"/>
+    </g>
+
+    <!-- "sequence: live" toggle badge -->
+    <g transform="translate(870,168)">
+      <rect width="200" height="56" rx="28" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <circle cx="150" cy="28" r="20" fill="#10b981"/>
+      <text x="24" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#6ee7b7">SEQUENCE: LIVE</text>
+    </g>
+
+    <!-- small processor chips feeding into the panel -->
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">
+      <rect x="870" y="256" width="120" height="38" rx="10" fill="#161628" stroke="#2a2a44"/>
+      <text x="905" y="280">Stripe</text>
+      <rect x="870" y="304" width="120" height="38" rx="10" fill="#161628" stroke="#2a2a44"/>
+      <text x="898" y="328">Paddle</text>
+      <rect x="870" y="352" width="150" height="38" rx="10" fill="#161628" stroke="#2a2a44"/>
+      <text x="890" y="376">Chargebee</text>
+    </g>
+
+    <g transform="translate(150,64)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'dunning-email-sequence-setup-guide', svg: dunningSetupPanelHeroSVG() },
   { slug: 'what-is-dunning', svg: dunningSequenceHeroSVG() },
   { slug: 'how-much-revenue-lost-to-failed-payments', svg: revenueAtRiskGaugeHeroSVG() },
   { slug: 'paddle-vs-stripe-subscriptions', svg: paddleVsStripeHeroSVG() },

@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'dunning-email-sequence-setup-guide',
+    title: 'How to Set Up a Dunning Email Sequence That Recovers Revenue (2026)',
+    description:
+      'A step-by-step guide to building a dunning email sequence: pick the trigger, decide cadence, branch by decline reason, time sends by timezone, and test before launch.',
+    excerpt:
+      'The actual build, step by step: trigger event, cadence, decline-reason branching, timezone-aware timing, testing — plus what DIY costs versus a dedicated tool.',
+    date: '2026-07-15',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 17,
+    hero: '/blog/dunning-email-sequence-setup-guide-hero',
+    heroAlt: 'A dark setup panel showing a dunning sequence build checklist ticking off connect, cadence, and decline-reason branching, with a green "sequence: live" toggle badge',
+  },
+  {
     slug: 'what-is-dunning',
     title: 'What Is Dunning? The Complete Guide to Payment-Failure Emails (2026)',
     description:

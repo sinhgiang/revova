@@ -17,10 +17,12 @@ import RevovaVsCompetitors2026, { faqs as revovaVsFaqs } from '@/components/blog
 import PaddleVsStripeSubscriptions, { faqs as paddleVsStripeFaqs } from '@/components/blog/articles/paddle-vs-stripe-subscriptions'
 import HowMuchRevenueLostToFailedPayments, { faqs as revenueLostFaqs } from '@/components/blog/articles/how-much-revenue-lost-to-failed-payments'
 import WhatIsDunning, { faqs as dunningFaqs2 } from '@/components/blog/articles/what-is-dunning'
+import DunningEmailSequenceSetupGuide, { faqs as dunningSetupFaqs } from '@/components/blog/articles/dunning-email-sequence-setup-guide'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'dunning-email-sequence-setup-guide': DunningEmailSequenceSetupGuide,
   'what-is-dunning': WhatIsDunning,
   'how-much-revenue-lost-to-failed-payments': HowMuchRevenueLostToFailedPayments,
   'paddle-vs-stripe-subscriptions': PaddleVsStripeSubscriptions,
@@ -37,6 +39,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'dunning-email-sequence-setup-guide': dunningSetupFaqs,
   'what-is-dunning': dunningFaqs2,
   'how-much-revenue-lost-to-failed-payments': revenueLostFaqs,
   'paddle-vs-stripe-subscriptions': paddleVsStripeFaqs,
