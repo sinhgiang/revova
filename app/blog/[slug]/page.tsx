@@ -21,10 +21,12 @@ import DunningEmailSequenceSetupGuide, { faqs as dunningSetupFaqs } from '@/comp
 import StripeSmartRetriesExplained, { faqs as smartRetriesFaqs } from '@/components/blog/articles/stripe-smart-retries-explained'
 import ScaAndThreeDSecureExplained, { faqs as scaFaqs } from '@/components/blog/articles/sca-3d-secure-explained'
 import HistoricalPaymentRecoveryGuide, { faqs as historicalRecoveryFaqs } from '@/components/blog/articles/historical-payment-recovery-guide'
+import ChurnBusterAlternatives, { faqs as churnBusterFaqs } from '@/components/blog/articles/churn-buster-alternatives'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'churn-buster-alternatives': ChurnBusterAlternatives,
   'historical-payment-recovery-guide': HistoricalPaymentRecoveryGuide,
   'sca-3d-secure-explained': ScaAndThreeDSecureExplained,
   'stripe-smart-retries-explained': StripeSmartRetriesExplained,
@@ -45,6 +47,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'churn-buster-alternatives': churnBusterFaqs,
   'historical-payment-recovery-guide': historicalRecoveryFaqs,
   'sca-3d-secure-explained': scaFaqs,
   'stripe-smart-retries-explained': smartRetriesFaqs,

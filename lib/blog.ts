@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'churn-buster-alternatives',
+    title: 'Churn Buster Alternatives: 6 Cheaper Payment Recovery Tools (2026)',
+    description:
+      'An honest comparison of Churn Buster alternatives — Revova, Churnkey, Stunning, Baremetrics Recover, Paddle Retain, and Stripe Smart Retries — by pricing model, processor coverage, and historical recovery.',
+    excerpt:
+      'Churn Buster is a proven Stripe and Recurly dunning tool, but its pricing scales with recovery volume and it does not cover historical failures. Here are 6 alternatives and how to switch.',
+    date: '2026-07-19',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 17,
+    hero: '/blog/churn-buster-alternatives-hero',
+    heroAlt: 'A ranked leaderboard of 6 payment-recovery tools, Revova highlighted at #1 with a flat-price tag, the rest showing mixed pricing models',
+  },
+  {
     slug: 'historical-payment-recovery-guide',
     title: 'The Complete Guide to Historical Payment Recovery: Recovering Old Failed Charges (2026)',
     description:

@@ -879,7 +879,75 @@ function historicalScanHeroSVG() {
   </svg>`
 }
 
+// Hero for "Churn Buster Alternatives": a ranked leaderboard of 6 tool rows,
+// Revova highlighted at #1 in the brand gradient with a "flat" price chip, the
+// rest dimmed with a mix of "scales" and "flat" tags — distinct from the
+// crossed-out-price-then-arrow concept used for the Churnkey alternatives hero,
+// this one is about ranking a field of options, not a single before/after swap.
+function churnBusterAlternativesHeroSVG() {
+  const rows = [
+    { rank: 1, name: 'Revova', tag: 'flat $29–79', highlight: true },
+    { rank: 2, name: 'Churn Buster', tag: 'scales w/ volume' },
+    { rank: 3, name: 'Churnkey', tag: '~$199+/mo' },
+    { rank: 4, name: 'Stunning', tag: '~$100/mo' },
+    { rank: 5, name: 'Baremetrics Recover', tag: 'add-on' },
+    { rank: 6, name: 'Paddle Retain', tag: '% of recovered' },
+  ]
+  const rowH = 66, rowGap = 10, startY = 150, rowX = 440, rowW = 620
+
+  const rowsMarkup = rows.map((r, i) => {
+    const y = startY + i * (rowH + rowGap)
+    const fill = r.highlight ? 'url(#brand)' : '#14142c'
+    const stroke = r.highlight ? '#818cf8' : '#26264a'
+    const nameColor = r.highlight ? '#ffffff' : '#c7d2fe'
+    const tagColor = r.highlight ? '#e0e7ff' : '#6b6b85'
+    const rankFill = r.highlight ? '#ffffff' : '#26264a'
+    const rankColor = r.highlight ? '#4f46e5' : '#8b8ba7'
+    return `
+      <g>
+        <rect x="${rowX}" y="${y}" width="${rowW}" height="${rowH}" rx="16" fill="${fill}" stroke="${stroke}" stroke-width="${r.highlight ? 2 : 1}"/>
+        <circle cx="${rowX + 40}" cy="${y + rowH / 2}" r="20" fill="${rankFill}"/>
+        <text x="${rowX + 40}" y="${y + rowH / 2 + 6}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="${rankColor}">${r.rank}</text>
+        <text x="${rowX + 78}" y="${y + rowH / 2 - 4}" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="${nameColor}">${r.name}</text>
+        <text x="${rowX + 78}" y="${y + rowH / 2 + 18}" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="${tagColor}">${r.tag}</text>
+        ${r.highlight ? `<g transform="translate(${rowX + rowW - 56},${y + rowH / 2 - 14})"><rect width="40" height="28" rx="14" fill="#10b981"/><text x="20" y="19" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="800" fill="#fff">#1</text></g>` : ''}
+      </g>`
+  }).join('')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.15" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.75" r="0.5"><stop offset="0" stop-color="#10b981" stop-opacity="0.22"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(110,58)">
+      <rect width="52" height="52" rx="15" fill="url(#brand)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="110" y="150" font-size="30" font-weight="800" fill="#f1f5f9">Churn Buster</text>
+      <text x="110" y="182" font-size="16" fill="#9ca3af">alternatives, ranked</text>
+    </g>
+
+    <g transform="translate(110,220)" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#5a5a7a">
+      <text x="0" y="0">6 tools compared</text>
+      <text x="0" y="26">by price model,</text>
+      <text x="0" y="52">processor coverage,</text>
+      <text x="0" y="78">and historical recovery</text>
+    </g>
+
+    ${rowsMarkup}
+  </svg>`
+}
+
 const targets = [
+  { slug: 'churn-buster-alternatives', svg: churnBusterAlternativesHeroSVG() },
   { slug: 'historical-payment-recovery-guide', svg: historicalScanHeroSVG() },
   { slug: 'sca-3d-secure-explained', svg: scaAuthChallengeHeroSVG() },
   { slug: 'stripe-smart-retries-explained', svg: smartRetriesCalendarHeroSVG() },
