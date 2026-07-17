@@ -513,7 +513,71 @@ function revenueAtRiskGaugeHeroSVG() {
   </svg>`
 }
 
+// Hero for "What Is Dunning?": a Day 1 -> Day 3 -> Day 7 -> Day 14 envelope
+// timeline, deepening in urgency color (indigo -> violet -> amber -> rose) along
+// a dashed track, with a recovered check badge branching off the final envelope.
+function dunningSequenceHeroSVG() {
+  const steps = [
+    { x: 190, day: 'DAY 1', color: '#6366f1' },
+    { x: 460, day: 'DAY 3', color: '#8b5cf6' },
+    { x: 730, day: 'DAY 7', color: '#f59e0b' },
+    { x: 1000, day: 'DAY 14', color: '#fb7185' },
+  ]
+  const envW = 150
+  const envH = 96
+  const envY = 232
+  const trackY = 460
+
+  const envelopes = steps.map((s) => `
+    <g transform="translate(${s.x - envW / 2},${envY})">
+      <rect width="${envW}" height="${envH}" rx="18" fill="${s.color}"/>
+      <path d="M0 20 L${envW / 2} ${envH / 2 + 6} L${envW} 20" fill="none" stroke="#0a0a16" stroke-opacity="0.35" stroke-width="6" stroke-linejoin="round"/>
+    </g>
+    <line x1="${s.x}" y1="${envY + envH}" x2="${s.x}" y2="${trackY}" stroke="${s.color}" stroke-opacity="0.55" stroke-width="3" stroke-dasharray="3 7"/>
+    <circle cx="${s.x}" cy="${trackY}" r="9" fill="${s.color}"/>
+    <text x="${s.x}" y="${envY + envH + 46}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#e5e7eb">${s.day}</text>
+  `).join('')
+
+  const arrows = [0, 1, 2].map((i) => {
+    const x0 = steps[i].x + 9
+    const x1 = steps[i + 1].x - 9
+    const mid = (x0 + x1) / 2
+    return `
+      <line x1="${x0}" y1="${trackY}" x2="${x1}" y2="${trackY}" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+      <path d="M${mid - 8} ${trackY - 7} L${mid + 8} ${trackY} L${mid - 8} ${trackY + 7} Z" fill="#ffffff" fill-opacity="0.32"/>
+    `
+  }).join('')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.24" cy="0.28" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.86" cy="0.3" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.3"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <line x1="150" y1="${trackY}" x2="1050" y2="${trackY}" stroke="#ffffff" stroke-opacity="0.1" stroke-width="2"/>
+    ${arrows}
+    ${envelopes}
+
+    <!-- recovered badge, branching off the Day 14 envelope -->
+    <path d="M${steps[3].x + 30} ${envY + 18} C 1080 150, 1110 150, 1112 150" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 11"/>
+    <g transform="translate(1112,150)">
+      <circle r="58" fill="#10b981" stroke="#0a0a16" stroke-width="7"/>
+      <path d="M-26 3 l16 18 l34 -40" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(150,110)">
+      <rect width="52" height="52" rx="15" fill="#6366f1"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'what-is-dunning', svg: dunningSequenceHeroSVG() },
   { slug: 'how-much-revenue-lost-to-failed-payments', svg: revenueAtRiskGaugeHeroSVG() },
   { slug: 'paddle-vs-stripe-subscriptions', svg: paddleVsStripeHeroSVG() },
   { slug: 'revova-vs-competitors-2026', svg: revovaVsHeroSVG() },

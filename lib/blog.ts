@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'what-is-dunning',
+    title: 'What Is Dunning? The Complete Guide to Payment-Failure Emails (2026)',
+    description:
+      'Dunning is the email (and SMS) sequence sent after a payment fails. Learn where the term comes from, how it differs from retries and win-back, and how to build one that recovers revenue.',
+    excerpt:
+      'What dunning actually means, where the word comes from, how it fits with retries and win-back, and what a good Day 1–21 sequence looks like — plus the mistakes that quietly kill recovery rates.',
+    date: '2026-07-14',
+    author: 'Sinh Yang',
+    category: 'Explainer',
+    readingMinutes: 16,
+    hero: '/blog/what-is-dunning-hero',
+    heroAlt: 'A Day 1, Day 3, Day 7, and Day 14 email timeline illustrating a dunning sequence, ending in a recovered-payment checkmark',
+  },
+  {
     slug: 'how-much-revenue-lost-to-failed-payments',
     title: 'How Much Revenue Are You Losing to Failed Payments? (2026 Benchmarks)',
     description:
