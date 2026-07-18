@@ -24,10 +24,12 @@ import HistoricalPaymentRecoveryGuide, { faqs as historicalRecoveryFaqs } from '
 import ChurnBusterAlternatives, { faqs as churnBusterFaqs } from '@/components/blog/articles/churn-buster-alternatives'
 import ReduceAnnualPlanRenewalFailures, { faqs as annualRenewalFaqs } from '@/components/blog/articles/reduce-annual-plan-renewal-failures'
 import SoftDeclineVsHardDecline, { faqs as softHardDeclineFaqs } from '@/components/blog/articles/soft-decline-vs-hard-decline'
+import DunningEmailDeliverabilityGuide, { faqs as deliverabilityFaqs } from '@/components/blog/articles/dunning-email-deliverability-guide'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'dunning-email-deliverability-guide': DunningEmailDeliverabilityGuide,
   'soft-decline-vs-hard-decline': SoftDeclineVsHardDecline,
   'reduce-annual-plan-renewal-failures': ReduceAnnualPlanRenewalFailures,
   'churn-buster-alternatives': ChurnBusterAlternatives,
@@ -51,6 +53,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'dunning-email-deliverability-guide': deliverabilityFaqs,
   'soft-decline-vs-hard-decline': softHardDeclineFaqs,
   'reduce-annual-plan-renewal-failures': annualRenewalFaqs,
   'churn-buster-alternatives': churnBusterFaqs,

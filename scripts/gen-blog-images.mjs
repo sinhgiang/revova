@@ -1104,7 +1104,61 @@ function declineForkHeroSVG() {
   </svg>`
 }
 
+// Hero for the deliverability guide: three authenticated DNS "chip" cards
+// (SPF / DKIM / DMARC), each with a green checkmark, leading via a solid
+// emerald dashed path to a large "Inbox" badge, with a faded grey dashed
+// path branching off to a small, avoided "Spam" badge.
+function deliverabilityAuthHeroSVG() {
+  const chips = [
+    { y: 150, label: 'SPF' },
+    { y: 260, label: 'DKIM' },
+    { y: 370, label: 'DMARC' },
+  ]
+  const chipSvg = chips.map((c) => `
+    <g transform="translate(150,${c.y})">
+      <rect width="270" height="80" rx="16" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+      <circle cx="42" cy="40" r="20" fill="#10b981"/>
+      <path d="M33 40 l6 7 l14 -16" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="86" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#e5e7eb">${c.label}</text>
+    </g>`).join('')
+  const links = chips.map((c) => `<path d="M420 ${c.y + 40} C 560 ${c.y + 40}, 640 300, 760 300" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 12" opacity="0.85"/>`).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.24" cy="0.4" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.82" cy="0.45" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.3"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    ${chipSvg}
+    ${links}
+
+    <!-- faded blocked path to spam, avoided -->
+    <path d="M420 190 C 700 150, 880 170, 990 220" fill="none" stroke="#6b6b8a" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 10" opacity="0.4"/>
+    <g transform="translate(958,196)" opacity="0.55">
+      <circle r="34" fill="none" stroke="#fb7185" stroke-width="4"/>
+      <path d="M-14 -14 L14 14 M14 -14 L-14 14" stroke="#fb7185" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+    <text x="958" y="256" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af" opacity="0.7">spam (avoided)</text>
+
+    <!-- inbox badge -->
+    <g transform="translate(820,300)">
+      <circle r="96" fill="#10b981"/>
+      <path d="M-40 6 l26 28 l52 -60" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="820" y="432" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#e5e7eb">Inbox</text>
+
+    <g transform="translate(150,80)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'dunning-email-deliverability-guide', svg: deliverabilityAuthHeroSVG() },
   { slug: 'soft-decline-vs-hard-decline', svg: declineForkHeroSVG() },
   { slug: 'reduce-annual-plan-renewal-failures', svg: annualCardDecayHeroSVG() },
   { slug: 'churn-buster-alternatives', svg: churnBusterAlternativesHeroSVG() },

@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'dunning-email-deliverability-guide',
+    title: 'Why Your Dunning Emails Go to Spam: SPF, DKIM & DMARC Explained (2026)',
+    description:
+      'A perfectly written dunning email still fails if it never reaches the inbox. Here is how SPF, DKIM, and DMARC decide deliverability, why sender reputation matters just as much, and how to fix both.',
+    excerpt:
+      'Great copy and perfect timing do not matter if a mailbox provider never delivers the message. Here is what SPF, DKIM, and DMARC actually check, and how to stop a technical DNS problem from quietly capping your recovery rate.',
+    date: '2026-07-22',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 16,
+    hero: '/blog/dunning-email-deliverability-guide-hero',
+    heroAlt: 'A dunning email passing through three authenticated DNS checkpoints labeled SPF, DKIM, and DMARC on its way to a large green inbox checkmark, with a faded blocked path to a spam folder',
+  },
+  {
     slug: 'soft-decline-vs-hard-decline',
     title: "Soft Decline vs Hard Decline: What's the Difference & How to Handle Each",
     description:
