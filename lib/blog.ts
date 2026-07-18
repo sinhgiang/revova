@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'stripe-webhook-reliability-lost-revenue',
+    title: "Why You're Losing Revenue Even When Your Payment Recovery 'Works': Missed and Broken Stripe Webhooks (2026)",
+    description:
+      'Every retry and dunning email assumes your system already knows a charge failed. Here is how missed, late, duplicate, out-of-order, and unverified Stripe webhooks silently break that assumption — and what a recovery tool can and cannot do about it.',
+    excerpt:
+      'A perfectly tuned dunning sequence does nothing if the webhook telling your system a charge failed never arrives. Here is how Stripe webhook delivery actually works, the five ways it silently breaks, and how to build a handler that does not miss, duplicate, or drop events.',
+    date: '2026-07-23',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 18,
+    hero: '/blog/stripe-webhook-reliability-lost-revenue-hero',
+    heroAlt: 'A failed-charge event traveling from Stripe through a signature-verification checkpoint and an idempotency check before splitting into a successful delivered path and a retried, backed-off path back toward the endpoint',
+  },
+  {
     slug: 'dunning-email-deliverability-guide',
     title: 'Why Your Dunning Emails Go to Spam: SPF, DKIM & DMARC Explained (2026)',
     description:

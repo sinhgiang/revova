@@ -1157,7 +1157,86 @@ function deliverabilityAuthHeroSVG() {
   </svg>`
 }
 
+// Hero for the webhook reliability guide: a "Stripe event" node passes through
+// a signature-verification gate and an idempotency-check gate, then splits —
+// a solid emerald path to a "delivered" checkmark badge, and a dashed amber
+// looping path representing exponential-backoff retries curling back toward
+// the gates before eventually terminating at a small red "exhausted" marker.
+function webhookRetryPathHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.16" cy="0.5" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.86" cy="0.32" r="0.5"><stop offset="0" stop-color="#10b981" stop-opacity="0.3"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+      <marker id="wArr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#475569"/>
+      </marker>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <!-- source: Stripe event -->
+      <g transform="translate(60,250)">
+        <rect width="180" height="76" rx="16" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+        <circle cx="34" cy="38" r="16" fill="#635bff"/>
+        <text x="34" y="43" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">S</text>
+        <text x="64" y="34" font-size="13.5" font-weight="700" fill="#e5e7eb">invoice.payment</text>
+        <text x="64" y="52" font-size="13.5" font-weight="700" fill="#e5e7eb">_failed</text>
+      </g>
+      <path d="M240 288 L292 288" stroke="#475569" stroke-width="2.5" marker-end="url(#wArr)"/>
+
+      <!-- gate 1: signature check -->
+      <g transform="translate(296,240)">
+        <rect width="150" height="96" rx="16" fill="#161628" stroke="#a5b4fc" stroke-width="1.5"/>
+        <text x="75" y="38" font-size="12.5" font-weight="700" fill="#c7d2fe" text-anchor="middle">Stripe-Signature</text>
+        <text x="75" y="56" font-size="12.5" font-weight="700" fill="#c7d2fe" text-anchor="middle">verified</text>
+        <circle cx="75" cy="78" r="14" fill="#10b981"/>
+        <path d="M68 78 l5 6 l12 -14" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <path d="M446 288 L498 288" stroke="#475569" stroke-width="2.5" marker-end="url(#wArr)"/>
+
+      <!-- gate 2: idempotency check -->
+      <g transform="translate(502,240)">
+        <rect width="160" height="96" rx="16" fill="#161628" stroke="#a5b4fc" stroke-width="1.5"/>
+        <text x="80" y="38" font-size="12.5" font-weight="700" fill="#c7d2fe" text-anchor="middle">event ID seen</text>
+        <text x="80" y="56" font-size="12.5" font-weight="700" fill="#c7d2fe" text-anchor="middle">before? no</text>
+        <circle cx="80" cy="78" r="14" fill="#10b981"/>
+        <path d="M73 78 l5 6 l12 -14" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+
+      <!-- delivered path -->
+      <path d="M582 240 C 640 160, 720 120, 800 108" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
+      <g transform="translate(870,100)">
+        <circle r="72" fill="#10b981"/>
+        <path d="M-30 4 l20 22 l40 -46" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="870" y="202" text-anchor="middle" font-size="19" font-weight="700" fill="#e5e7eb">Processed once</text>
+
+      <!-- retry loop: dashed amber path curling from gate 1 back around and down -->
+      <path d="M370 240 C 340 150, 460 90, 600 96 C 760 102, 840 220, 760 340 C 700 420, 560 430, 470 372"
+        fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="3 11" stroke-linecap="round" opacity="0.85"/>
+      <text x="600" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#fcd34d" opacity="0.9">retries — exponential backoff</text>
+
+      <!-- exhausted marker -->
+      <g transform="translate(440,392)">
+        <circle r="26" fill="none" stroke="#fb7185" stroke-width="4"/>
+        <path d="M-10 -10 L10 10 M10 -10 L-10 10" stroke="#fb7185" stroke-width="4.5" stroke-linecap="round"/>
+      </g>
+      <text x="440" y="440" text-anchor="middle" font-size="14" fill="#fda4af">retries exhausted</text>
+
+      <g transform="translate(60,80)">
+        <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+        <text x="26" y="38" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+      </g>
+      <text x="60" y="480" font-size="24" font-weight="800" fill="#f1f5f9">A missed event never enters the pipeline at all.</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'stripe-webhook-reliability-lost-revenue', svg: webhookRetryPathHeroSVG() },
   { slug: 'dunning-email-deliverability-guide', svg: deliverabilityAuthHeroSVG() },
   { slug: 'soft-decline-vs-hard-decline', svg: declineForkHeroSVG() },
   { slug: 'reduce-annual-plan-renewal-failures', svg: annualCardDecayHeroSVG() },

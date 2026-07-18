@@ -25,10 +25,12 @@ import ChurnBusterAlternatives, { faqs as churnBusterFaqs } from '@/components/b
 import ReduceAnnualPlanRenewalFailures, { faqs as annualRenewalFaqs } from '@/components/blog/articles/reduce-annual-plan-renewal-failures'
 import SoftDeclineVsHardDecline, { faqs as softHardDeclineFaqs } from '@/components/blog/articles/soft-decline-vs-hard-decline'
 import DunningEmailDeliverabilityGuide, { faqs as deliverabilityFaqs } from '@/components/blog/articles/dunning-email-deliverability-guide'
+import StripeWebhookReliabilityLostRevenue, { faqs as webhookReliabilityFaqs } from '@/components/blog/articles/stripe-webhook-reliability-lost-revenue'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'stripe-webhook-reliability-lost-revenue': StripeWebhookReliabilityLostRevenue,
   'dunning-email-deliverability-guide': DunningEmailDeliverabilityGuide,
   'soft-decline-vs-hard-decline': SoftDeclineVsHardDecline,
   'reduce-annual-plan-renewal-failures': ReduceAnnualPlanRenewalFailures,
@@ -53,6 +55,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'stripe-webhook-reliability-lost-revenue': webhookReliabilityFaqs,
   'dunning-email-deliverability-guide': deliverabilityFaqs,
   'soft-decline-vs-hard-decline': softHardDeclineFaqs,
   'reduce-annual-plan-renewal-failures': annualRenewalFaqs,
