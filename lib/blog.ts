@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'chargebee-dunning',
+    title: 'Chargebee Dunning Management: How It Works & How to Improve Recovery (2026)',
+    description:
+      "Chargebee's built-in dunning schedule really does recover failed payments — but a fixed schedule, generic emails, and a hard stop once retries run out leave real revenue on the table. Here is how it works and how to close the gaps.",
+    excerpt:
+      "Chargebee's dunning management automatically retries failed invoices on a schedule you configure. Here is exactly how that schedule works, the three gaps it doesn't cover by default, and how to configure it — and what to add on top — for better recovery.",
+    date: '2026-07-28',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 17,
+    hero: '/blog/chargebee-dunning-hero',
+    heroAlt: 'A failed Chargebee invoice entering a configured dunning schedule of retries and reminder emails, forking into a recovered green path and an exhausted rose path where the subscription pauses or cancels',
+  },
+  {
     slug: 'stripe-webhook-reliability-lost-revenue',
     title: "Why You're Losing Revenue Even When Your Payment Recovery 'Works': Missed and Broken Stripe Webhooks (2026)",
     description:

@@ -1235,7 +1235,208 @@ function webhookRetryPathHeroSVG() {
   </svg>`
 }
 
+// ---------------------------------------------------------------------------
+// Chargebee Dunning article — hero + 3 in-body images.
+// ---------------------------------------------------------------------------
+
+// Hero: an invoice card cycling through a configurable retry schedule (indigo
+// dots on a dashed track) with a Chargebee-orange accent chip, ending in a
+// branch between a recovered check and a "still failed" marker.
+function chargebeeDunningHeroSVG() {
+  const days = ['D1', 'D3', 'D5', 'D7']
+  const stepX = [260, 460, 660, 860]
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.24" cy="0.3" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#f97316" stop-opacity="0.22"/><stop offset="1" stop-color="#f97316" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(120,210)">
+      <rect width="270" height="170" rx="22" fill="url(#card)"/>
+      <text x="34" y="52" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700" fill="#e0e7ff" letter-spacing="2">INVOICE</text>
+      <text x="34" y="108" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="800" fill="#ffffff">payment_due</text>
+      <g transform="translate(216,-22)"><rect width="108" height="36" rx="18" fill="#f97316"/><text x="54" y="24" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#fff">chargebee</text></g>
+    </g>
+
+    <line x1="420" y1="300" x2="900" y2="300" stroke="#ffffff" stroke-opacity="0.14" stroke-width="3" stroke-dasharray="2 10"/>
+    ${stepX.map((x, i) => `
+    <g transform="translate(${x},300)">
+      <circle r="15" fill="#161628" stroke="#818cf8" stroke-width="3"/>
+      <circle r="6" fill="#818cf8"/>
+      <text y="-28" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#c7d2fe">${days[i]}</text>
+    </g>`).join('')}
+
+    <path d="M900 300 C 950 260, 980 220, 1000 190" stroke="#34d399" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <g transform="translate(1030,168)">
+      <circle r="58" fill="#10b981"/>
+      <path d="M-24 3 l16 18 l32 -37" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <path d="M900 300 C 950 340, 980 380, 1000 410" stroke="#fb7185" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 9" fill="none"/>
+    <g transform="translate(1030,432)">
+      <circle r="42" fill="none" stroke="#fb7185" stroke-width="5"/>
+      <path d="M-15 -15 L15 15 M15 -15 L-15 15" stroke="#fb7185" stroke-width="6" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(120,118)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: the default configurable retry schedule as a calendar strip —
+// most days idle, a handful of scheduled attempts, ending where the schedule
+// stops (not a permanent-recovery guarantee, just where the built-in loop ends).
+function chargebeeRetryScheduleImgSVG() {
+  const totalDays = 10
+  const attempts = new Set([0, 2, 4, 6])
+  const cellW = 88, gap = 8, startX = 130, y = 250, cellH = 130
+  const cells = Array.from({ length: totalDays }, (_, i) => {
+    const x = startX + i * (cellW + gap)
+    const isAttempt = attempts.has(i)
+    const isLast = i === 6
+    return `
+      <g>
+        <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="14" fill="${isAttempt ? (isLast ? '#1f2d24' : '#1a1a35') : '#141428'}" stroke="${isAttempt ? (isLast ? '#34d399' : '#818cf8') : '#242440'}" stroke-width="${isAttempt ? 2 : 1}"/>
+        <text x="${x + cellW / 2}" y="${y + 30}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="${isAttempt ? '#e5e7eb' : '#4b4b6b'}">Day ${i + 1}</text>
+        ${isAttempt ? `<circle cx="${x + cellW / 2}" cy="${y + 78}" r="17" fill="${isLast ? '#10b981' : '#4f46e5'}"/>` : ''}
+        ${isAttempt ? `<text x="${x + cellW / 2}" y="${y + 84}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800" fill="#fff">${isLast ? '✓' : '↻'}</text>` : ''}
+        ${isAttempt ? `<text x="${x + cellW / 2}" y="${y + 112}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="${isLast ? '#6ee7b7' : '#a5b4fc'}">${isLast ? 'final try' : 'retry'}</text>` : ''}
+      </g>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.2" cy="0.25" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.35"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="130" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#e5e7eb">A configurable retry schedule</text>
+    <text x="130" y="182" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">Attempts stop after the last configured day — nothing retries past it automatically</text>
+    ${cells}
+    <g transform="translate(${startX + 7 * (cellW + gap) + 30},${y + 10})">
+      <path d="M0 55 C 40 20, 70 20, 105 30" fill="none" stroke="#fb7185" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+      <text x="0" y="105" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fda4af">schedule ends —</text>
+      <text x="0" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fda4af">subscription marked unpaid</text>
+    </g>
+  </svg>`
+}
+
+// Body image 2: generic single-template reminder vs a decline-reason branched
+// set of three — the concrete "what to change" visual for the config section.
+function chargebeeTemplateGapImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.32"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.6" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.22"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <text x="150" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#8b8ba7">ONE GENERIC TEMPLATE</text>
+    <g transform="translate(150,120)">
+      <rect width="330" height="360" rx="20" fill="#141428" stroke="#242440" stroke-width="1.5"/>
+      <rect x="26" y="30" width="278" height="46" rx="10" fill="#1e1e3a"/>
+      <text x="40" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#9ca3af">"Your payment failed"</text>
+      <rect x="26" y="100" width="278" height="14" rx="7" fill="#232345"/>
+      <rect x="26" y="126" width="220" height="14" rx="7" fill="#232345"/>
+      <rect x="26" y="152" width="250" height="14" rx="7" fill="#232345"/>
+      <rect x="26" y="200" width="130" height="34" rx="17" fill="#33334d"/>
+      <text x="91" y="222" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#9ca3af">Update card</text>
+      <text x="40" y="290" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">Sent identically for every decline —</text>
+      <text x="40" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">expired card, insufficient funds, and</text>
+      <text x="40" y="334" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">bank-declined all read the same.</text>
+    </g>
+
+    <path d="M500 300 L568 300" stroke="#818cf8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M556 286 l20 14 l-20 14 z" fill="#818cf8"/>
+
+    <text x="600" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#a5b4fc">BRANCHED BY DECLINE REASON</text>
+    <g transform="translate(600,116)">
+      <rect width="300" height="105" rx="16" fill="#161c2e" stroke="#10b981" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="9" fill="#34d399"/>
+      <text x="52" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#e5e7eb">Insufficient funds</text>
+      <text x="30" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">"We'll try again in a few days —</text>
+      <text x="30" y="85" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">no action needed yet."</text>
+    </g>
+    <g transform="translate(600,236)">
+      <rect width="300" height="105" rx="16" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="9" fill="#fb7185"/>
+      <text x="52" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#e5e7eb">Expired card</text>
+      <text x="30" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">"Update your card now — retrying</text>
+      <text x="30" y="85" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">the same number won't help."</text>
+    </g>
+    <g transform="translate(600,356)">
+      <rect width="300" height="105" rx="16" fill="#241c14" stroke="#f59e0b" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="9" fill="#fbbf24"/>
+      <text x="52" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#e5e7eb">Bank declined (do_not_honor)</text>
+      <text x="30" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">"Call your bank to approve this</text>
+      <text x="30" y="85" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">charge, then we'll retry."</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3: the blind spot — invoices that already exhausted the built-in
+// schedule sit in a "payment overdue" pile that a live sequence never
+// revisits, versus a historical scan reading straight from processor history.
+function chargebeeBlindSpotImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.35"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.65" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.22"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(120,210)">
+      <rect width="260" height="170" rx="20" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#8b8ba7" letter-spacing="1.5">DUNNING SCHEDULE</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#e5e7eb">4 attempts</text>
+      <text x="30" y="118" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">runs, then stops</text>
+      <text x="30" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">on schedule end</text>
+    </g>
+
+    <path d="M400 295 L470 295" stroke="#fb7185" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 8"/>
+    <path d="M458 281 l20 14 l-20 14 z" fill="#fb7185"/>
+
+    <g transform="translate(490,210)">
+      <rect width="300" height="170" rx="20" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#fda4af" letter-spacing="1.5">PAST-DUE PILE</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#e5e7eb">Invoice stays</text>
+      <text x="30" y="116" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#e5e7eb">"payment_due"</text>
+      <text x="30" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">never revisited automatically</text>
+    </g>
+
+    <path d="M840 340 C 900 400, 960 420, 1010 400" stroke="#34d399" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="2 9" fill="none"/>
+    <path d="M998 412 l18 -20 l6 27 z" fill="#34d399"/>
+
+    <g transform="translate(870,230)">
+      <rect width="230" height="150" rx="20" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="26" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">HISTORICAL SCAN</text>
+      <text x="26" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">Reads invoice</text>
+      <text x="26" y="102" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">history directly</text>
+      <text x="26" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">independent of the</text>
+      <text x="26" y="146" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">original schedule</text>
+    </g>
+
+    <g transform="translate(120,120)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'chargebee-dunning', svg: chargebeeDunningHeroSVG() },
   { slug: 'stripe-webhook-reliability-lost-revenue', svg: webhookRetryPathHeroSVG() },
   { slug: 'dunning-email-deliverability-guide', svg: deliverabilityAuthHeroSVG() },
   { slug: 'soft-decline-vs-hard-decline', svg: declineForkHeroSVG() },
@@ -1259,6 +1460,16 @@ const targets = [
   { slug: 'how-to-reduce-saas-churn', svg: reduceChurnHeroSVG() },
 ]
 
+// In-body images (beyond the 1 hero per article) — same SVG-authored, sharp-
+// rasterized pipeline, just written under an explicit filename (no "-hero"
+// suffix) so components/blog/articles/*.tsx can reference them directly via
+// the InBodyImage prose component.
+const bodyImageTargets = [
+  { file: 'chargebee-dunning-img-1', svg: chargebeeRetryScheduleImgSVG() },
+  { file: 'chargebee-dunning-img-2', svg: chargebeeTemplateGapImgSVG() },
+  { file: 'chargebee-dunning-img-3', svg: chargebeeBlindSpotImgSVG() },
+]
+
 await mkdir(OUT, { recursive: true })
 for (const t of targets) {
   const input = Buffer.from(t.svg)
@@ -1267,4 +1478,13 @@ for (const t of targets) {
   await writeFile(join(OUT, `${t.slug}-hero.avif`), avif)
   await writeFile(join(OUT, `${t.slug}-hero.webp`), webp)
   console.log(`${t.slug}: AVIF ${(avif.length / 1024).toFixed(1)}KB · WebP ${(webp.length / 1024).toFixed(1)}KB`)
+}
+
+for (const t of bodyImageTargets) {
+  const input = Buffer.from(t.svg)
+  const avif = await sharp(input).avif({ quality: 55 }).toBuffer()
+  const webp = await sharp(input).webp({ quality: 70 }).toBuffer()
+  await writeFile(join(OUT, `${t.file}.avif`), avif)
+  await writeFile(join(OUT, `${t.file}.webp`), webp)
+  console.log(`${t.file}: AVIF ${(avif.length / 1024).toFixed(1)}KB · WebP ${(webp.length / 1024).toFixed(1)}KB`)
 }
