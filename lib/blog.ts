@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'braintree-dunning',
+    title: 'Braintree Dunning: Why It Fires a Webhook But Never Sends an Email (2026)',
+    description:
+      "Braintree's Recurring Billing retries failed subscription charges and fires a webhook on failure — but unlike Chargebee, Stripe, or Recurly, it never sends the customer a reminder email by default. Here is the gap and how to close it.",
+    excerpt:
+      "Braintree retries failed subscription charges and fires a webhook when they fail. What it doesn't do is turn that webhook into a customer email. Here is exactly what Braintree's Recurring Billing does and doesn't cover, and how to build or add the missing piece.",
+    date: '2026-07-28',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 16,
+    hero: '/blog/braintree-dunning-hero',
+    heroAlt: 'A Braintree subscription charge failing, retrying on a configured schedule, and firing a webhook that leads to a crossed-out envelope showing no customer email sent by default',
+  },
+  {
     slug: 'chargebee-dunning',
     title: 'Chargebee Dunning Management: How It Works & How to Improve Recovery (2026)',
     description:

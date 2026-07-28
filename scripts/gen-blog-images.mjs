@@ -1435,7 +1435,185 @@ function chargebeeBlindSpotImgSVG() {
   </svg>`
 }
 
+// Hero for the Braintree article: a subscription charge fails, Braintree fires
+// a webhook (the real, built-in signal), but — unlike Chargebee/Stripe/Recurly —
+// no customer-facing dunning email goes out automatically from that webhook.
+function braintreeDunningHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.65"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.38"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.68" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.2"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(115,205)">
+      <rect width="260" height="170" rx="22" fill="url(#card)"/>
+      <text x="32" y="50" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e0e7ff" letter-spacing="2">SUBSCRIPTION</text>
+      <text x="32" y="104" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">charge failed</text>
+      <g transform="translate(206,-20)"><rect width="98" height="34" rx="17" fill="#0f2540"/><text x="49" y="23" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="800" fill="#93c5fd">braintree</text></g>
+    </g>
+
+    <path d="M375 290 L470 290" stroke="#818cf8" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M458 276 l20 14 l-20 14 z" fill="#818cf8"/>
+
+    <g transform="translate(490,225)">
+      <rect width="230" height="130" rx="18" fill="#141428" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="26" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#a5b4fc" letter-spacing="1.5">WEBHOOK FIRES</text>
+      <text x="26" y="76" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="#e5e7eb">subscription_</text>
+      <text x="26" y="98" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="#e5e7eb">charged_</text>
+      <text x="26" y="120" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="#e5e7eb">unsuccessfully</text>
+    </g>
+
+    <path d="M720 290 L800 290" stroke="#fb7185" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="2 9"/>
+    <path d="M788 276 l20 14 l-20 14 z" fill="#fb7185"/>
+
+    <g transform="translate(820,222)">
+      <rect width="240" height="136" rx="18" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="26" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fda4af" letter-spacing="1.5">NO EMAIL SENT</text>
+      <path d="M26 62 h150 v58 h-150 z M26 62 l75 40 l75 -40" fill="none" stroke="#6b6b85" stroke-width="3"/>
+      <path d="M40 60 L190 130 M190 60 L40 130" stroke="#fb7185" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(120,118)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: Braintree's Recurring Billing retry settings — a configurable
+// count and interval, similar shape to Chargebee's calendar but framed around
+// the control-panel setting rather than a full dunning-email sequence.
+function braintreeRetrySettingsImgSVG() {
+  const totalDays = 9
+  const attempts = new Set([0, 3, 6])
+  const cellW = 96, gap = 10, startX = 140, y = 250, cellH = 130
+  const cells = Array.from({ length: totalDays }, (_, i) => {
+    const x = startX + i * (cellW + gap)
+    const isAttempt = attempts.has(i)
+    const isLast = i === 6
+    return `
+      <g>
+        <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="14" fill="${isAttempt ? (isLast ? '#1f2d24' : '#1a1a35') : '#141428'}" stroke="${isAttempt ? (isLast ? '#34d399' : '#818cf8') : '#242440'}" stroke-width="${isAttempt ? 2 : 1}"/>
+        <text x="${x + cellW / 2}" y="${y + 30}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="${isAttempt ? '#e5e7eb' : '#4b4b6b'}">Day ${i + 1}</text>
+        ${isAttempt ? `<circle cx="${x + cellW / 2}" cy="${y + 78}" r="17" fill="${isLast ? '#10b981' : '#4f46e5'}"/>` : ''}
+        ${isAttempt ? `<text x="${x + cellW / 2}" y="${y + 84}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800" fill="#fff">${isLast ? '✓' : '↻'}</text>` : ''}
+        ${isAttempt ? `<text x="${x + cellW / 2}" y="${y + 112}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="${isLast ? '#6ee7b7' : '#a5b4fc'}">${isLast ? 'final try' : 'retry'}</text>` : ''}
+      </g>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.2" cy="0.25" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.35"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="140" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#e5e7eb">Recurring Billing retry settings</text>
+    <text x="140" y="182" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">You configure the count and gap in the Control Panel — Braintree runs the charge, not the email</text>
+    ${cells}
+  </svg>`
+}
+
+// Body image 2: the silent-gap comparison — Chargebee/Stripe/Recurly send a
+// customer email automatically when dunning fires; Braintree fires a webhook
+// only, leaving the customer-facing email step entirely to the merchant.
+function braintreeSilentGapImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.3"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.6" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.2"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <text x="150" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#a5b4fc">CHARGEBEE / STRIPE / RECURLY</text>
+    <g transform="translate(150,116)">
+      <rect width="330" height="330" rx="20" fill="#141428" stroke="#818cf8" stroke-width="1.5"/>
+      <circle cx="165" cy="90" r="42" fill="#1e1e3a"/>
+      <path d="M133 82 h64 v42 l-32 22 l-32 -22 z" fill="none" stroke="#a5b4fc" stroke-width="3.5"/>
+      <text x="165" y="166" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">Failed charge →</text>
+      <text x="165" y="190" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">email sent automatically</text>
+      <text x="165" y="250" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">Dunning schedule + reminder</text>
+      <text x="165" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">emails ship out of the box</text>
+    </g>
+
+    <path d="M500 280 L568 280" stroke="#818cf8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M556 266 l20 14 l-20 14 z" fill="#818cf8"/>
+
+    <text x="600" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#fda4af">BRAINTREE</text>
+    <g transform="translate(600,116)">
+      <rect width="300" height="330" rx="20" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <circle cx="150" cy="90" r="42" fill="#241820"/>
+      <path d="M118 82 h64 v42 l-32 22 l-32 -22 z" fill="none" stroke="#fda4af" stroke-width="3.5"/>
+      <path d="M120 66 L180 116 M180 66 L120 116" stroke="#fb7185" stroke-width="4" stroke-linecap="round"/>
+      <text x="150" y="166" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">Failed charge →</text>
+      <text x="150" y="190" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">webhook only</text>
+      <text x="150" y="250" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">Retries the charge, but no</text>
+      <text x="150" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">customer email ships by default</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3: what a recovery layer adds on top of Braintree's webhooks —
+// listening to the same events and generating the customer email Braintree
+// itself does not send, plus a historical scan across past-due subscriptions.
+function braintreeRecoveryLayerImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.32"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.65" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.22"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(110,230)">
+      <rect width="230" height="150" rx="20" fill="#141428" stroke="#242440" stroke-width="1.5"/>
+      <text x="28" y="44" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#8b8ba7" letter-spacing="1.5">BRAINTREE WEBHOOK</text>
+      <text x="28" y="86" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="#e5e7eb">subscription_went_</text>
+      <text x="28" y="108" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" fill="#e5e7eb">past_due</text>
+      <text x="28" y="136" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">the real, existing signal</text>
+    </g>
+
+    <path d="M340 305 L440 305" stroke="#818cf8" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M428 291 l20 14 l-20 14 z" fill="#818cf8"/>
+
+    <g transform="translate(460,215)">
+      <rect width="280" height="170" rx="22" fill="url(#card)"/>
+      <text x="30" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#e0e7ff" letter-spacing="1.5">RECOVERY LAYER</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#fff">Writes + sends the</text>
+      <text x="30" y="114" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#fff">customer email</text>
+      <text x="30" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#e0e7ff">Braintree itself never sends</text>
+    </g>
+
+    <path d="M770 300 L850 300" stroke="#34d399" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M838 286 l20 14 l-20 14 z" fill="#34d399"/>
+
+    <g transform="translate(870,230)">
+      <rect width="220" height="150" rx="20" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="26" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">CUSTOMER SEES</text>
+      <text x="26" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">An actual</text>
+      <text x="26" y="102" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">reminder email</text>
+      <text x="26" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">with the right next step</text>
+    </g>
+
+    <g transform="translate(110,120)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'braintree-dunning', svg: braintreeDunningHeroSVG() },
   { slug: 'chargebee-dunning', svg: chargebeeDunningHeroSVG() },
   { slug: 'stripe-webhook-reliability-lost-revenue', svg: webhookRetryPathHeroSVG() },
   { slug: 'dunning-email-deliverability-guide', svg: deliverabilityAuthHeroSVG() },
@@ -1468,6 +1646,9 @@ const bodyImageTargets = [
   { file: 'chargebee-dunning-img-1', svg: chargebeeRetryScheduleImgSVG() },
   { file: 'chargebee-dunning-img-2', svg: chargebeeTemplateGapImgSVG() },
   { file: 'chargebee-dunning-img-3', svg: chargebeeBlindSpotImgSVG() },
+  { file: 'braintree-dunning-img-1', svg: braintreeRetrySettingsImgSVG() },
+  { file: 'braintree-dunning-img-2', svg: braintreeSilentGapImgSVG() },
+  { file: 'braintree-dunning-img-3', svg: braintreeRecoveryLayerImgSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })
