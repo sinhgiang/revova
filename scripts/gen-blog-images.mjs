@@ -1612,7 +1612,204 @@ function braintreeRecoveryLayerImgSVG() {
   </svg>`
 }
 
+// Hero for the Zuora article: an invoice failing, entering Zuora's configurable
+// Payment Retry Rules / Workflow orchestration, forking into recovered vs.
+// exhausted — same shape as Chargebee's hero, with Zuora's own visual identity.
+function zuoraDunningHeroSVG() {
+  const days = ['R1', 'R2', 'R3', 'R4']
+  const stepX = [260, 460, 660, 860]
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.24" cy="0.3" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#0ea5e9" stop-opacity="0.2"/><stop offset="1" stop-color="#0ea5e9" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(120,210)">
+      <rect width="270" height="170" rx="22" fill="url(#card)"/>
+      <text x="34" y="52" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700" fill="#e0e7ff" letter-spacing="2">INVOICE</text>
+      <text x="34" y="108" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="800" fill="#ffffff">payment_due</text>
+      <g transform="translate(216,-22)"><rect width="90" height="36" rx="18" fill="#0369a1"/><text x="45" y="24" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#fff">zuora</text></g>
+    </g>
+
+    <line x1="420" y1="300" x2="900" y2="300" stroke="#ffffff" stroke-opacity="0.14" stroke-width="3" stroke-dasharray="2 10"/>
+    ${stepX.map((x, i) => `
+    <g transform="translate(${x},300)">
+      <rect x="-16" y="-16" width="32" height="32" rx="9" fill="#161628" stroke="#818cf8" stroke-width="3"/>
+      <circle r="6" fill="#818cf8"/>
+      <text y="-30" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#c7d2fe">${days[i]}</text>
+    </g>`).join('')}
+
+    <path d="M900 300 C 950 260, 980 220, 1000 190" stroke="#34d399" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <g transform="translate(1030,168)">
+      <circle r="58" fill="#10b981"/>
+      <path d="M-24 3 l16 18 l32 -37" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <path d="M900 300 C 950 340, 980 380, 1000 410" stroke="#fb7185" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 9" fill="none"/>
+    <g transform="translate(1030,432)">
+      <circle r="42" fill="none" stroke="#fb7185" stroke-width="5"/>
+      <path d="M-15 -15 L15 15 M15 -15 L-15 15" stroke="#fb7185" stroke-width="6" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(120,118)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: a workflow-canvas view of Zuora's Retry Rules + Workflow
+// orchestration — several connected nodes, contrasted with a simpler platform's
+// flat calendar, to visualize the extra configurability (and setup complexity).
+function zuoraWorkflowCanvasImgSVG() {
+  const nodes = [
+    { x: 140, y: 140, w: 190, h: 70, fill: '#1a1a35', stroke: '#818cf8', label: ['Payment fails', 'trigger'] },
+    { x: 400, y: 90, w: 190, h: 70, fill: '#141428', stroke: '#4b4b6b', label: ['Retry Rule', '(configurable)'] },
+    { x: 400, y: 210, w: 190, h: 70, fill: '#141428', stroke: '#4b4b6b', label: ['Wait N days', '(configurable)'] },
+    { x: 660, y: 140, w: 200, h: 70, fill: '#241c14', stroke: '#f59e0b', label: ['Notification', 'template step'] },
+    { x: 930, y: 90, w: 200, h: 70, fill: '#0f2e22', stroke: '#10b981', label: ['Recovered', '→ paid'] },
+    { x: 930, y: 210, w: 200, h: 70, fill: '#1e1620', stroke: '#fb7185', label: ['Escalate / ', 'suspend'] },
+  ]
+  const edges = [
+    [140 + 190, 175, 400, 125], [140 + 190, 175, 400, 245],
+    [400 + 190, 125, 660, 155], [400 + 190, 245, 660, 175],
+    [660 + 200, 155, 930, 125], [660 + 200, 175, 930, 245],
+  ]
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.2" cy="0.25" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.3"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="140" y="55" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">A workflow you assemble, not a toggle</text>
+    <g fill="none" stroke="#3a3a58" stroke-width="2">
+      ${edges.map(([x1, y1, x2, y2]) => `<path d="M${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}"/>`).join('')}
+    </g>
+    ${nodes.map((n) => `
+      <g font-family="Segoe UI, Arial, sans-serif">
+        <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="14" fill="${n.fill}" stroke="${n.stroke}" stroke-width="1.5"/>
+        <text x="${n.x + n.w / 2}" y="${n.y + n.h / 2 - 4}" text-anchor="middle" font-size="13.5" font-weight="700" fill="#e5e7eb">${n.label[0]}</text>
+        <text x="${n.x + n.w / 2}" y="${n.y + n.h / 2 + 16}" text-anchor="middle" font-size="12" fill="#9ca3af">${n.label[1]}</text>
+      </g>`).join('')}
+    <text x="140" y="480" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">Zuora Retry Rules and Workflow give this level of control — but someone has to design and maintain it.</text>
+  </svg>`
+}
+
+// Body image 2: generic notification template vs a decline-reason branched
+// set — same concrete "what to change" visual used for the config section.
+function zuoraTemplateGapImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.32"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.6" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.22"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <text x="150" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#8b8ba7">ONE NOTIFICATION TEMPLATE</text>
+    <g transform="translate(150,120)">
+      <rect width="330" height="360" rx="20" fill="#141428" stroke="#242440" stroke-width="1.5"/>
+      <rect x="26" y="30" width="278" height="46" rx="10" fill="#1e1e3a"/>
+      <text x="40" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#9ca3af">"Payment Failed Notice"</text>
+      <rect x="26" y="100" width="278" height="14" rx="7" fill="#232345"/>
+      <rect x="26" y="126" width="220" height="14" rx="7" fill="#232345"/>
+      <rect x="26" y="152" width="250" height="14" rx="7" fill="#232345"/>
+      <rect x="26" y="200" width="150" height="34" rx="17" fill="#33334d"/>
+      <text x="101" y="222" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#9ca3af">Update payment</text>
+      <text x="40" y="290" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">Sent from the same template for</text>
+      <text x="40" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">every decline reason, unless a</text>
+      <text x="40" y="334" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">custom workflow branches it.</text>
+    </g>
+
+    <path d="M500 300 L568 300" stroke="#818cf8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M556 286 l20 14 l-20 14 z" fill="#818cf8"/>
+
+    <text x="600" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#a5b4fc">BRANCHED BY DECLINE REASON</text>
+    <g transform="translate(600,116)">
+      <rect width="300" height="105" rx="16" fill="#161c2e" stroke="#10b981" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="9" fill="#34d399"/>
+      <text x="52" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#e5e7eb">Insufficient funds</text>
+      <text x="30" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">"We'll try again in a few days —</text>
+      <text x="30" y="85" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">no action needed yet."</text>
+    </g>
+    <g transform="translate(600,236)">
+      <rect width="300" height="105" rx="16" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="9" fill="#fb7185"/>
+      <text x="52" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#e5e7eb">Expired card</text>
+      <text x="30" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">"Update your card now — retrying</text>
+      <text x="30" y="85" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">the same number won't help."</text>
+    </g>
+    <g transform="translate(600,356)">
+      <rect width="300" height="105" rx="16" fill="#241c14" stroke="#f59e0b" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="9" fill="#fbbf24"/>
+      <text x="52" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#e5e7eb">Bank declined</text>
+      <text x="30" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">"Call your bank to approve this</text>
+      <text x="30" y="85" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#9ca3af">charge, then we'll retry."</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3: accounts that already exhausted Zuora's retry/dunning workflow
+// sitting in a past-due pile, vs a historical scan reading straight from the
+// billing/invoice data independent of the original workflow run.
+function zuoraBlindSpotImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.35"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.65" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.22"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(120,210)">
+      <rect width="260" height="170" rx="20" fill="#161628" stroke="#2a2a44" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#8b8ba7" letter-spacing="1.5">RETRY WORKFLOW</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#e5e7eb">N attempts</text>
+      <text x="30" y="118" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">runs, then stops</text>
+      <text x="30" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">on workflow end</text>
+    </g>
+
+    <path d="M400 295 L470 295" stroke="#fb7185" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 8"/>
+    <path d="M458 281 l20 14 l-20 14 z" fill="#fb7185"/>
+
+    <g transform="translate(490,210)">
+      <rect width="300" height="170" rx="20" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#fda4af" letter-spacing="1.5">PAST-DUE PILE</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#e5e7eb">Invoice stays</text>
+      <text x="30" y="116" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#e5e7eb">"past due"</text>
+      <text x="30" y="144" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">never revisited automatically</text>
+    </g>
+
+    <path d="M840 340 C 900 400, 960 420, 1010 400" stroke="#34d399" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="2 9" fill="none"/>
+    <path d="M998 412 l18 -20 l6 27 z" fill="#34d399"/>
+
+    <g transform="translate(870,230)">
+      <rect width="230" height="150" rx="20" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="26" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">HISTORICAL SCAN</text>
+      <text x="26" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">Reads billing</text>
+      <text x="26" y="102" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">data directly</text>
+      <text x="26" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">independent of the</text>
+      <text x="26" y="146" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">original workflow run</text>
+    </g>
+
+    <g transform="translate(120,120)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'zuora-dunning', svg: zuoraDunningHeroSVG() },
   { slug: 'braintree-dunning', svg: braintreeDunningHeroSVG() },
   { slug: 'chargebee-dunning', svg: chargebeeDunningHeroSVG() },
   { slug: 'stripe-webhook-reliability-lost-revenue', svg: webhookRetryPathHeroSVG() },
@@ -1649,6 +1846,9 @@ const bodyImageTargets = [
   { file: 'braintree-dunning-img-1', svg: braintreeRetrySettingsImgSVG() },
   { file: 'braintree-dunning-img-2', svg: braintreeSilentGapImgSVG() },
   { file: 'braintree-dunning-img-3', svg: braintreeRecoveryLayerImgSVG() },
+  { file: 'zuora-dunning-img-1', svg: zuoraWorkflowCanvasImgSVG() },
+  { file: 'zuora-dunning-img-2', svg: zuoraTemplateGapImgSVG() },
+  { file: 'zuora-dunning-img-3', svg: zuoraBlindSpotImgSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

@@ -28,10 +28,12 @@ import DunningEmailDeliverabilityGuide, { faqs as deliverabilityFaqs } from '@/c
 import StripeWebhookReliabilityLostRevenue, { faqs as webhookReliabilityFaqs } from '@/components/blog/articles/stripe-webhook-reliability-lost-revenue'
 import ChargebeeDunning, { faqs as chargebeeDunningFaqs } from '@/components/blog/articles/chargebee-dunning'
 import BraintreeDunning, { faqs as braintreeDunningFaqs } from '@/components/blog/articles/braintree-dunning'
+import ZuoraDunning, { faqs as zuoraDunningFaqs } from '@/components/blog/articles/zuora-dunning'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'zuora-dunning': ZuoraDunning,
   'braintree-dunning': BraintreeDunning,
   'chargebee-dunning': ChargebeeDunning,
   'stripe-webhook-reliability-lost-revenue': StripeWebhookReliabilityLostRevenue,
@@ -59,6 +61,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'zuora-dunning': zuoraDunningFaqs,
   'braintree-dunning': braintreeDunningFaqs,
   'chargebee-dunning': chargebeeDunningFaqs,
   'stripe-webhook-reliability-lost-revenue': webhookReliabilityFaqs,

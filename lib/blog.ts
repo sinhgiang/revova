@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'zuora-dunning',
+    title: 'Zuora Dunning & Payment Recovery: Payment Retry Rules and Workflow Explained (2026)',
+    description:
+      "Zuora dunning runs through Payment Retry Rules and Zuora Workflow — two configurable pieces you connect yourself, not a single settings page. Here is how they work together, the gaps that persist, and how to strengthen recovery.",
+    excerpt:
+      "Zuora handles payment retries through Payment Retry Rules and orchestrates the rest of dunning through Zuora Workflow. It's more configurable than a simple dunning toggle — which also means the actual process only exists to the extent someone built it.",
+    date: '2026-07-28',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 16,
+    hero: '/blog/zuora-dunning-hero',
+    heroAlt: 'A Zuora invoice payment failure entering a configurable Payment Retry Rules and Workflow sequence, branching into a recovered outcome or an exhausted, unaddressed past-due account',
+  },
+  {
     slug: 'braintree-dunning',
     title: 'Braintree Dunning: Why It Fires a Webhook But Never Sends an Email (2026)',
     description:
