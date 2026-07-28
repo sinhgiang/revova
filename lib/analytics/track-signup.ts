@@ -11,7 +11,9 @@ export type SignupMethod = 'email' | 'google' | 'github' | 'azure' | 'oauth'
 const DEDUPE_KEY = 'revova_signup_event_sent'
 // Google Ads "Sign Up" conversion action (AW-ID/label) — lets Smart Bidding
 // optimize campaigns toward real signups instead of raw clicks.
-const GOOGLE_ADS_SIGNUP_CONVERSION = 'AW-18151330371/rfXPCL_n4tccEMOknc9D'
+// Empty until the Sign Up conversion action is (re)created in the live
+// account (691-126-6841 / AW-17992399777) — the old account is dead.
+const GOOGLE_ADS_SIGNUP_CONVERSION = ''
 
 type W = typeof window & { dataLayer?: unknown[] }
 
@@ -28,5 +30,7 @@ export function trackSignUp(method: SignupMethod) {
   const w = window as W
   w.dataLayer = w.dataLayer || []
   w.dataLayer.push(['event', 'sign_up', { method }])
-  w.dataLayer.push(['event', 'conversion', { send_to: GOOGLE_ADS_SIGNUP_CONVERSION }])
+  if (GOOGLE_ADS_SIGNUP_CONVERSION) {
+    w.dataLayer.push(['event', 'conversion', { send_to: GOOGLE_ADS_SIGNUP_CONVERSION }])
+  }
 }
