@@ -11,7 +11,7 @@ export type SignupMethod = 'email' | 'google' | 'github' | 'azure' | 'oauth'
 const DEDUPE_KEY = 'revova_signup_event_sent'
 // Google Ads "Sign Up" conversion action (AW-ID/label) — lets Smart Bidding
 // optimize campaigns toward real signups instead of raw clicks.
-const GOOGLE_ADS_SIGNUP_CONVERSION = 'AW-11497793911/7OlpCJDD49ccEPfSyeoq'
+const GOOGLE_ADS_SIGNUP_CONVERSION = 'AW-18151330371/rfXPCL_n4tccEMOknc9D'
 
 type W = typeof window & { dataLayer?: unknown[] }
 

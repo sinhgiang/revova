@@ -20,7 +20,7 @@ const STORAGE_KEY = 'revova_cookie_consent'
 // Google Analytics 4 / Google Ads measurement ID (public). Env can override.
 const GTAG_ID = process.env.NEXT_PUBLIC_GTAG_ID ?? 'G-5ZHE1GWDEK'
 // Google Ads conversion tag ID — shares the same gtag.js load as GA4 above.
-const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? 'AW-11497793911'
+const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? 'AW-18151330371'
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID
 const HAS_TRACKING = Boolean(GTAG_ID || FB_PIXEL_ID)
 
