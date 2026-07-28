@@ -70,6 +70,7 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <p className="text-center text-xs font-medium text-indigo-600 mb-3">Fastest with Google — no password, no email to confirm</p>
           <SocialLogins verb="Sign up" />
 
           <div className="flex items-center gap-3 my-5">

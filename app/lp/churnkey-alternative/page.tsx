@@ -42,8 +42,8 @@ function TrustLine() {
 
 // Comparison rows: [feature, Revova, Churnkey]. true = yes, false = no, string = note.
 const ROWS: [string, boolean | string, boolean | string][] = [
-  ['Starting price', '$29/mo', '~$199/mo'],
-  ['Commission on recovered revenue', 'None', 'Varies'],
+  ['Starting price', '$29/mo', '~$250/mo, billed yearly'],
+  ['Commission on recovered revenue', 'None', 'Not published'],
   ['No-code setup (~3 min)', true, 'Partial'],
   ['Smart retries', true, true],
   ['AI-personalized recovery emails', true, true],
@@ -98,7 +98,8 @@ export default function ChurnkeyAlternativeLP() {
             <Cta />
             <TrustLine />
             <p className="max-w-md text-sm text-white/40">
-              Connecting is <span className="text-white/70">read-only</span> — Revova only reads failed payments. It never moves money or stores card numbers.
+              One click with <span className="text-white/70">Google</span> to start — no password. Then connect your processor
+              (<span className="text-white/70">read-only</span>, never moves money or stores card numbers) and see your number.
             </p>
           </div>
         </div>
@@ -108,7 +109,7 @@ export default function ChurnkeyAlternativeLP() {
       <section className="px-6 py-20">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">Revova vs Churnkey</h2>
-          <p className="mt-3 text-center text-gray-500">Approximate pricing as of 2026 — always confirm on each vendor&apos;s site.</p>
+          <p className="mt-3 text-center text-gray-500">Pricing checked against churnkey.co/pricing as of 2026 — always confirm current pricing on each vendor&apos;s site before deciding.</p>
           <div className="mt-10 overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
             <table className="w-full min-w-[520px] border-collapse text-sm">
               <thead>
@@ -152,13 +153,13 @@ export default function ChurnkeyAlternativeLP() {
       {/* ── WHY SWITCH ── */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-4xl">
-          <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">Why teams switch to Revova</h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">Why teams choose Revova</h2>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             {[
-              { icon: CreditCard, title: 'Up to ~85% cheaper', body: 'From $29/mo vs ~$199/mo — the same core recovery engine, without the enterprise price tag.' },
+              { icon: CreditCard, title: 'Up to ~88% cheaper', body: 'From $29/mo vs ~$250/mo billed yearly — the same core recovery engine, without the enterprise price tag.' },
               { icon: Shield, title: 'No commission, ever', body: 'A flat monthly fee. We never take a percentage of what we recover, so the entire upside stays yours.' },
               { icon: Search, title: 'Recovers your past failures', body: 'The Lost Revenue Finder scans up to 12 months back and wins back failures most tools never even look at.' },
-              { icon: Globe, title: 'No-code, live in 3 minutes', body: 'Paste one key and you’re running — Stripe, Paddle, Braintree, Chargebee or Recurly.' },
+              { icon: Globe, title: 'No-code, live in 3 minutes', body: 'Sign in with Google, paste one key, and you’re running — Stripe, Paddle, Braintree, Chargebee or Recurly.' },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="flex gap-4 rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-indigo-50">
@@ -203,8 +204,8 @@ export default function ChurnkeyAlternativeLP() {
           <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">Quick answers</h2>
           <div className="space-y-4">
             {[
-              { q: 'How is Revova different from Churnkey?', a: 'The core recovery engine is similar. Revova is aimed at indie hackers and small-to-mid SaaS: it starts at $29/mo (vs ~$199), needs no code, charges a flat fee with no commission, and its Lost Revenue Finder recovers failures you already lost — not just future ones.' },
-              { q: 'Is it really cheaper?', a: 'Yes — Starter is $29/mo and Pro is $79/mo, flat, with no commission on recovered revenue. That’s roughly 85% cheaper than Churnkey’s starting price.' },
+              { q: 'How is Revova different from Churnkey?', a: 'The core recovery engine is similar. Revova is aimed at indie hackers and small-to-mid SaaS: it starts at $29/mo (vs ~$250/mo billed yearly), needs no code, charges a flat fee with no commission, and its Lost Revenue Finder recovers failures you already lost — not just future ones.' },
+              { q: 'Is it really cheaper?', a: 'Yes — Starter is $29/mo and Pro is $79/mo, flat, with no commission on recovered revenue. That’s roughly 88% cheaper than Churnkey’s starting price.' },
               { q: 'Can I switch easily?', a: 'You can run Revova’s free, read-only scan alongside your current tool before switching — no code to rip out, and a 30-day money-back guarantee if it’s not for you.' },
               { q: 'Which processors work?', a: 'Stripe, Paddle, Braintree, Chargebee and Recurly. Live recovery works across all five.' },
             ].map(({ q, a }) => (

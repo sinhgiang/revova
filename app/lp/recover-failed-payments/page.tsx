@@ -80,7 +80,8 @@ export default function RecoverFailedPaymentsLP() {
             <Cta />
             <TrustLine />
             <p className="max-w-md text-sm text-white/40">
-              Connecting is <span className="text-white/70">read-only</span> — Revova only reads failed payments. It never moves money or stores card numbers.
+              One click with <span className="text-white/70">Google</span> to start — no password. Then connect your processor
+              (<span className="text-white/70">read-only</span>, never moves money or stores card numbers) and see your number.
             </p>
           </div>
 
@@ -93,11 +94,11 @@ export default function RecoverFailedPaymentsLP() {
               <span className="ml-auto rounded bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/40">Example</span>
             </div>
             <div className="p-6 text-left">
-              <p className="text-sm text-white/40">Lost to failed payments — last 12 months</p>
+              <p className="text-sm text-white/40">Illustrative example — lost to failed payments, last 12 months</p>
               <p className="mt-1 text-4xl font-extrabold text-rose-400">$18,240</p>
               <div className="mt-5 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
                 <RefreshCw className="h-5 w-5 flex-shrink-0 text-emerald-400" />
-                <p className="text-sm text-emerald-200">Revova is now recovering these automatically.</p>
+                <p className="text-sm text-emerald-200">This is what your free scan finds — Revova then recovers it automatically.</p>
               </div>
             </div>
           </div>
@@ -110,7 +111,7 @@ export default function RecoverFailedPaymentsLP() {
           <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">Live in 3 minutes, then hands-off</h2>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {[
-              { n: '1', icon: CreditCard, title: 'Connect once', body: 'Paste one key from Stripe, Paddle, Braintree, Chargebee or Recurly. No code, no engineers.' },
+              { n: '1', icon: CreditCard, title: 'Sign in & connect', body: 'One click with Google (no password), then paste one key from Stripe, Paddle, Braintree, Chargebee or Recurly. No code, no engineers.' },
               { n: '2', icon: Search, title: 'See your number', body: 'The Lost Revenue Finder scans your history and shows exactly how much you’ve already lost — your real figure, not a guess.' },
               { n: '3', icon: RefreshCw, title: 'Recover on autopilot', body: 'Smart retries + AI-personalized recovery emails win the money back, 24/7, while you do nothing.' },
             ].map(({ n, icon: Icon, title, body }) => (
@@ -143,7 +144,7 @@ export default function RecoverFailedPaymentsLP() {
       {/* ── WHY REVOVA (honest differentiators) ── */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-4xl">
-          <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">Why founders switch to Revova</h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">Why teams choose Revova</h2>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             {[
               { icon: Search, title: 'Recovers the past, not just the future', body: 'Most tools only work from install day. The Lost Revenue Finder goes back up to 12 months and wins back failures you already lost.' },
