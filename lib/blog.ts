@@ -27,6 +27,18 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'recurly-dunning',
+    title: 'Recurly Dunning & Payment Recovery: How the Dunning Cycle and Account Updater Really Work',
+    description: "A complete guide to Recurly's Dunning Cycle and Account Updater — how the retry schedule and card-refresh feature actually work, the gaps in decline-reason branching and historical recovery, and how to configure both for better recovery today.",
+    excerpt: "Recurly's Dunning Cycle and Account Updater are real, working recovery mechanisms — Account Updater especially is a genuine differentiator. Here's how both actually work, what they don't cover, and how to close the gap honestly.",
+    date: '2026-07-29',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 15,
+    hero: '/blog/recurly-dunning-hero',
+    heroAlt: 'A subscription account moving from past_due through a configurable Dunning Cycle retry timeline toward either recovery or cancellation, with an Account Updater badge showing automatic card refresh',
+  },
+  {
     slug: 'paddle-retain-alternatives',
     title: 'Paddle Retain Alternatives: Flat-Fee Dunning Tools Compared (2026)',
     description:

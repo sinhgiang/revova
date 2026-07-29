@@ -32,10 +32,12 @@ import ZuoraDunning, { faqs as zuoraDunningFaqs } from '@/components/blog/articl
 import VindiciaRetainAlternatives, { faqs as vindiciaRetainFaqs } from '@/components/blog/articles/vindicia-retain-alternatives'
 import BaremetricsRecoverAlternatives, { faqs as baremetricsRecoverFaqs } from '@/components/blog/articles/baremetrics-recover-alternatives'
 import PaddleRetainAlternatives, { faqs as paddleRetainFaqs } from '@/components/blog/articles/paddle-retain-alternatives'
+import RecurlyDunning, { faqs as recurlyDunningFaqs } from '@/components/blog/articles/recurly-dunning'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'recurly-dunning': RecurlyDunning,
   'paddle-retain-alternatives': PaddleRetainAlternatives,
   'baremetrics-recover-alternatives': BaremetricsRecoverAlternatives,
   'vindicia-retain-alternatives': VindiciaRetainAlternatives,
@@ -67,6 +69,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'recurly-dunning': recurlyDunningFaqs,
   'paddle-retain-alternatives': paddleRetainFaqs,
   'baremetrics-recover-alternatives': baremetricsRecoverFaqs,
   'vindicia-retain-alternatives': vindiciaRetainFaqs,
