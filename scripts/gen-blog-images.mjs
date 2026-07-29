@@ -1693,6 +1693,175 @@ function recurlyBlindSpotImgSVG() {
   </svg>`
 }
 
+// Hero for the Recurly vs Chargebee comparison: two face-off cards, matching
+// the VS layout used for Paddle vs Stripe.
+function recurlyVsChargebeeHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="recurlyCard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <linearGradient id="chargebeeCard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fb923c"/><stop offset="1" stop-color="#ea580c"/></linearGradient>
+      <radialGradient id="glow" cx="0.26" cy="0.32" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.84" cy="0.68" r="0.55"><stop offset="0" stop-color="#ea580c" stop-opacity="0.28"/><stop offset="1" stop-color="#ea580c" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(110,168)">
+      <rect width="380" height="300" rx="26" fill="url(#recurlyCard)"/>
+      <text x="36" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#e0e7ff" letter-spacing="2">RECURLY</text>
+      <text x="36" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#e0e7ff" opacity="0.85">Dunning Cycle + Account Updater</text>
+      <g transform="translate(36,158)">
+        <rect width="308" height="66" rx="16" fill="#0a0a16" fill-opacity="0.28"/>
+        <text x="20" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#ffffff">Auto card refresh</text>
+      </g>
+      <text x="36" y="262" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#e0e7ff" opacity="0.8">Leaner subscription model</text>
+    </g>
+
+    <text x="600" y="336" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="800" fill="#6b6b85">VS</text>
+
+    <g transform="translate(710,168)">
+      <rect width="380" height="300" rx="26" fill="url(#chargebeeCard)"/>
+      <text x="36" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#fff7ed" letter-spacing="2">CHARGEBEE</text>
+      <text x="36" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#fff7ed" opacity="0.85">Product Catalog + entitlements</text>
+      <g transform="translate(36,158)">
+        <rect width="308" height="66" rx="16" fill="#0a0a16" fill-opacity="0.28"/>
+        <text x="20" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#ffffff">Deeper billing config</text>
+      </g>
+      <text x="36" y="262" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#fff7ed" opacity="0.8">Usage-based billing, revenue recognition</text>
+    </g>
+
+    <g transform="translate(110,90)">
+      <rect width="52" height="52" rx="15" fill="url(#recurlyCard)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1 for Recurly vs Chargebee: billing-depth comparison as two
+// stacked-layer towers — Chargebee's deeper configurable stack vs Recurly's
+// leaner core model.
+function recurlyChargebeeDepthImgSVG() {
+  const chargebeeLayers = ['Revenue Recognition', 'Usage-Based Billing', 'Entitlements', 'Product Catalog']
+  const recurlyLayers = ['Invoicing', 'Subscriptions &amp; Plans']
+  const layerW = 300, layerH = 56, gap = 10
+  const cbX = 690, cbBaseY = 470
+  const rcX = 210, rcBaseY = 470
+  const cbLayers = chargebeeLayers.map((label, i) => {
+    const y = cbBaseY - (i + 1) * (layerH + gap)
+    return `<rect x="${cbX}" y="${y}" width="${layerW}" height="${layerH}" rx="12" fill="#241c14" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="${cbX + layerW / 2}" y="${y + 35}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fde68a">${label}</text>`
+  }).join('')
+  const rcLayers = recurlyLayers.map((label, i) => {
+    const y = rcBaseY - (i + 1) * (layerH + gap)
+    return `<rect x="${rcX}" y="${y}" width="${layerW}" height="${layerH}" rx="12" fill="#1a1a35" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="${rcX + layerW / 2}" y="${y + 35}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#c7d2fe">${label}</text>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.2" cy="0.25" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.32"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="110" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Billing depth: a leaner stack vs a deeper one</text>
+    <text x="210" y="500" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc">RECURLY</text>
+    <text x="690" y="500" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fbbf24">CHARGEBEE</text>
+    ${rcLayers}
+    ${cbLayers}
+  </svg>`
+}
+
+// Body image 2 for Recurly vs Chargebee: dunning comparison, crediting
+// Recurly's Account Updater as the concrete edge while noting both run a
+// similar configurable retry-schedule-plus-email dunning system otherwise.
+function recurlyChargebeeDunningCompareImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.3"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.6" r="0.55"><stop offset="0" stop-color="#f59e0b" stop-opacity="0.2"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <text x="110" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Both configure a dunning schedule — one also refreshes cards</text>
+
+    <g transform="translate(110,140)">
+      <rect width="460" height="360" rx="20" fill="#161628" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc" letter-spacing="1.5">RECURLY</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">Configurable Dunning Cycle</text>
+      <text x="30" y="116" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">retry days + reminder emails, set per plan/currency</text>
+      <rect x="30" y="150" width="400" height="90" rx="14" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="50" y="180" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">+ Account Updater</text>
+      <text x="50" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">auto-refreshes expired/reissued cards</text>
+      <text x="50" y="224" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">via Visa/Mastercard networks — no email needed</text>
+      <text x="30" y="290" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">No native decline-reason branching</text>
+      <text x="30" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">by default — same as most settings-page</text>
+      <text x="30" y="334" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">dunning systems.</text>
+    </g>
+
+    <g transform="translate(630,140)">
+      <rect width="460" height="360" rx="20" fill="#241c14" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fbbf24" letter-spacing="1.5">CHARGEBEE</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#e5e7eb">Configurable dunning schedule</text>
+      <text x="30" y="116" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">retry days + reminder emails, set per site/plan</text>
+      <rect x="30" y="150" width="400" height="90" rx="14" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="50" y="180" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fda4af">No card-refresh feature</text>
+      <text x="50" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#fecaca">expired/reissued cards rely on the customer</text>
+      <text x="50" y="224" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#fecaca">updating manually, or your gateway's own tools</text>
+      <text x="30" y="290" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">No native decline-reason branching</text>
+      <text x="30" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">by default — same as most settings-page</text>
+      <text x="30" y="334" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b85">dunning systems.</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3 for Recurly vs Chargebee: best-fit-by-use-case, two cards
+// pointing at the honest use case each platform tends to suit.
+function recurlyChargebeeFitImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.3" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.32"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.6" r="0.55"><stop offset="0" stop-color="#f59e0b" stop-opacity="0.2"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <text x="110" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Which one fits your business</text>
+
+    <g transform="translate(110,140)">
+      <rect width="460" height="330" rx="20" fill="#161628" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc" letter-spacing="1.5">CHOOSE RECURLY IF</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">Subscription commerce or media</text>
+      <text x="30" y="114" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">with a lot of consumer cards on file</text>
+      <text x="30" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">Expired-card churn is a meaningful share</text>
+      <text x="30" y="172" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">of your failures — Account Updater fixes</text>
+      <text x="30" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">a real slice of that automatically.</text>
+      <text x="30" y="230" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">Your billing model is straightforward —</text>
+      <text x="30" y="252" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">plans and subscriptions, not complex</text>
+      <text x="30" y="274" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">usage-based tiers or entitlements.</text>
+    </g>
+
+    <g transform="translate(630,140)">
+      <rect width="460" height="330" rx="20" fill="#241c14" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fbbf24" letter-spacing="1.5">CHOOSE CHARGEBEE IF</text>
+      <text x="30" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">Complex B2B SaaS billing —</text>
+      <text x="30" y="114" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">usage tiers, seats, entitlements</text>
+      <text x="30" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">You need a configurable product</text>
+      <text x="30" y="172" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">catalog, metered/usage-based pricing,</text>
+      <text x="30" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">or revenue recognition reporting.</text>
+      <text x="30" y="230" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">You want a broader marketplace of</text>
+      <text x="30" y="252" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">finance/CRM integrations (Salesforce,</text>
+      <text x="30" y="274" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">NetSuite, and similar) out of the box.</text>
+    </g>
+  </svg>`
+}
+
 // Hero for the Braintree article: a subscription charge fails, Braintree fires
 // a webhook (the real, built-in signal), but — unlike Chargebee/Stripe/Recurly —
 // no customer-facing dunning email goes out automatically from that webhook.
@@ -2489,6 +2658,7 @@ function paddleProcessorCoverageImgSVG() {
 }
 
 const targets = [
+  { slug: 'recurly-vs-chargebee', svg: recurlyVsChargebeeHeroSVG() },
   { slug: 'recurly-dunning', svg: recurlyDunningHeroSVG() },
   { slug: 'paddle-retain-alternatives', svg: paddleRetainAlternativesHeroSVG() },
   { slug: 'baremetrics-recover-alternatives', svg: baremetricsRecoverAlternativesHeroSVG() },
@@ -2524,6 +2694,9 @@ const targets = [
 // suffix) so components/blog/articles/*.tsx can reference them directly via
 // the InBodyImage prose component.
 const bodyImageTargets = [
+  { file: 'recurly-vs-chargebee-img-1', svg: recurlyChargebeeDepthImgSVG() },
+  { file: 'recurly-vs-chargebee-img-2', svg: recurlyChargebeeDunningCompareImgSVG() },
+  { file: 'recurly-vs-chargebee-img-3', svg: recurlyChargebeeFitImgSVG() },
   { file: 'recurly-dunning-img-1', svg: recurlyDunningCycleImgSVG() },
   { file: 'recurly-dunning-img-2', svg: recurlyAccountUpdaterImgSVG() },
   { file: 'recurly-dunning-img-3', svg: recurlyTemplateGapImgSVG() },

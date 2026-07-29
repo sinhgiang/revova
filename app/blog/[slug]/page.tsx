@@ -33,10 +33,12 @@ import VindiciaRetainAlternatives, { faqs as vindiciaRetainFaqs } from '@/compon
 import BaremetricsRecoverAlternatives, { faqs as baremetricsRecoverFaqs } from '@/components/blog/articles/baremetrics-recover-alternatives'
 import PaddleRetainAlternatives, { faqs as paddleRetainFaqs } from '@/components/blog/articles/paddle-retain-alternatives'
 import RecurlyDunning, { faqs as recurlyDunningFaqs } from '@/components/blog/articles/recurly-dunning'
+import RecurlyVsChargebee, { faqs as recurlyVsChargebeeFaqs } from '@/components/blog/articles/recurly-vs-chargebee'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'recurly-vs-chargebee': RecurlyVsChargebee,
   'recurly-dunning': RecurlyDunning,
   'paddle-retain-alternatives': PaddleRetainAlternatives,
   'baremetrics-recover-alternatives': BaremetricsRecoverAlternatives,
@@ -69,6 +71,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'recurly-vs-chargebee': recurlyVsChargebeeFaqs,
   'recurly-dunning': recurlyDunningFaqs,
   'paddle-retain-alternatives': paddleRetainFaqs,
   'baremetrics-recover-alternatives': baremetricsRecoverFaqs,

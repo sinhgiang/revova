@@ -27,6 +27,18 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'recurly-vs-chargebee',
+    title: 'Recurly vs Chargebee (2026): Billing Depth, Dunning & Which to Pick',
+    description: 'Recurly vs Chargebee for subscription billing in 2026: billing depth and configurability, dunning and Account Updater, integrations, pricing model, and which to pick by use case.',
+    excerpt: "Both sit on top of a gateway and neither is a Merchant of Record — the real difference is Chargebee's deeper billing configurability versus Recurly's Account Updater. Here's an honest, use-case verdict.",
+    date: '2026-07-29',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 15,
+    hero: '/blog/recurly-vs-chargebee-hero',
+    heroAlt: 'Two brand cards facing off — a Recurly indigo card badged "auto card refresh" and a Chargebee orange card badged "deeper billing config" — illustrating the core trade-off between the two subscription-billing platforms',
+  },
+  {
     slug: 'recurly-dunning',
     title: 'Recurly Dunning & Payment Recovery: How the Dunning Cycle and Account Updater Really Work',
     description: "A complete guide to Recurly's Dunning Cycle and Account Updater — how the retry schedule and card-refresh feature actually work, the gaps in decline-reason branching and historical recovery, and how to configure both for better recovery today.",
