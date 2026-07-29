@@ -1808,7 +1808,150 @@ function zuoraBlindSpotImgSVG() {
   </svg>`
 }
 
+// Hero for the Vindicia Retain alternatives roundup: an enterprise "walled
+// garden" card (Vindicia, custom pricing, sales-led) next to a lighter,
+// flat-priced, self-serve alternative card — the framing of the article.
+function vindiciaRetainAlternativesHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.25" cy="0.3" r="0.65"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.25"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(140,150)">
+      <rect width="380" height="300" rx="22" fill="#161628" stroke="#3730a3" stroke-width="2"/>
+      <text x="34" y="56" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc" letter-spacing="1.5">ENTERPRISE PLATFORM</text>
+      <text x="34" y="110" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#e5e7eb">Custom pricing</text>
+      <text x="34" y="146" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">Sales-led onboarding</text>
+      <text x="34" y="174" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">Built for media &amp; publishers</text>
+      <rect x="34" y="220" width="312" height="46" rx="12" fill="#1e1b3a" stroke="#4338ca" stroke-width="1.5"/>
+      <text x="190" y="249" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">"Contact us" pricing</text>
+    </g>
+
+    <g transform="translate(600,0)">
+      <text x="80" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6b7280" letter-spacing="2">VS</text>
+    </g>
+
+    <g transform="translate(680,150)">
+      <rect width="380" height="300" rx="22" fill="url(#card)" opacity="0.14"/>
+      <rect width="380" height="300" rx="22" fill="none" stroke="#34d399" stroke-width="2"/>
+      <text x="34" y="56" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">SELF-SERVE ALTERNATIVE</text>
+      <text x="34" y="110" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#e5e7eb">$29–$79/mo</text>
+      <text x="34" y="146" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">No sales call required</text>
+      <text x="34" y="174" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">14-day free trial</text>
+      <rect x="34" y="220" width="312" height="46" rx="12" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="190" y="249" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#a7f3d0">Flat, published pricing</text>
+    </g>
+
+    <g transform="translate(120,120)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: Vindicia's enterprise, media/publisher-focused sales motion —
+// a long, multi-step sales pipeline before you ever see a product.
+function vindiciaEnterpriseFocusImgSVG() {
+  const steps = ['Request demo', 'Discovery call', 'Custom quote', 'Contract review', 'Implementation', 'Live']
+  const stepW = 165
+  const gap = 22
+  const startX = 60
+  const y = 260
+  const items = steps.map((s, i) => {
+    const x = startX + i * (stepW + gap)
+    return `
+      <rect x="${x}" y="${y}" width="${stepW}" height="80" rx="14" fill="${i < 4 ? '#1e1b3a' : '#0f2e22'}" stroke="${i < 4 ? '#4338ca' : '#10b981'}" stroke-width="1.5"/>
+      <text x="${x + stepW / 2}" y="${y + 36}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="${i < 4 ? '#c7d2fe' : '#a7f3d0'}">${s}</text>
+      <text x="${x + stepW / 2}" y="${y + 58}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#8b8ba7">Step ${i + 1}</text>
+      ${i < steps.length - 1 ? `<path d="M${x + stepW + 4} ${y + 40} L${x + stepW + gap - 4} ${y + 40}" stroke="#4b5563" stroke-width="2.5" marker-end="url(#va)"/>` : ''}
+    `
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <marker id="va" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#6b7280"/></marker>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="120" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#e5e7eb">Vindicia Retain's typical path to "live"</text>
+    <text x="60" y="156" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">Built for large media and publishing enterprises — a sales-led process by design</text>
+    ${items}
+  </svg>`
+}
+
+// Body image 2: side-by-side pricing transparency — opaque "custom quote"
+// vs published flat tiers.
+function vindiciaPricingOpacityImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Pricing transparency, compared</text>
+
+    <g transform="translate(80,140)">
+      <rect width="470" height="380" rx="20" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+      <text x="235" y="60" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#a5b4fc">Vindicia Retain</text>
+      <circle cx="235" cy="150" r="52" fill="none" stroke="#4338ca" stroke-width="3" stroke-dasharray="6 8"/>
+      <text x="235" y="158" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#818cf8">?</text>
+      <text x="235" y="240" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">Enterprise quote —</text>
+      <text x="235" y="264" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">not published publicly</text>
+      <text x="235" y="310" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">Requires a sales conversation</text>
+      <text x="235" y="332" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">to get any number at all</text>
+    </g>
+
+    <g transform="translate(650,140)">
+      <rect width="470" height="380" rx="20" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="235" y="60" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#6ee7b7">Revova</text>
+      <text x="235" y="150" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="800" fill="#34d399">$29–$79</text>
+      <text x="235" y="180" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#a7f3d0">per month, flat</text>
+      <text x="235" y="240" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">Published on the</text>
+      <text x="235" y="264" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">pricing page, today</text>
+      <text x="235" y="310" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">14-day free trial,</text>
+      <text x="235" y="332" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">no card, no sales call</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3: processor coverage — Vindicia's narrower integration surface
+// vs a broader five-processor connection.
+function vindiciaProcessorCoverageImgSVG() {
+  const vindiciaProcs = ['Custom / direct billing integrations']
+  const revovaProcs = ['Stripe', 'Paddle', 'Braintree', 'Chargebee', 'Recurly']
+  const revItems = revovaProcs.map((p, i) => {
+    const x = 650
+    const y = 170 + i * 62
+    return `<rect x="${x}" y="${y}" width="380" height="46" rx="12" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="${x + 190}" y="${y + 30}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#a7f3d0">${p}</text>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Processor &amp; billing-system coverage</text>
+
+    <text x="80" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc">Vindicia Retain</text>
+    <rect x="80" y="170" width="380" height="46" rx="12" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+    <text x="270" y="200" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">${vindiciaProcs[0]}</text>
+
+    <text x="650" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">Revova (read-only)</text>
+    ${revItems}
+
+    <g transform="translate(1120,30)">
+      <rect width="44" height="44" rx="13" fill="#4f46e5"/>
+      <text x="22" y="31" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'vindicia-retain-alternatives', svg: vindiciaRetainAlternativesHeroSVG() },
   { slug: 'zuora-dunning', svg: zuoraDunningHeroSVG() },
   { slug: 'braintree-dunning', svg: braintreeDunningHeroSVG() },
   { slug: 'chargebee-dunning', svg: chargebeeDunningHeroSVG() },
@@ -1849,6 +1992,9 @@ const bodyImageTargets = [
   { file: 'zuora-dunning-img-1', svg: zuoraWorkflowCanvasImgSVG() },
   { file: 'zuora-dunning-img-2', svg: zuoraTemplateGapImgSVG() },
   { file: 'zuora-dunning-img-3', svg: zuoraBlindSpotImgSVG() },
+  { file: 'vindicia-retain-alternatives-img-1', svg: vindiciaEnterpriseFocusImgSVG() },
+  { file: 'vindicia-retain-alternatives-img-2', svg: vindiciaPricingOpacityImgSVG() },
+  { file: 'vindicia-retain-alternatives-img-3', svg: vindiciaProcessorCoverageImgSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

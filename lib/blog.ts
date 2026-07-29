@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'vindicia-retain-alternatives',
+    title: 'Vindicia Retain Alternatives: 5 Options for Smaller Subscription Businesses (2026)',
+    description:
+      "Vindicia Retain is built for large media, publishing, and telecom-scale enterprises with sales-led pricing. Here are the best alternatives for smaller subscription businesses that want flat, published pricing and a same-day setup.",
+    excerpt:
+      "Vindicia Retain is a capable enterprise retention platform — just priced and sold for a bigger business than most subscription companies. Here's an honest look at flat-priced alternatives like Revova, Churnkey, and Churn Buster.",
+    date: '2026-07-28',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 15,
+    hero: '/blog/vindicia-retain-alternatives-hero',
+    heroAlt: 'An enterprise sales-led subscription platform card with custom pricing next to a lighter, flat-priced, self-serve alternative card',
+  },
+  {
     slug: 'zuora-dunning',
     title: 'Zuora Dunning & Payment Recovery: Payment Retry Rules and Workflow Explained (2026)',
     description:
