@@ -1950,7 +1950,143 @@ function vindiciaProcessorCoverageImgSVG() {
   </svg>`
 }
 
+// Hero for the Baremetrics Recover alternatives roundup: a stacked-cost card
+// (analytics subscription + add-on tier) next to a single standalone flat
+// price — the core framing of the comparison.
+function baremetricsRecoverAlternativesHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.25" cy="0.3" r="0.65"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.25"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(140,120)">
+      <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc" letter-spacing="1.5">BAREMETRICS RECOVER</text>
+      <rect y="24" width="380" height="80" rx="14" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+      <text x="24" y="64" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#c7d2fe">Analytics subscription</text>
+      <text x="24" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#8b8ba7">required as the base plan</text>
+      <path d="M190 112 L190 130" stroke="#6b7280" stroke-width="2.5" marker-end="url(#bp)"/>
+      <rect y="138" width="380" height="80" rx="14" fill="#1e1b3a" stroke="#4338ca" stroke-width="1.5"/>
+      <text x="24" y="178" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#c7d2fe">Recover add-on tier</text>
+      <text x="24" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#8b8ba7">stacked on top</text>
+    </g>
+    <defs>
+      <marker id="bp" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto"><path d="M0 0 L9 0 L4.5 9 z" fill="#6b7280"/></marker>
+    </defs>
+
+    <text x="600" y="330" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6b7280" letter-spacing="2">VS</text>
+
+    <g transform="translate(680,150)">
+      <rect width="380" height="220" rx="22" fill="url(#card)" opacity="0.14"/>
+      <rect width="380" height="220" rx="22" fill="none" stroke="#34d399" stroke-width="2"/>
+      <text x="34" y="52" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">STANDALONE RECOVERY</text>
+      <text x="34" y="106" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#e5e7eb">$29–$79/mo</text>
+      <text x="34" y="142" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">One price, nothing to bundle</text>
+      <text x="34" y="170" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">No analytics subscription needed</text>
+    </g>
+
+    <g transform="translate(140,120)">
+      <rect x="-52" y="-52" width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="-26" y="-14" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: the real cost of Recover — analytics base + add-on tier
+// stacked, vs a single flat number.
+function baremetricsBundleCostImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">The real monthly cost, stacked</text>
+
+    <g transform="translate(160,140)">
+      <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc">Baremetrics Recover</text>
+      <rect y="20" width="300" height="70" rx="10" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+      <text x="20" y="63" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#c7d2fe">Analytics base plan</text>
+      <rect y="98" width="300" height="70" rx="10" fill="#1e1b3a" stroke="#4338ca" stroke-width="1.5"/>
+      <text x="20" y="141" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#c7d2fe">+ Recover add-on tier</text>
+      <line x1="0" y1="184" x2="300" y2="184" stroke="#4b5563" stroke-width="1.5"/>
+      <text x="0" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#fbbf24">= total cost to recover</text>
+    </g>
+
+    <g transform="translate(720,140)">
+      <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">Revova</text>
+      <rect y="20" width="300" height="188" rx="10" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="150" y="100" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#34d399">$29–$79</text>
+      <text x="150" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#a7f3d0">per month, total</text>
+      <text x="150" y="170" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">no separate analytics plan required</text>
+    </g>
+  </svg>`
+}
+
+// Body image 2: feature depth — Recover as a lighter add-on layered onto
+// analytics, vs a dedicated recovery tool's feature set.
+function baremetricsFeatureDepthImgSVG() {
+  const revovaFeats = ['Decline-reason dunning', 'Historical recovery scan', 'SMS recovery (Pro)', 'In-app cancel-flow (Pro)']
+  const items = revovaFeats.map((f, i) => {
+    const y = 160 + i * 58
+    return `<rect x="650" y="${y}" width="400" height="42" rx="10" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="670" y="${y + 27}" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#a7f3d0">${f}</text>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Feature depth: add-on vs dedicated tool</text>
+
+    <text x="70" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc">Baremetrics Recover</text>
+    <rect x="70" y="160" width="400" height="42" rx="10" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+    <text x="90" y="187" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">Retry-based dunning emails</text>
+    <rect x="70" y="218" width="400" height="42" rx="10" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+    <text x="90" y="245" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">Bundled into analytics dashboard</text>
+
+    <text x="650" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">Revova</text>
+    ${items}
+  </svg>`
+}
+
+// Body image 3: processor / billing coverage comparison, same shape as the
+// Vindicia version for visual consistency across the alternatives series.
+function baremetricsProcessorCoverageImgSVG() {
+  const revovaProcs = ['Stripe', 'Paddle', 'Braintree', 'Chargebee', 'Recurly']
+  const revItems = revovaProcs.map((p, i) => {
+    const x = 650
+    const y = 170 + i * 62
+    return `<rect x="${x}" y="${y}" width="380" height="46" rx="12" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="${x + 190}" y="${y + 30}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#a7f3d0">${p}</text>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Processor coverage</text>
+
+    <text x="80" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#a5b4fc">Baremetrics Recover</text>
+    <rect x="80" y="170" width="380" height="46" rx="12" fill="#161628" stroke="#3730a3" stroke-width="1.5"/>
+    <text x="270" y="200" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c7d2fe">Stripe-oriented</text>
+
+    <text x="650" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">Revova (read-only)</text>
+    ${revItems}
+
+    <g transform="translate(1120,30)">
+      <rect width="44" height="44" rx="13" fill="#4f46e5"/>
+      <text x="22" y="31" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'baremetrics-recover-alternatives', svg: baremetricsRecoverAlternativesHeroSVG() },
   { slug: 'vindicia-retain-alternatives', svg: vindiciaRetainAlternativesHeroSVG() },
   { slug: 'zuora-dunning', svg: zuoraDunningHeroSVG() },
   { slug: 'braintree-dunning', svg: braintreeDunningHeroSVG() },
@@ -1995,6 +2131,9 @@ const bodyImageTargets = [
   { file: 'vindicia-retain-alternatives-img-1', svg: vindiciaEnterpriseFocusImgSVG() },
   { file: 'vindicia-retain-alternatives-img-2', svg: vindiciaPricingOpacityImgSVG() },
   { file: 'vindicia-retain-alternatives-img-3', svg: vindiciaProcessorCoverageImgSVG() },
+  { file: 'baremetrics-recover-alternatives-img-1', svg: baremetricsBundleCostImgSVG() },
+  { file: 'baremetrics-recover-alternatives-img-2', svg: baremetricsFeatureDepthImgSVG() },
+  { file: 'baremetrics-recover-alternatives-img-3', svg: baremetricsProcessorCoverageImgSVG() },
 ]
 
 await mkdir(OUT, { recursive: true })

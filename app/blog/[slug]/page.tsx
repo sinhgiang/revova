@@ -30,10 +30,12 @@ import ChargebeeDunning, { faqs as chargebeeDunningFaqs } from '@/components/blo
 import BraintreeDunning, { faqs as braintreeDunningFaqs } from '@/components/blog/articles/braintree-dunning'
 import ZuoraDunning, { faqs as zuoraDunningFaqs } from '@/components/blog/articles/zuora-dunning'
 import VindiciaRetainAlternatives, { faqs as vindiciaRetainFaqs } from '@/components/blog/articles/vindicia-retain-alternatives'
+import BaremetricsRecoverAlternatives, { faqs as baremetricsRecoverFaqs } from '@/components/blog/articles/baremetrics-recover-alternatives'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'baremetrics-recover-alternatives': BaremetricsRecoverAlternatives,
   'vindicia-retain-alternatives': VindiciaRetainAlternatives,
   'zuora-dunning': ZuoraDunning,
   'braintree-dunning': BraintreeDunning,
@@ -63,6 +65,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'baremetrics-recover-alternatives': baremetricsRecoverFaqs,
   'vindicia-retain-alternatives': vindiciaRetainFaqs,
   'zuora-dunning': zuoraDunningFaqs,
   'braintree-dunning': braintreeDunningFaqs,

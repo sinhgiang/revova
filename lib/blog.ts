@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'baremetrics-recover-alternatives',
+    title: 'Baremetrics Recover Alternatives: Standalone Dunning Tools Compared (2026)',
+    description:
+      "Baremetrics Recover is a dunning add-on bundled into a Baremetrics analytics subscription. Here are the best standalone alternatives — Revova, Churn Buster, and Churnkey — for teams that want dedicated recovery without the bundle.",
+    excerpt:
+      "Baremetrics Recover only makes financial sense if you're already paying for Baremetrics analytics. Here's an honest look at what it does well, where it falls short of a dedicated recovery tool, and the best standalone alternatives.",
+    date: '2026-07-28',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 14,
+    hero: '/blog/baremetrics-recover-alternatives-hero',
+    heroAlt: 'A stacked cost card showing an analytics subscription plus a Recover add-on tier next to a single standalone flat-priced recovery card',
+  },
+  {
     slug: 'vindicia-retain-alternatives',
     title: 'Vindicia Retain Alternatives: 5 Options for Smaller Subscription Businesses (2026)',
     description:
