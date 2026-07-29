@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'paddle-retain-alternatives',
+    title: 'Paddle Retain Alternatives: Flat-Fee Dunning Tools Compared (2026)',
+    description:
+      'Paddle Retain charges a percentage of recovered revenue instead of a flat fee. Here are the best flat-fee alternatives — Revova, Churn Buster, and Churnkey — for teams that want a predictable dunning bill.',
+    excerpt:
+      "Paddle Retain's pay-on-results pricing feels cheap at low volume, but the bill has no ceiling. Here's an honest look at what it does well, where a flat-fee tool wins instead, and the best alternatives.",
+    date: '2026-07-28',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 14,
+    hero: '/blog/paddle-retain-alternatives-hero',
+    heroAlt: 'A bill that climbs in step with recovered revenue next to a flat monthly price that stays constant, illustrating percentage-of-recovered pricing versus a flat fee',
+  },
+  {
     slug: 'baremetrics-recover-alternatives',
     title: 'Baremetrics Recover Alternatives: Standalone Dunning Tools Compared (2026)',
     description:
