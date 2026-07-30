@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'butter-payments-alternatives',
+    title: 'Butter Payments Alternatives: Flat-Fee Recovery Tools Compared (2026)',
+    description:
+      'Butter Payments charges a percentage of recovered revenue for ML-optimized retry timing, scoped mainly to Stripe and Recharge. Here are the best flat-fee alternatives — Revova, Churn Buster, and Churnkey — with a full customer-facing recovery layer.',
+    excerpt:
+      "Butter Payments' ML-driven retry optimization and pay-on-results pricing are genuinely sophisticated, but the bill has no ceiling and the scope stops at the technical retry. Here's an honest look at what it does well, and the best alternatives.",
+    date: '2026-07-30',
+    author: 'Sinh Yang',
+    category: 'Comparison',
+    readingMinutes: 15,
+    hero: '/blog/butter-payments-alternatives-hero',
+    heroAlt: 'A bill that climbs in step with recovered revenue next to a flat monthly price that stays constant, illustrating Butter Payments’ percentage-of-recovered pricing versus a flat fee',
+  },
+  {
     slug: 'recurly-vs-chargebee',
     title: 'Recurly vs Chargebee (2026): Billing Depth, Dunning & Which to Pick',
     description: 'Recurly vs Chargebee for subscription billing in 2026: billing depth and configurability, dunning and Account Updater, integrations, pricing model, and which to pick by use case.',

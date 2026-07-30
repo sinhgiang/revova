@@ -1862,6 +1862,151 @@ function recurlyChargebeeFitImgSVG() {
   </svg>`
 }
 
+// Hero for the Butter Payments alternatives article: Butter's revenue-share,
+// retry-timing-only model vs a flat-fee tool with a full recovery stack.
+function butterPaymentsAlternativesHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.25" cy="0.3" r="0.65"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.4"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#f59e0b" stop-opacity="0.22"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(130,150)">
+      <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fbbf24" letter-spacing="1.5">BUTTER PAYMENTS</text>
+      <text x="0" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">ML retry timing, % of recovered revenue</text>
+      <path d="M10 90 L60 60 L120 100 L190 40 L260 70 L330 20" stroke="#fbbf24" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <circle cx="330" cy="20" r="7" fill="#fbbf24"/>
+      <text x="0" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">Bill climbs as recovery grows</text>
+    </g>
+
+    <text x="600" y="330" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6b7280" letter-spacing="2">VS</text>
+
+    <g transform="translate(680,150)">
+      <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">FLAT-FEE ALTERNATIVE</text>
+      <text x="0" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#9ca3af">$29–$79/month, flat</text>
+      <path d="M10 70 L330 70" stroke="#34d399" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="330" cy="70" r="7" fill="#34d399"/>
+      <text x="0" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7280">Same bill, no matter how much is recovered</text>
+    </g>
+
+    <g transform="translate(130,120)">
+      <rect x="-52" y="-60" width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="-26" y="-22" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: Butter's per-invoice revenue share climbing alongside recovered
+// volume, vs a flat monthly number that never moves.
+function butterRevenueShareCostImgSVG() {
+  const months = [1, 2, 3, 4, 5, 6]
+  const shareVals = [35, 50, 70, 95, 125, 165]
+  const flatVal = 79
+  const chartX = 140
+  const chartY = 420
+  const maxV = 180
+  const barW = 60
+  const gap = 90
+  const bars = months.map((m, i) => {
+    const x = chartX + i * gap
+    const shareH = (shareVals[i] / maxV) * 260
+    const flatH = (flatVal / maxV) * 260
+    return `
+      <rect x="${x}" y="${chartY - shareH}" width="${barW / 2 - 4}" height="${shareH}" rx="4" fill="#fbbf24"/>
+      <rect x="${x + barW / 2}" y="${chartY - flatH}" width="${barW / 2 - 4}" height="${flatH}" rx="4" fill="#34d399"/>
+      <text x="${x + barW / 2}" y="${chartY + 24}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ca3af">Mo ${m}</text>
+    `
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">A per-invoice revenue share moves with recovery</text>
+    <text x="60" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">Illustrative: a negotiated percentage-of-recovered model vs a flat monthly fee</text>
+    <line x1="120" y1="${chartY}" x2="1080" y2="${chartY}" stroke="#374151" stroke-width="2"/>
+    ${bars}
+    <g transform="translate(780,60)">
+      <rect width="18" height="18" rx="4" fill="#fbbf24"/>
+      <text x="26" y="15" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#e5e7eb">% of recovered revenue</text>
+    </g>
+    <g transform="translate(780,90)">
+      <rect width="18" height="18" rx="4" fill="#34d399"/>
+      <text x="26" y="15" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#e5e7eb">Flat monthly fee</text>
+    </g>
+  </svg>`
+}
+
+// Body image 2: Butter's retry-timing-only scope vs a full customer-facing
+// recovery stack (dunning emails, SMS, in-app cancel flow, win-back).
+function butterFeatureDepthImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Retry timing vs the full recovery stack</text>
+
+    <g transform="translate(140,150)">
+      <rect width="420" height="300" rx="20" fill="#1e1b0e" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="30" y="50" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fbbf24" letter-spacing="1.5">BUTTER PAYMENTS</text>
+      <text x="30" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#e5e7eb">ML-optimized retry</text>
+      <text x="30" y="126" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#e5e7eb">timing, per payment</text>
+      <text x="30" y="170" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">Optimizes the technical retry —</text>
+      <text x="30" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">when and how a charge is resubmitted</text>
+      <text x="30" y="238" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">No customer-facing emails, SMS,</text>
+      <text x="30" y="262" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#9ca3af">or in-app cancel flow out of the box</text>
+    </g>
+
+    <g transform="translate(640,150)">
+      <rect width="420" height="300" rx="20" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="30" y="50" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">REVOVA</text>
+      <text x="30" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#e5e7eb">Retry + the customer-</text>
+      <text x="30" y="126" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#e5e7eb">facing recovery layer</text>
+      <text x="30" y="170" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#a7f3d0">Dunning email + SMS sequences,</text>
+      <text x="30" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#a7f3d0">hard/soft decline routing</text>
+      <text x="30" y="238" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#a7f3d0">In-app cancel flow, win-back</text>
+      <text x="30" y="262" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#a7f3d0">campaigns included</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3: processor/integration coverage, matching the visual shape
+// used across the rest of the alternatives series.
+function butterProcessorCoverageImgSVG() {
+  const revovaProcs = ['Stripe', 'Paddle', 'Braintree', 'Chargebee', 'Recurly']
+  const revItems = revovaProcs.map((p, i) => {
+    const x = 650
+    const y = 170 + i * 62
+    return `<rect x="${x}" y="${y}" width="380" height="46" rx="12" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="${x + 190}" y="${y + 30}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#a7f3d0">${p}</text>`
+  }).join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <text x="60" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Processor &amp; integration coverage</text>
+
+    <text x="80" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fbbf24">Butter Payments</text>
+    <rect x="80" y="170" width="380" height="46" rx="12" fill="#1e1b0e" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="270" y="200" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#fde68a">Stripe, Recharge, custom builds</text>
+
+    <text x="650" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7">Revova (read-only)</text>
+    ${revItems}
+
+    <g transform="translate(1120,30)">
+      <rect width="44" height="44" rx="13" fill="#4f46e5"/>
+      <text x="22" y="31" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 // Hero for the Braintree article: a subscription charge fails, Braintree fires
 // a webhook (the real, built-in signal), but — unlike Chargebee/Stripe/Recurly —
 // no customer-facing dunning email goes out automatically from that webhook.
@@ -2658,6 +2803,7 @@ function paddleProcessorCoverageImgSVG() {
 }
 
 const targets = [
+  { slug: 'butter-payments-alternatives', svg: butterPaymentsAlternativesHeroSVG() },
   { slug: 'recurly-vs-chargebee', svg: recurlyVsChargebeeHeroSVG() },
   { slug: 'recurly-dunning', svg: recurlyDunningHeroSVG() },
   { slug: 'paddle-retain-alternatives', svg: paddleRetainAlternativesHeroSVG() },
@@ -2694,6 +2840,9 @@ const targets = [
 // suffix) so components/blog/articles/*.tsx can reference them directly via
 // the InBodyImage prose component.
 const bodyImageTargets = [
+  { file: 'butter-payments-alternatives-img-1', svg: butterRevenueShareCostImgSVG() },
+  { file: 'butter-payments-alternatives-img-2', svg: butterFeatureDepthImgSVG() },
+  { file: 'butter-payments-alternatives-img-3', svg: butterProcessorCoverageImgSVG() },
   { file: 'recurly-vs-chargebee-img-1', svg: recurlyChargebeeDepthImgSVG() },
   { file: 'recurly-vs-chargebee-img-2', svg: recurlyChargebeeDunningCompareImgSVG() },
   { file: 'recurly-vs-chargebee-img-3', svg: recurlyChargebeeFitImgSVG() },
