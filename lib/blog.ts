@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'involuntary-churn-benchmarks-by-industry',
+    title: 'Involuntary Churn Benchmarks by Industry (2026): SaaS, Streaming, E-Commerce',
+    description:
+      'Involuntary churn benchmarks by industry vertical — B2B SaaS, B2C SaaS, media and streaming, e-commerce subscriptions, and subscription boxes — plus decline rate ranges by card type and geography, and how to calculate your own number instead of borrowing an industry average.',
+    excerpt:
+      'Involuntary churn ranges from a small slice of churn in B2B SaaS to an estimated two-thirds of churn in subscription boxes. Here are the benchmark ranges by industry, what actually moves your own number, and how to find your real figure.',
+    date: '2026-07-30',
+    author: 'Sinh Yang',
+    category: 'Guide',
+    readingMinutes: 15,
+    hero: '/blog/involuntary-churn-benchmarks-by-industry-hero',
+    heroAlt: 'A horizontal spectrum of industry verticals, each bar split between voluntary churn and involuntary churn, showing the involuntary share growing from B2B SaaS toward consumer subscription commerce',
+  },
+  {
     slug: 'account-updater-explained',
     title: 'Account Updater Explained: How Visa VAU and Mastercard ABU Actually Work',
     description:

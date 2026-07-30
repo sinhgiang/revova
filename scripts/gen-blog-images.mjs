@@ -2994,7 +2994,185 @@ function accountUpdaterPlatformSupportImgSVG() {
   </svg>`
 }
 
+// Hero for the involuntary-churn-benchmarks article: a horizontal spectrum of
+// five industry verticals, each a bar split into voluntary (indigo) vs
+// involuntary (rose) churn share, showing the involuntary slice growing as
+// you move from corporate-card B2B SaaS toward consumer-card subscription
+// commerce — the single visual argument of the whole piece.
+function churnBenchmarksHeroSVG() {
+  const rows = [
+    { label: 'B2B SaaS', vol: 88, inv: 12 },
+    { label: 'B2C SaaS', vol: 78, inv: 22 },
+    { label: 'Media / streaming', vol: 74, inv: 26 },
+    { label: 'E-commerce subs', vol: 62, inv: 38 },
+    { label: 'Subscription boxes', vol: 32, inv: 68 },
+  ]
+  const x0 = 340, barW = 760, rowH = 78, top = 130
+  const bars = rows.map((r, i) => {
+    const y = top + i * rowH
+    const volW = (r.vol / 100) * barW
+    const invW = (r.inv / 100) * barW
+    return `
+    <text x="${x0 - 20}" y="${y + 26}" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#e5e7eb">${r.label}</text>
+    <rect x="${x0}" y="${y}" width="${volW}" height="34" rx="8" fill="url(#vol)"/>
+    <rect x="${x0 + volW}" y="${y}" width="${invW}" height="34" rx="8" fill="url(#inv)"/>
+    <text x="${x0 + barW + 16}" y="${y + 24}" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" fill="#fda4af">${r.inv}%</text>`
+  }).join('')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="vol" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+      <linearGradient id="inv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f43f5e"/><stop offset="1" stop-color="#fb7185"/></linearGradient>
+      <radialGradient id="glow" cx="0.15" cy="0.2" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.35"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.92" cy="0.85" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.22"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+    ${bars}
+    <g transform="translate(340,540)">
+      <rect width="18" height="18" rx="4" fill="url(#vol)"/>
+      <text x="28" y="14" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#c7d2fe">Voluntary churn</text>
+      <rect x="200" width="18" height="18" rx="4" fill="url(#inv)"/>
+      <text x="228" y="14" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#fda4af">Involuntary churn (failed payments)</text>
+    </g>
+    <g transform="translate(60,60)">
+      <rect width="52" height="52" rx="15" fill="url(#vol)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: monthly gross churn rate by industry vertical — a plain
+// horizontal bar comparison, separate from the voluntary/involuntary split in
+// the hero, since "how much churn happens" and "how much of it is
+// involuntary" are two different numbers people conflate.
+function churnRateByIndustryImgSVG() {
+  const rows = [
+    { label: 'B2B SaaS (enterprise)', pct: 1, note: '&lt;1% monthly' },
+    { label: 'B2B SaaS (SMB/mid-market)', pct: 4, note: '3–5% monthly' },
+    { label: 'B2C SaaS / consumer apps', pct: 6.5, note: '5–8% monthly' },
+    { label: 'Media / streaming', pct: 6.3, note: '6.3% monthly avg.' },
+    { label: 'E-commerce subscriptions', pct: 11.5, note: '8–15% monthly' },
+  ]
+  const max = 15
+  const x0 = 420, barW = 560, rowH = 82, top = 120
+  const bars = rows.map((r, i) => {
+    const y = top + i * rowH
+    const w = Math.max(10, (r.pct / max) * barW)
+    return `
+    <text x="${x0 - 20}" y="${y + 10}" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">${r.label}</text>
+    <rect x="${x0}" y="${y - 16}" width="${barW}" height="32" rx="8" fill="#1a1a30"/>
+    <rect x="${x0}" y="${y - 16}" width="${w}" height="32" rx="8" fill="url(#bar)"/>
+    <text x="${x0 + w + 14}" y="${y + 6}" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#a5b4fc">${r.note}</text>`
+  }).join('')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
+      <radialGradient id="glow" cx="0.5" cy="0.15" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.28"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="110" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Typical monthly gross churn by vertical</text>
+    ${bars}
+    <text x="110" y="${top + rows.length * rowH + 10}" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b9e">Illustrative ranges synthesized from publicly available industry benchmarks — not a single-source statistic</text>
+  </svg>`
+}
+
+// Body image 2: decline rate by card type / geography — corporate cards vs
+// consumer/prepaid cards vs cross-border, the three biggest drivers of why
+// the same "failed payment" problem hits harder in some businesses than
+// others regardless of vertical.
+function declineRateByCardTypeImgSVG() {
+  const rows = [
+    { label: 'B2B — corporate / premium cards', pct: 5, note: '4–6% decline' },
+    { label: 'B2C — consumer / debit cards', pct: 10, note: '8–15% decline' },
+    { label: 'Cross-border transactions', pct: 16, note: '1.5–2x domestic rate' },
+  ]
+  const max = 20
+  const x0 = 460, barW = 520, rowH = 100, top = 140
+  const bars = rows.map((r, i) => {
+    const y = top + i * rowH
+    const w = Math.max(10, (r.pct / max) * barW)
+    const color = i === 2 ? 'url(#amber)' : i === 1 ? 'url(#rose)' : 'url(#bar)'
+    return `
+    <text x="${x0 - 20}" y="${y + 10}" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">${r.label}</text>
+    <rect x="${x0}" y="${y - 18}" width="${barW}" height="36" rx="9" fill="#1a1a30"/>
+    <rect x="${x0}" y="${y - 18}" width="${w}" height="36" rx="9" fill="${color}"/>
+    <text x="${x0 + w + 14}" y="${y + 6}" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" fill="#e5e7eb">${r.note}</text>`
+  }).join('')
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
+      <linearGradient id="rose" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#f43f5e"/></linearGradient>
+      <linearGradient id="amber" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+      <radialGradient id="glow" cx="0.5" cy="0.15" r="0.7"><stop offset="0" stop-color="#f59e0b" stop-opacity="0.22"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="110" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Decline rate by card type and geography</text>
+    ${bars}
+    <text x="110" y="${top + rows.length * rowH + 30}" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b9e">Card mix and geography move the decline rate more than industry category alone</text>
+  </svg>`
+}
+
+// Body image 3: a "healthy vs concerning" decline-rate threshold gauge —
+// helps a reader place their own number on the spectrum instead of just
+// reading it as an abstract percentage.
+function declineRateThresholdGaugeImgSVG() {
+  const x0 = 150, x1 = 1050, y = 320
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="track" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#10b981"/>
+        <stop offset="0.33" stop-color="#34d399"/>
+        <stop offset="0.5" stop-color="#fbbf24"/>
+        <stop offset="0.75" stop-color="#f59e0b"/>
+        <stop offset="1" stop-color="#f43f5e"/>
+      </linearGradient>
+      <radialGradient id="glow" cx="0.5" cy="0.3" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.25"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="110" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Where does your own decline rate fall?</text>
+    <text x="110" y="126" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">A benchmark range, not a verdict — your real number depends on card mix and geography</text>
+
+    <rect x="${x0}" y="${y}" width="${x1 - x0}" height="28" rx="14" fill="url(#track)"/>
+
+    <g transform="translate(${x0},${y + 50})">
+      <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#6ee7b7">&lt;5%</text>
+      <text x="0" y="22" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b9e">outstanding</text>
+    </g>
+    <g transform="translate(${x0 + (x1 - x0) * 0.42},${y + 50})">
+      <text x="0" y="0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#fde68a">5–15%</text>
+      <text x="0" y="22" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b9e">healthy range</text>
+    </g>
+    <g transform="translate(${x1},${y + 50})">
+      <text x="0" y="0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#fda4af">up to 30%</text>
+      <text x="0" y="22" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b9e">seen in some sectors, 2025</text>
+    </g>
+
+    <g transform="translate(${x0 + (x1 - x0) * 0.28},${y - 22})">
+      <path d="M0 22 L-12 0 L12 0 Z" fill="#fff"/>
+      <rect x="-58" y="-40" width="116" height="34" rx="10" fill="#161628" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="0" y="-17" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="800" fill="#c7d2fe">~7% median</text>
+    </g>
+
+    <g transform="translate(150,${H - 90})">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'involuntary-churn-benchmarks-by-industry', svg: churnBenchmarksHeroSVG() },
   { slug: 'account-updater-explained', svg: accountUpdaterExplainedHeroSVG() },
   { slug: 'butter-payments-alternatives', svg: butterPaymentsAlternativesHeroSVG() },
   { slug: 'recurly-vs-chargebee', svg: recurlyVsChargebeeHeroSVG() },
@@ -3033,6 +3211,9 @@ const targets = [
 // suffix) so components/blog/articles/*.tsx can reference them directly via
 // the InBodyImage prose component.
 const bodyImageTargets = [
+  { file: 'involuntary-churn-benchmarks-by-industry-img-1', svg: churnRateByIndustryImgSVG() },
+  { file: 'involuntary-churn-benchmarks-by-industry-img-2', svg: declineRateByCardTypeImgSVG() },
+  { file: 'involuntary-churn-benchmarks-by-industry-img-3', svg: declineRateThresholdGaugeImgSVG() },
   { file: 'account-updater-explained-img-1', svg: accountUpdaterNetworkFlowImgSVG() },
   { file: 'account-updater-explained-img-2', svg: accountUpdaterCoverageImgSVG() },
   { file: 'account-updater-explained-img-3', svg: accountUpdaterPlatformSupportImgSVG() },
