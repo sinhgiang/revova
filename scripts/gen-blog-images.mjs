@@ -2802,7 +2802,200 @@ function paddleProcessorCoverageImgSVG() {
   </svg>`
 }
 
+// Hero for the Account Updater explainer: a silent "network refresh" layer
+// (Account Updater) sitting above a dunning email/retry layer — two distinct
+// mechanisms that together, not separately, close the failed-payment gap.
+function accountUpdaterExplainedHeroSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+      <radialGradient id="glow" cx="0.22" cy="0.28" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.35"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#10b981" stop-opacity="0.2"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+
+    <g transform="translate(150,110)">
+      <rect width="420" height="150" rx="20" fill="#161628" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#c7d2fe" letter-spacing="1.5">ACCOUNT UPDATER</text>
+      <text x="30" y="82" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#a5b4fc">Visa VAU / Mastercard ABU network lookup</text>
+      <text x="30" y="110" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#818cf8">silent, automatic — refreshes stale card data</text>
+      <text x="30" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b6b9e">no email, no customer action, no message sent</text>
+    </g>
+
+    <text x="150" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#4b4b6b">+</text>
+
+    <g transform="translate(150,330)">
+      <rect width="420" height="150" rx="20" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="30" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#6ee7b7" letter-spacing="1.5">DUNNING LAYER</text>
+      <text x="30" y="82" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#a7f3d0">retry schedule + email/SMS + decline routing</text>
+      <text x="30" y="110" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#34d399">customer-facing — asks for action when needed</text>
+      <text x="30" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#5b8a76">covers funds, fraud holds, and true declines</text>
+    </g>
+
+    <path d="M600 185 C 680 220, 680 340, 600 405" stroke="#f59e0b" stroke-width="3" stroke-dasharray="3 8" fill="none"/>
+    <g transform="translate(700,280)">
+      <circle r="60" fill="#f59e0b"/>
+      <text y="-8" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#1a1206">TWO</text>
+      <text y="14" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#1a1206">LAYERS</text>
+      <text y="36" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#1a1206">not one</text>
+    </g>
+
+    <g transform="translate(870,220)">
+      <rect width="230" height="160" rx="18" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="24" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fda4af" letter-spacing="1">TOGETHER</text>
+      <text x="24" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#e5e7eb">stale-card failures</text>
+      <text x="24" y="94" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#e5e7eb">and true declines</text>
+      <text x="24" y="126" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#fca5a5">both get covered —</text>
+      <text x="24" y="146" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#fca5a5">neither alone is enough</text>
+    </g>
+
+    <g transform="translate(150,60)">
+      <rect width="52" height="52" rx="15" fill="url(#card)"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 1: the network-level VAU/ABU flow — merchant/processor submits
+// on-file account numbers, the card network's updater database checks them
+// against the issuing bank, and refreshed data flows back silently.
+function accountUpdaterNetworkFlowImgSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.5" cy="0.2" r="0.7"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.3"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="110" y="80" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">How the network-level lookup actually flows</text>
+
+    <g transform="translate(110,150)">
+      <rect width="230" height="130" rx="18" fill="#161628" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="24" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#c7d2fe" letter-spacing="1">MERCHANT</text>
+      <text x="24" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a5b4fc">/ processor</text>
+      <text x="24" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#818cf8">submits on-file card</text>
+      <text x="24" y="118" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#818cf8">numbers for lookup</text>
+    </g>
+
+    <path d="M340 215 L470 215" stroke="#818cf8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M458 201 l20 14 l-20 14 z" fill="#818cf8"/>
+
+    <g transform="translate(490,150)">
+      <rect width="230" height="130" rx="18" fill="#1e1620" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="24" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fbbf24" letter-spacing="1">CARD NETWORK</text>
+      <text x="24" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#fcd34d">VAU / ABU database</text>
+      <text x="24" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#f59e0b">checks against the</text>
+      <text x="24" y="118" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#f59e0b">issuing bank's records</text>
+    </g>
+
+    <path d="M720 215 L850 215" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+    <path d="M838 201 l20 14 l-20 14 z" fill="#f59e0b"/>
+
+    <g transform="translate(870,150)">
+      <rect width="220" height="130" rx="18" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="24" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#6ee7b7" letter-spacing="1">ISSUING BANK</text>
+      <text x="24" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#a7f3d0">confirms new number</text>
+      <text x="24" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#34d399">or expiration date,</text>
+      <text x="24" y="118" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#34d399">if one exists</text>
+    </g>
+
+    <path d="M980 280 C 980 340, 340 340, 225 340 C 225 340, 225 300, 225 280" stroke="#34d399" stroke-width="3" stroke-dasharray="2 8" fill="none"/>
+    <path d="M239 296 l-16 -20 l-16 20 z" fill="#34d399"/>
+    <text x="600" y="380" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#6ee7b7">refreshed data flows back — the merchant's stored card updates silently</text>
+
+    <text x="110" y="460" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">Runs on a schedule (often a fixed turnaround per request), not in real time —</text>
+    <text x="110" y="486" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">and only if the issuing bank chose to participate in the network's program.</text>
+
+    <g transform="translate(110,530)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 2: honest scope — what account updater fixes vs what it leaves
+// entirely untouched, since this is the single most common misunderstanding.
+function accountUpdaterCoverageImgSVG() {
+  const fixes = ['Expired card, new expiration date issued', 'Card reissued after a lost/stolen replacement', 'Card number changed on a reissue']
+  const notFixes = ['Insufficient funds (no data to refresh)', 'do_not_honor / bank risk decline', 'Fraud hold or blocked transaction', 'Account closed by the customer or bank']
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.2" cy="0.2" r="0.6"><stop offset="0" stop-color="#10b981" stop-opacity="0.25"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow2" cx="0.85" cy="0.7" r="0.55"><stop offset="0" stop-color="#f43f5e" stop-opacity="0.18"/><stop offset="1" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+    <text x="110" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">What it fixes, and what it never touches</text>
+
+    <g transform="translate(110,110)">
+      <rect width="480" height="${70 + fixes.length * 46}" rx="18" fill="#0f2e22" stroke="#10b981" stroke-width="1.5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#6ee7b7" letter-spacing="1">ACCOUNT UPDATER FIXES</text>
+      ${fixes.map((f, i) => `
+        <circle cx="40" cy="${72 + i * 46}" r="9" fill="#10b981"/>
+        <path d="M35 ${72 + i * 46} l4 5 l8 -9" stroke="#0f2e22" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="58" y="${77 + i * 46}" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#d1fae5">${f}</text>`).join('')}
+    </g>
+
+    <g transform="translate(610,110)">
+      <rect width="480" height="${70 + notFixes.length * 46}" rx="18" fill="#1e1620" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#fda4af" letter-spacing="1">NEVER TOUCHES</text>
+      ${notFixes.map((f, i) => `
+        <circle cx="40" cy="${72 + i * 46}" r="9" fill="none" stroke="#fb7185" stroke-width="2.5"/>
+        <path d="M35 ${67 + i * 46} l10 10 M45 ${67 + i * 46} l-10 10" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="58" y="${77 + i * 46}" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#fecaca">${f}</text>`).join('')}
+    </g>
+
+    <text x="110" y="520" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">Stale card data and a genuine decline are different problems — one is a network lookup,</text>
+    <text x="110" y="546" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#9ca3af">the other still needs decline-aware retries and a customer-facing dunning sequence.</text>
+
+    <g transform="translate(110,565)">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
+// Body image 3: platform support snapshot across the five processors Revova
+// connects to, read-only — deliberately honest about native vs gateway-
+// dependent vs undocumented support rather than implying uniform coverage.
+function accountUpdaterPlatformSupportImgSVG() {
+  const rows = [
+    ['Stripe', 'Native — automatic, uses VAU + ABU'],
+    ['Recurly', 'Native — automatic, built in'],
+    ['Braintree', 'Opt-in — bulk + rolling refresh'],
+    ['Chargebee', 'Gateway-dependent (inherits Stripe/Braintree)'],
+    ['Paddle', 'Handled inside Paddle’s own MoR stack'],
+  ]
+  const rowH = 76
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a16"/><stop offset="1" stop-color="#0f0f22"/></linearGradient>
+      <radialGradient id="glow" cx="0.25" cy="0.2" r="0.6"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.3"/><stop offset="1" stop-color="#4f46e5" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#bg)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow)"/>
+    <text x="110" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="800" fill="#e5e7eb">Account updater support isn't uniform across processors</text>
+    ${rows.map((r, i) => `
+      <g transform="translate(110,${110 + i * rowH})">
+        <rect width="980" height="${rowH - 12}" rx="14" fill="#141428" stroke="#242440" stroke-width="1"/>
+        <text x="26" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#e5e7eb">${r[0]}</text>
+        <text x="280" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#a5b4fc">${r[1]}</text>
+      </g>`).join('')}
+    <text x="110" y="${110 + rows.length * rowH + 30}" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#6b6b9e">Illustrative summary of publicly documented behavior — confirm current specifics directly with each platform.</text>
+    <g transform="translate(110,${110 + rows.length * rowH + 50})">
+      <rect width="52" height="52" rx="15" fill="#4f46e5"/>
+      <text x="26" y="38" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">R</text>
+    </g>
+  </svg>`
+}
+
 const targets = [
+  { slug: 'account-updater-explained', svg: accountUpdaterExplainedHeroSVG() },
   { slug: 'butter-payments-alternatives', svg: butterPaymentsAlternativesHeroSVG() },
   { slug: 'recurly-vs-chargebee', svg: recurlyVsChargebeeHeroSVG() },
   { slug: 'recurly-dunning', svg: recurlyDunningHeroSVG() },
@@ -2840,6 +3033,9 @@ const targets = [
 // suffix) so components/blog/articles/*.tsx can reference them directly via
 // the InBodyImage prose component.
 const bodyImageTargets = [
+  { file: 'account-updater-explained-img-1', svg: accountUpdaterNetworkFlowImgSVG() },
+  { file: 'account-updater-explained-img-2', svg: accountUpdaterCoverageImgSVG() },
+  { file: 'account-updater-explained-img-3', svg: accountUpdaterPlatformSupportImgSVG() },
   { file: 'butter-payments-alternatives-img-1', svg: butterRevenueShareCostImgSVG() },
   { file: 'butter-payments-alternatives-img-2', svg: butterFeatureDepthImgSVG() },
   { file: 'butter-payments-alternatives-img-3', svg: butterProcessorCoverageImgSVG() },

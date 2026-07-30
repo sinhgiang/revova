@@ -27,6 +27,20 @@ export type BlogPost = {
 
 export const posts: BlogPost[] = [
   {
+    slug: 'account-updater-explained',
+    title: 'Account Updater Explained: How Visa VAU and Mastercard ABU Actually Work',
+    description:
+      "A complete guide to Account Updater — Visa Account Updater (VAU) and Mastercard Automatic Billing Updater (ABU) — how the network-level card refresh actually works, which processors support it and how, what it can never fix, and why it's not a substitute for dunning.",
+    excerpt:
+      "Account Updater silently refreshes stale card data — a real, useful mechanism routinely confused with dunning. Here's what it actually does, what it never touches, and how processor support differs across Stripe, Recurly, Braintree, Chargebee, and Paddle.",
+    date: '2026-07-30',
+    author: 'Sinh Yang',
+    category: 'Explainer',
+    readingMinutes: 14,
+    hero: '/blog/account-updater-explained-hero',
+    heroAlt: 'A silent network-level Account Updater layer refreshing stale card data automatically, stacked above a customer-facing dunning layer of retries and emails — two complementary layers, not one',
+  },
+  {
     slug: 'butter-payments-alternatives',
     title: 'Butter Payments Alternatives: Flat-Fee Recovery Tools Compared (2026)',
     description:

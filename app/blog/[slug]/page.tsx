@@ -35,10 +35,12 @@ import PaddleRetainAlternatives, { faqs as paddleRetainFaqs } from '@/components
 import RecurlyDunning, { faqs as recurlyDunningFaqs } from '@/components/blog/articles/recurly-dunning'
 import RecurlyVsChargebee, { faqs as recurlyVsChargebeeFaqs } from '@/components/blog/articles/recurly-vs-chargebee'
 import ButterPaymentsAlternatives, { faqs as butterPaymentsFaqs } from '@/components/blog/articles/butter-payments-alternatives'
+import AccountUpdaterExplained, { faqs as accountUpdaterFaqs } from '@/components/blog/articles/account-updater-explained'
 
 // Wire each post slug to its article body. Bodies live outside app/ so this
 // registry is the one place routing meets content.
 const bodies: Record<string, ComponentType> = {
+  'account-updater-explained': AccountUpdaterExplained,
   'butter-payments-alternatives': ButterPaymentsAlternatives,
   'recurly-vs-chargebee': RecurlyVsChargebee,
   'recurly-dunning': RecurlyDunning,
@@ -73,6 +75,7 @@ const bodies: Record<string, ComponentType> = {
 
 // Posts that ship an on-page FAQ also emit matching FAQPage structured data.
 const faqsBySlug: Record<string, Faq[]> = {
+  'account-updater-explained': accountUpdaterFaqs,
   'butter-payments-alternatives': butterPaymentsFaqs,
   'recurly-vs-chargebee': recurlyVsChargebeeFaqs,
   'recurly-dunning': recurlyDunningFaqs,
