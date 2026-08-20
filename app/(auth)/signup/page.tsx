@@ -59,12 +59,12 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
+          <Link href="/" className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-2xl text-gray-900">Revova</span>
-          </div>
+          </Link>
           <h1 className="text-2xl font-bold text-gray-900">Start recovering revenue</h1>
           <p className="text-gray-500 mt-1">Free 14-day trial · No credit card required</p>
         </div>

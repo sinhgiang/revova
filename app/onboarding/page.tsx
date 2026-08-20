@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Zap, Shield, Clock, TrendingUp, Eye, EyeOff, Copy, CheckCircle, ExternalLink, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -113,12 +114,12 @@ export default function OnboardingPage() {
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="w-full max-w-lg">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 mb-4">
+            <Link href="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-2xl text-gray-900">Revova</span>
-            </div>
+            </Link>
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="flex items-center gap-1.5 text-emerald-600 text-sm font-medium">
                 <CheckCircle className="w-4 h-4" />
@@ -220,12 +221,12 @@ export default function OnboardingPage() {
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="w-full max-w-lg">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 mb-6">
+            <Link href="/" className="inline-flex items-center gap-2 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-2xl text-gray-900">Revova</span>
-            </div>
+            </Link>
             <h1 className="text-3xl font-bold text-gray-900">Connect your payment platform</h1>
             <p className="text-gray-500 mt-3 text-lg">Not on Stripe? No problem — pick your platform and connect it below.</p>
           </div>
@@ -252,12 +253,12 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-6">
+          <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-2xl text-gray-900">Revova</span>
-          </div>
+          </Link>
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="text-sm font-semibold text-indigo-600">Step 1: Connect Stripe</div>
             <div className="w-8 h-px bg-gray-300" />
