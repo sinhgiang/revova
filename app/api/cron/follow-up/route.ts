@@ -42,6 +42,13 @@ const HARD_DAYS_AFTER_PREV: Record<number, number> = {
 // Mirrors the "retry for up to a full month" behavior of leading dunning tools.
 const DEFAULT_RECOVERY_WINDOW_DAYS = 30
 
+// Hard ceiling on total auto-retry ATTEMPTS, independent of recovery_window_days
+// or smart_retry_enabled — a merchant picking a longer window (or leaving daily
+// retry on) must never be able to exceed card-network limits. Stripe's own
+// guidance for retryable charges is ~8 attempts; Visa's documented limit is 15
+// within a rolling 30 days (fee from the 16th on). We stop well under both.
+const MAX_RETRY_ATTEMPTS = 8
+
 // SMS is an escalation channel: fire once after the customer has ignored this
 // many emails. SMS open rates (~98%) far exceed email, so this is a high-value nudge.
 const SMS_AFTER_EMAILS = 3
@@ -208,16 +215,28 @@ export async function GET(request: NextRequest) {
     const isStripe = (payment.processor ?? 'stripe') === 'stripe'
     const smartRetry = !!account.smart_retry_enabled
     const retryToday = !smartRetry || isPaydayWindow(now)
-    if (isStripe && retryToday && RETRYABLE_CODES.has(payment.decline_code)) {
+    const attemptsSoFar: number = payment.retry_attempts ?? 0
+    const underAttemptCap = attemptsSoFar < MAX_RETRY_ATTEMPTS
+    if (isStripe && retryToday && underAttemptCap && RETRYABLE_CODES.has(payment.decline_code)) {
+      // One retry attempt per payment per calendar day: if the cron ever runs
+      // twice for the same day (overlapping invocation, manual re-run), Stripe
+      // returns the cached first response instead of charging the card again.
+      const idempotencyKey = `retry-${payment.id}-${now.toISOString().slice(0, 10)}`
       try {
         const stripe = new Stripe(account.access_token)
-        await stripe.invoices.pay(payment.stripe_invoice_id)
+        await stripe.invoices.pay(payment.stripe_invoice_id, {}, { idempotencyKey })
+        try {
+          await db.from('failed_payments').update({ retry_attempts: attemptsSoFar + 1 }).eq('id', payment.id)
+        } catch { /* non-critical — counter column may not exist yet */ }
         await handleRecoverySuccess(payment, account)
         recovered++
         console.log(`[Cron] ✓ Auto-retry succeeded → ${payment.customer_email}`)
         continue // recovered — no email needed
       } catch {
-        // Retry failed — fall through to the email sequence
+        // Retry failed — count the attempt, then fall through to the email sequence
+        try {
+          await db.from('failed_payments').update({ retry_attempts: attemptsSoFar + 1 }).eq('id', payment.id)
+        } catch { /* non-critical — counter column may not exist yet */ }
       }
     }
 
