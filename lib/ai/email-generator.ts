@@ -15,6 +15,12 @@ const DECLINE_CONTEXT: Record<string, string> = {
   // (3-D Secure / Strong Customer Authentication). Common in the EU/UK. The fix
   // is to CONFIRM the payment, not to replace the card.
   authentication_required: 'The payment needs the customer to verify it with their bank (3-D Secure / Strong Customer Authentication). The card itself is fine — the charge just needs to be confirmed.',
+  // The issuer's own fraud/velocity system blocked this — not a balance issue.
+  // Stripe's guidance is that the customer needs to contact their card issuer
+  // directly; silently re-charging the same card looks like card-testing to the
+  // issuer and can get the card (or the merchant) flagged, so this is treated as
+  // a hard decline (new-card / contact-bank track), never auto-retried.
+  card_velocity_exceeded: 'The bank blocked this charge for exceeding a spending/frequency limit on the card. This usually needs the customer to contact their card issuer directly to clear it — it is not something a retry or a new card fixes on its own.',
 }
 
 const SEQUENCE_CONTEXT: Record<number, string> = {
@@ -29,6 +35,10 @@ const HARD_DECLINE_CODES = new Set([
   'lost_card', 'stolen_card', 'pickup_card', 'restricted_card',
   'security_violation', 'transaction_not_allowed', 'do_not_honor',
   'fraudulent', 'card_declined',
+  // Issuer-side velocity/fraud block — per Stripe's docs the next step is
+  // "customer contacts their issuer," not a retry. See RETRYABLE_CODES note
+  // in app/api/cron/follow-up/route.ts for the matching auto-retry exclusion.
+  'card_velocity_exceeded',
 ])
 
 export function getDeclineSeverity(code: string | null): 'hard' | 'soft' {

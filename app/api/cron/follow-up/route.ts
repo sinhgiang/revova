@@ -12,12 +12,16 @@ import { resolvePlan, monthlyRecoveryCount, STARTER_MONTHLY_RECOVERY_LIMIT } fro
 import { isAuthorizedCron } from '@/lib/cron-auth'
 import { DeclineCode } from '@/types'
 
-// Decline codes where auto-retrying the charge is worth attempting
+// Decline codes where auto-retrying the charge is worth attempting.
+// card_velocity_exceeded is deliberately excluded: it's the issuer's own
+// fraud/velocity system blocking the charge, not a funds/timing issue. Stripe's
+// guidance is "customer contacts their issuer" — silently re-charging the same
+// card looks like card-testing to the issuer and risks getting it flagged. It's
+// routed to the hard-decline email track instead (see getDeclineClass).
 const RETRYABLE_CODES = new Set([
   'insufficient_funds',
   'processing_error',
   'generic_decline',
-  'card_velocity_exceeded',
 ])
 
 // Default days to wait after the PREVIOUS email
