@@ -43,10 +43,10 @@ const HARD_DAYS_AFTER_PREV: Record<number, number> = {
 const DEFAULT_RECOVERY_WINDOW_DAYS = 30
 
 // Hard ceiling on total auto-retry ATTEMPTS, independent of recovery_window_days
-// or smart_retry_enabled — a merchant picking a longer window (or leaving daily
-// retry on) must never be able to exceed card-network limits. Stripe's own
-// guidance for retryable charges is ~8 attempts; Visa's documented limit is 15
-// within a rolling 30 days (fee from the 16th on). We stop well under both.
+// — a merchant picking a longer window must never be able to exceed card-network
+// limits. Stripe's own guidance for retryable charges is ~8 attempts; Visa's
+// documented limit is 15 within a rolling 30 days (fee from the 16th on). We
+// stop well under both.
 const MAX_RETRY_ATTEMPTS = 8
 
 // SMS is an escalation channel: fire once after the customer has ignored this
@@ -206,15 +206,17 @@ export async function GET(request: NextRequest) {
       continue
     }
 
-    // ── SMART / DAILY RETRY ──
+    // ── SMART RETRY (payday-windowed) ──
     // Attempt to re-charge retryable declines within the window, independent of
-    // email timing. When smart_retry_enabled, only fire on high-probability days
-    // (payday windows) to avoid burning attempts when banks are likely to decline.
-    // Only Stripe payments are retried by us — other processors (e.g. Paddle, a
-    // Merchant of Record) run their own dunning, and we don't hold their charge API.
+    // email timing. Always concentrated on high-probability days (payday windows)
+    // rather than firing daily: with MAX_RETRY_ATTEMPTS capping the budget at 8
+    // tries, every attempt is precious — spending one on a random Tuesday when the
+    // customer's balance is unlikely to have refilled just burns budget that
+    // should be saved for the days it's actually likely to clear. (Previously this
+    // only happened when the merchant opted into smart_retry_enabled; daily-by-
+    // default had no upside once total attempts are capped, so it's gone.)
     const isStripe = (payment.processor ?? 'stripe') === 'stripe'
-    const smartRetry = !!account.smart_retry_enabled
-    const retryToday = !smartRetry || isPaydayWindow(now)
+    const retryToday = isPaydayWindow(now)
     const attemptsSoFar: number = payment.retry_attempts ?? 0
     const underAttemptCap = attemptsSoFar < MAX_RETRY_ATTEMPTS
     if (isStripe && retryToday && underAttemptCap && RETRYABLE_CODES.has(payment.decline_code)) {

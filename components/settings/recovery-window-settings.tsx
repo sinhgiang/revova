@@ -5,12 +5,16 @@ import { RefreshCw } from 'lucide-react'
 
 interface Props {
   currentWindowDays: number
-  currentSmartRetry: boolean
+  // Kept for backward compat with the caller — smart (payday-windowed) timing
+  // is now always on, it's no longer a per-merchant choice. See the retry
+  // block in app/api/cron/follow-up/route.ts for why: once total attempts are
+  // capped (card-network limits), there's no upside to ever firing off a
+  // payday window, so the toggle was removed rather than left as a no-op.
+  currentSmartRetry?: boolean
 }
 
-export function RecoveryWindowSettings({ currentWindowDays, currentSmartRetry }: Props) {
+export function RecoveryWindowSettings({ currentWindowDays }: Props) {
   const [windowDays, setWindowDays] = useState(currentWindowDays || 30)
-  const [smartRetry, setSmartRetry] = useState(currentSmartRetry)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -21,7 +25,7 @@ export function RecoveryWindowSettings({ currentWindowDays, currentSmartRetry }:
       await fetch('/api/stripe/update-recovery-window', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ windowDays, smartRetry }),
+        body: JSON.stringify({ windowDays, smartRetry: true }),
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
@@ -36,8 +40,11 @@ export function RecoveryWindowSettings({ currentWindowDays, currentSmartRetry }:
         <RefreshCw className="w-4 h-4 text-indigo-600" />
         <h2 className="font-semibold text-gray-900">Recovery Window</h2>
       </div>
+      <p className="text-sm text-gray-500 mb-2">
+        How long Revova keeps automatically retrying the charge after a payment fails, for recoverable declines (like insufficient funds) — not just when an email goes out.
+      </p>
       <p className="text-sm text-gray-500 mb-5">
-        How long Revova keeps automatically retrying the charge after a payment fails. Within this window we re-attempt the card <strong>every day</strong> for recoverable declines (like insufficient funds) — not just when an email goes out.
+        Retries are capped at <strong>8 attempts</strong> and concentrated on payday windows (start &amp; middle of month, when banks are most likely to approve) — never daily. This keeps every card safely under Stripe's and Visa's own retry limits, so recoverable cards don't get flagged as fraud from being charged too often.
       </p>
 
       <div>
@@ -53,20 +60,7 @@ export function RecoveryWindowSettings({ currentWindowDays, currentSmartRetry }:
           <option value={45}>45 days</option>
           <option value={60}>60 days</option>
         </select>
-        <p className="text-xs text-gray-400 mt-1">Longer windows recover more revenue but keep retrying cards for longer.</p>
-      </div>
-
-      <div className="flex items-center justify-between mt-5 pt-5 border-t border-gray-100">
-        <div className="pr-4">
-          <p className="text-sm font-medium text-gray-900">Smart retry timing</p>
-          <p className="text-xs text-gray-400">Concentrate retries on payday windows (start &amp; middle of month) when banks are most likely to approve — instead of every day.</p>
-        </div>
-        <button
-          onClick={() => setSmartRetry(v => !v)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${smartRetry ? 'bg-emerald-500' : 'bg-gray-200'}`}
-        >
-          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${smartRetry ? 'translate-x-6' : 'translate-x-1'}`} />
-        </button>
+        <p className="text-xs text-gray-400 mt-1">Longer windows give more payday windows a chance to land, but the 8-attempt cap still applies.</p>
       </div>
 
       <div className="mt-5 flex justify-end">
