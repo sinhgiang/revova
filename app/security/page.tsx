@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Shield, Lock, Eye, Server, FileCheck, Globe } from 'lucide-react'
 import type { Metadata } from 'next'
+import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = { title: 'Security & Trust — Revova' }
 
@@ -16,9 +17,9 @@ const ITEMS = [
 export default function SecurityPage() {
   return (
     <div className="min-h-screen bg-white">
+      <SiteHeader />
       <div className="max-w-3xl mx-auto px-6 py-16">
-        <Link href="/" className="text-sm text-indigo-600 hover:underline">← Back to Revova</Link>
-        <div className="flex items-center gap-3 mt-6 mb-3">
+        <div className="flex items-center gap-3 mb-3">
           <div className="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center">
             <Shield className="w-6 h-6 text-indigo-600" />
           </div>

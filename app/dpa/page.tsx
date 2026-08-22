@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = { title: 'Data Processing Agreement — Revova' }
 
@@ -15,9 +16,9 @@ const SUBPROCESSORS = [
 export default function DPAPage() {
   return (
     <div className="min-h-screen bg-white">
+      <SiteHeader />
       <div className="max-w-3xl mx-auto px-6 py-16">
-        <Link href="/" className="text-sm text-indigo-600 hover:underline">← Back to Revova</Link>
-        <h1 className="text-3xl font-bold text-gray-900 mt-6 mb-2">Data Processing Agreement</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Data Processing Agreement</h1>
         <p className="text-gray-400 text-sm mb-10">Last updated: 24 June 2026</p>
 
         <div className="prose prose-sm max-w-none text-gray-600 space-y-6">

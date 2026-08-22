@@ -4,36 +4,16 @@ import { Zap, CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown } from 'luci
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 import { PricingPlans } from '@/components/landing/pricing-plans'
 import { SocialLinks } from '@/components/social-links'
+import { SiteHeader } from '@/components/site-header'
 
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-white font-sans">
 
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-gray-900 text-lg">Revova</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
-            <Link href="/#how-it-works" className="hover:text-gray-900 transition-colors">How it works</Link>
-            <Link href="/pricing" className="text-indigo-600 font-semibold">Pricing</Link>
-            <Link href="/#faq" className="hover:text-gray-900 transition-colors">FAQ</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 font-medium">Sign in</Link>
-            <Link href="/signup" className="inline-flex items-center gap-1.5 bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-              Start free trial
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteHeader />
 
       {/* Hero */}
-      <section className="pt-28 pb-16 text-center px-6">
+      <section className="pt-16 pb-16 text-center px-6">
         <div className="max-w-3xl mx-auto">
           <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-4">Simple pricing</p>
           <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-5 leading-tight">

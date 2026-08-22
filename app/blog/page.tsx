@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { sortedPosts, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
 import { SocialLinks } from '@/components/social-links'
+import { SiteHeader } from '@/components/site-header'
 import { breadcrumbSchema } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -63,16 +64,7 @@ export default function BlogIndexPage() {
     <div className="min-h-screen bg-white">
       <JsonLd data={breadcrumbSchema([{ name: 'Home', path: '' }, { name: 'Blog', path: 'blog' }])} />
 
-      <header className="border-b border-gray-100 py-4 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-bold text-gray-900 text-lg">Revova</Link>
-          <nav className="flex items-center gap-6 text-sm text-gray-500">
-            <Link href="/pricing" className="hover:text-gray-900">Pricing</Link>
-            <Link href="/blog" className="text-gray-900 font-medium">Blog</Link>
-            <Link href="/signup" className="text-indigo-600 font-semibold hover:text-indigo-700">Start free →</Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="max-w-6xl mx-auto px-6 pt-14 pb-20">
         <div className="mb-12 max-w-3xl">

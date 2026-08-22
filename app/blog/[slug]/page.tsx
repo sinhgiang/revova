@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { posts, getPost, sortedPosts, AUTHOR, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
 import { SocialLinks } from '@/components/social-links'
+import { SiteHeader } from '@/components/site-header'
 import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
 import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/components/blog/articles/how-to-recover-failed-stripe-payments'
@@ -190,16 +191,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ]}
       />
 
-      <header className="border-b border-gray-100 py-4 px-6">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-bold text-gray-900 text-lg">Revova</Link>
-          <nav className="flex items-center gap-6 text-sm text-gray-500">
-            <Link href="/blog" className="hover:text-gray-900">Blog</Link>
-            <Link href="/pricing" className="hover:text-gray-900">Pricing</Link>
-            <Link href="/signup" className="text-indigo-600 font-semibold hover:text-indigo-700">Start free →</Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="max-w-3xl mx-auto px-6 py-12">
         <nav className="text-sm text-gray-400 mb-6">
