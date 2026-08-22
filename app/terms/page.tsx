@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { SocialLinks } from '@/components/social-links'
 
 export const metadata: Metadata = {
   title: 'Terms of Service — Revova',
@@ -124,6 +125,7 @@ export default function TermsPage() {
         <div className="space-x-4">
           <Link href="/privacy" className="hover:text-gray-600">Privacy Policy</Link>
           <Link href="/" className="hover:text-gray-600">Home</Link>
+          <SocialLinks />
         </div>
       </footer>
     </div>

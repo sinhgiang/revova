@@ -5,6 +5,7 @@ import { RoiCalculator } from '@/components/landing/roi-calculator'
 import { PricingPlans } from '@/components/landing/pricing-plans'
 import { DemoVideo } from '@/components/landing/demo-video'
 import { JsonLd } from '@/components/json-ld'
+import { SocialLinks } from '@/components/social-links'
 import { homeFaqs, faqPageSchema, breadcrumbSchema } from '@/lib/seo'
 
 export default function LandingPage() {
@@ -741,6 +742,7 @@ export default function LandingPage() {
             <Link href="/dpa" className="text-sm text-gray-400 hover:text-gray-600">DPA</Link>
             <Link href="/login" className="text-sm text-gray-400 hover:text-gray-600">Sign in</Link>
             <Link href="/signup" className="text-sm text-gray-400 hover:text-gray-600">Sign up</Link>
+            <SocialLinks className="text-gray-400" />
           </div>
         </div>
       </footer>

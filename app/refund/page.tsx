@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { SocialLinks } from '@/components/social-links'
 
 export const metadata: Metadata = {
   title: 'Refund & Cancellation Policy — Revova',
@@ -90,6 +91,7 @@ export default function RefundPage() {
           <Link href="/pricing" className="hover:text-gray-600">Pricing</Link>
           <Link href="/contact" className="hover:text-gray-600">Contact</Link>
           <Link href="/terms" className="hover:text-gray-600">Terms</Link>
+          <SocialLinks />
         </div>
       </footer>
     </div>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { sortedPosts, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
+import { SocialLinks } from '@/components/social-links'
 import { breadcrumbSchema } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -163,6 +164,7 @@ export default function BlogIndexPage() {
           <Link href="/contact" className="hover:text-gray-600">Contact</Link>
           <Link href="/privacy" className="hover:text-gray-600">Privacy</Link>
           <Link href="/terms" className="hover:text-gray-600">Terms</Link>
+          <SocialLinks />
         </div>
       </footer>
     </div>

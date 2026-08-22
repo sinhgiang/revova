@@ -4,6 +4,7 @@ import type { ComponentType } from 'react'
 import { notFound } from 'next/navigation'
 import { posts, getPost, sortedPosts, AUTHOR, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
+import { SocialLinks } from '@/components/social-links'
 import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
 import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/components/blog/articles/how-to-recover-failed-stripe-payments'
@@ -287,6 +288,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <Link href="/pricing" className="hover:text-gray-600">Pricing</Link>
           <Link href="/about" className="hover:text-gray-600">About</Link>
           <Link href="/contact" className="hover:text-gray-600">Contact</Link>
+          <SocialLinks />
         </div>
       </footer>
     </div>

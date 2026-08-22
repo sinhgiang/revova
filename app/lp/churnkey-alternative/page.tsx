@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Zap, Shield, Lock, Clock, CheckCircle, X, ArrowRight, CreditCard, Search, Globe } from 'lucide-react'
 import { DemoVideo } from '@/components/landing/demo-video'
+import { SocialLinks } from '@/components/social-links'
 
 // Dedicated ad landing page — message-matched to "churnkey alternative" intent.
 // No site nav, one offer (free scan), a head-to-head comparison, honest about
@@ -243,6 +244,7 @@ export default function ChurnkeyAlternativeLP() {
             <Link href="/refund" className="hover:text-gray-600">Refund</Link>
             <Link href="/contact" className="hover:text-gray-600">Contact</Link>
             <Link href="/security" className="hover:text-gray-600">Security</Link>
+            <SocialLinks />
           </div>
         </div>
       </footer>

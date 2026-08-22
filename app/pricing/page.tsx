@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Zap, CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 import { PricingPlans } from '@/components/landing/pricing-plans'
+import { SocialLinks } from '@/components/social-links'
 
 export default function PricingPage() {
   return (
@@ -252,6 +253,7 @@ export default function PricingPage() {
             <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">Home</Link>
             <Link href="/login" className="text-sm text-gray-400 hover:text-gray-600">Sign in</Link>
             <Link href="/signup" className="text-sm text-gray-400 hover:text-gray-600">Sign up</Link>
+            <SocialLinks className="text-gray-400" />
           </div>
         </div>
       </footer>

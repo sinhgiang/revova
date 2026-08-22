@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Zap, Shield, Lock, Clock, CheckCircle, ArrowRight, Search, CreditCard, Globe, RefreshCw } from 'lucide-react'
 import { DemoVideo } from '@/components/landing/demo-video'
+import { SocialLinks } from '@/components/social-links'
 
 // Dedicated ad landing page — message-matched to "recover failed payments"
 // intent, no site nav (no leaks), a single low-friction offer (the free scan),
@@ -234,6 +235,7 @@ export default function RecoverFailedPaymentsLP() {
             <Link href="/refund" className="hover:text-gray-600">Refund</Link>
             <Link href="/contact" className="hover:text-gray-600">Contact</Link>
             <Link href="/security" className="hover:text-gray-600">Security</Link>
+            <SocialLinks />
           </div>
         </div>
       </footer>
