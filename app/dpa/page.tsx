@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export const metadata: Metadata = { title: 'Data Processing Agreement — Revova' }
 
@@ -85,6 +86,7 @@ export default function DPAPage() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

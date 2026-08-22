@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { SocialLinks } from '@/components/social-links'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export const metadata: Metadata = {
   title: 'Contact Revova — Support & Sales',
@@ -77,16 +77,7 @@ export default function ContactPage() {
           </section>
         </div>
       </main>
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        <div className="space-x-4">
-          <Link href="/" className="hover:text-gray-600">Home</Link>
-          <Link href="/about" className="hover:text-gray-600">About</Link>
-          <Link href="/pricing" className="hover:text-gray-600">Pricing</Link>
-          <Link href="/privacy" className="hover:text-gray-600">Privacy</Link>
-          <Link href="/terms" className="hover:text-gray-600">Terms</Link>
-          <SocialLinks />
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

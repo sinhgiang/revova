@@ -2,8 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { sortedPosts, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
-import { SocialLinks } from '@/components/social-links'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 import { breadcrumbSchema } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -148,17 +148,7 @@ export default function BlogIndexPage() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 py-8 text-center text-sm text-gray-400">
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <Link href="/" className="hover:text-gray-600">Home</Link>
-          <Link href="/pricing" className="hover:text-gray-600">Pricing</Link>
-          <Link href="/about" className="hover:text-gray-600">About</Link>
-          <Link href="/contact" className="hover:text-gray-600">Contact</Link>
-          <Link href="/privacy" className="hover:text-gray-600">Privacy</Link>
-          <Link href="/terms" className="hover:text-gray-600">Terms</Link>
-          <SocialLinks />
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

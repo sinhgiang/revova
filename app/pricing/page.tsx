@@ -1,10 +1,10 @@
 'use client'
 import Link from 'next/link'
-import { Zap, CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown } from 'lucide-react'
+import { CheckCircle, X, ArrowRight, Shield, Lock, ChevronDown } from 'lucide-react'
 import { RoiCalculator } from '@/components/landing/roi-calculator'
 import { PricingPlans } from '@/components/landing/pricing-plans'
-import { SocialLinks } from '@/components/social-links'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export default function PricingPage() {
   return (
@@ -219,24 +219,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="px-6 py-8 border-t border-gray-100 bg-white">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="font-bold text-gray-900">Revova</span>
-          </Link>
-          <p className="text-sm text-gray-400">© 2026 Revova · AI-powered payment recovery</p>
-          <div className="flex items-center gap-6">
-            <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">Home</Link>
-            <Link href="/login" className="text-sm text-gray-400 hover:text-gray-600">Sign in</Link>
-            <Link href="/signup" className="text-sm text-gray-400 hover:text-gray-600">Sign up</Link>
-            <SocialLinks className="text-gray-400" />
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { SocialLinks } from '@/components/social-links'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export const metadata: Metadata = {
   title: 'Terms of Service — Revova',
@@ -120,13 +120,7 @@ export default function TermsPage() {
           </section>
         </div>
       </main>
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        <div className="space-x-4">
-          <Link href="/privacy" className="hover:text-gray-600">Privacy Policy</Link>
-          <Link href="/" className="hover:text-gray-600">Home</Link>
-          <SocialLinks />
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

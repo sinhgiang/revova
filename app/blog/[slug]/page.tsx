@@ -4,8 +4,8 @@ import type { ComponentType } from 'react'
 import { notFound } from 'next/navigation'
 import { posts, getPost, sortedPosts, AUTHOR, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
-import { SocialLinks } from '@/components/social-links'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
 import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/components/blog/articles/how-to-recover-failed-stripe-payments'
@@ -273,16 +273,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       </main>
 
-      <footer className="border-t border-gray-100 py-8 text-center text-sm text-gray-400">
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <Link href="/" className="hover:text-gray-600">Home</Link>
-          <Link href="/blog" className="hover:text-gray-600">Blog</Link>
-          <Link href="/pricing" className="hover:text-gray-600">Pricing</Link>
-          <Link href="/about" className="hover:text-gray-600">About</Link>
-          <Link href="/contact" className="hover:text-gray-600">Contact</Link>
-          <SocialLinks />
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

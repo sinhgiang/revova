@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Shield, Lock, Eye, Server, FileCheck, Globe } from 'lucide-react'
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export const metadata: Metadata = { title: 'Security & Trust — Revova' }
 
@@ -55,6 +56,7 @@ export default function SecurityPage() {
           Honest note: a SOC 2 report for Revova itself is not yet available — we&apos;re a young product. We build on SOC 2-certified infrastructure and are happy to complete a security questionnaire for enterprise evaluations.
         </p>
       </div>
+      <SiteFooter />
     </div>
   )
 }
