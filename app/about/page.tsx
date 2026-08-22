@@ -21,6 +21,50 @@ export default function AboutPage() {
 
         <div className="prose prose-gray max-w-none space-y-8 text-gray-700 leading-7">
           <section>
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">The team</h2>
+            <p className="mb-6">Revova is built by a small, focused team.</p>
+            <div className="not-prose grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="text-center">
+                <picture>
+                  <source srcSet="/authors/sinh-yang.avif" type="image/avif" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/authors/sinh-yang.webp"
+                    alt="Sinh Yang"
+                    width={96}
+                    height={96}
+                    className="w-24 h-24 rounded-full object-cover mx-auto mb-3"
+                  />
+                </picture>
+                <p className="font-semibold text-gray-900">Sinh Yang</p>
+                <p className="text-sm text-gray-500">Founder</p>
+              </div>
+              <div className="text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/team/cofounder.jpg"
+                  alt="Co-founder"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full object-cover mx-auto mb-3"
+                />
+                <p className="text-sm text-gray-500">Co-founder</p>
+              </div>
+              <div className="text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/team/engineering.jpg"
+                  alt="Engineering"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full object-cover mx-auto mb-3"
+                />
+                <p className="text-sm text-gray-500">Engineering</p>
+              </div>
+            </div>
+          </section>
+
+          <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">What we do</h2>
             <p>
               Revova helps subscription businesses recover revenue they lose to failed and declined
@@ -84,7 +128,7 @@ export default function AboutPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">Get in touch</h2>
             <p>
-              Revova is an independently operated software product. The fastest way to reach a real
+              Revova is a small, independently operated company. The fastest way to reach a real
               person is email —{' '}
               <a href="mailto:support@revova.io" className="text-indigo-600 hover:underline">support@revova.io</a>.
               For anything else, see our{' '}
