@@ -8,7 +8,7 @@ import { scanLost, type LostBuckets } from '@/lib/stripe-lost-scan'
 import { AdminTabs, AdminTab } from '@/components/admin/admin-tabs'
 import { MerchantsTable } from '@/components/admin/merchants-table'
 import Link from 'next/link'
-import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search, LayoutDashboard, AlertTriangle, History, Mail, MailOpen, MousePointerClick, ShieldX } from 'lucide-react'
+import { Users, DollarSign, TrendingUp, CreditCard, Zap, Search, LayoutDashboard, AlertTriangle, History, Mail, MailOpen, MousePointerClick, ShieldX, RefreshCw } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -38,6 +38,7 @@ export default async function AdminPage() {
   const { count: suppressed } = await db.from('email_blacklist').select('id', { count: 'exact', head: true })
   const { data: recentAudit } = await db.from('admin_audit_log').select('*').order('created_at', { ascending: false }).limit(15)
   const { data: blacklist } = await db.from('email_blacklist').select('user_id')
+  const { data: retryLogRows } = await db.from('retry_attempt_log').select('decline_code, attempt_number, day_of_month, succeeded')
 
   const accountList: any[] = accounts ?? []
   const subByUser = new Map((subs ?? []).map((s: any) => [s.user_id, s]))
@@ -143,6 +144,39 @@ export default async function AdminPage() {
     })
     .filter(r => r.sent > 0 || r.suppressed > 0)
     .sort((a, b) => b.sent - a.sent)
+
+  // ── Retry analysis: recovery rate by attempt number / by position-within-
+  // payday-window, stratified by decline_code. This is the stratification
+  // check raised via github.com/IvanSFlowGit/advice-code-check — only
+  // insufficient_funds (a balance/timing issue) should show a strong effect;
+  // other decline codes are the placebo/negative control.
+  type RetryStat = { attempted: number; succeeded: number }
+  const retryByAttempt = new Map<string, RetryStat>() // key: `${declineCode}|${attemptNumber}`
+  const retryByWindowPos = new Map<string, RetryStat>() // key: `${declineCode}|${position}`
+  function windowPosition(day: number): 'early (1–5)' | 'mid (15–20)' | 'late (28+)' | 'other' {
+    if (day >= 1 && day <= 5) return 'early (1–5)'
+    if (day >= 15 && day <= 20) return 'mid (15–20)'
+    if (day >= 28) return 'late (28+)'
+    return 'other' // shouldn't occur under current isPaydayWindow gating — kept as a guard
+  }
+  for (const r of retryLogRows ?? []) {
+    const code = r.decline_code ?? 'unknown'
+    const aStat = retryByAttempt.get(`${code}|${r.attempt_number}`) ?? { attempted: 0, succeeded: 0 }
+    aStat.attempted++
+    if (r.succeeded) aStat.succeeded++
+    retryByAttempt.set(`${code}|${r.attempt_number}`, aStat)
+
+    const pos = windowPosition(r.day_of_month)
+    const wStat = retryByWindowPos.get(`${code}|${pos}`) ?? { attempted: 0, succeeded: 0 }
+    wStat.attempted++
+    if (r.succeeded) wStat.succeeded++
+    retryByWindowPos.set(`${code}|${pos}`, wStat)
+  }
+  const retryDeclineCodes: string[] = Array.from(new Set(((retryLogRows ?? []) as any[]).map((r: any) => r.decline_code ?? 'unknown'))).sort()
+  const maxAttemptSeen: number = ((retryLogRows ?? []) as any[]).reduce((m: number, r: any) => Math.max(m, r.attempt_number), 0)
+  const retryAttemptCols = Array.from({ length: Math.max(1, maxAttemptSeen) }, (_, i) => i + 1)
+  const retryWindowPositions = ['early (1–5)', 'mid (15–20)', 'late (28+)'] as const
+  const retryRate = (s: RetryStat | undefined) => (s && s.attempted > 0 ? Math.round((s.succeeded / s.attempted) * 100) : null)
 
   // Rows for the filterable client-side merchants table.
   const merchantRows = merchants.map(m => {
@@ -311,6 +345,93 @@ export default async function AdminPage() {
                         </tr>
                       )
                     })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </AdminTab>
+
+          {/* ───────── Retry analysis ───────── */}
+          <AdminTab id="retry" label="Retry analysis" icon={<RefreshCw className="w-4 h-4" />} badge={(retryLogRows ?? []).length || undefined}>
+            <div className="bg-white rounded-xl border border-indigo-100 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center"><RefreshCw className="w-4 h-4 text-white" /></div>
+                <h3 className="font-semibold text-gray-900">Does payday-windowed retry actually work?</h3>
+              </div>
+              <p className="text-xs text-gray-500 mt-1 max-w-3xl">
+                Only <code className="bg-gray-100 px-1 rounded">insufficient_funds</code> should show a real effect here — it&apos;s the one
+                decline reason tied to bank balance/timing. Other codes are the placebo: if they move just as much, the effect isn&apos;t
+                payday-specific. Since payday-windowed timing is now mandatory for every retry (not opt-in), every logged attempt already
+                falls inside a window — there&apos;s no non-window group left to compare against, so this can only show whether recovery rate
+                varies <em>within</em> the window, not payday-vs-not. {(retryLogRows ?? []).length === 0 && 'No attempts logged yet — data starts accumulating from the next cron run.'}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900">Recovery rate by attempt number</h3>
+                <p className="text-xs text-gray-500 mt-0.5">If later attempts recover meaningfully more than attempt 1 for insufficient_funds, that supports &quot;wait for the balance to refill.&quot;</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
+                      <th className="px-5 py-3 font-medium">Decline code</th>
+                      {retryAttemptCols.map(n => <th key={n} className="px-3 py-3 font-medium text-right">#{n}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {retryDeclineCodes.length === 0 ? (
+                      <tr><td colSpan={retryAttemptCols.length + 1} className="px-5 py-8 text-center text-gray-400">No retry attempts logged yet.</td></tr>
+                    ) : retryDeclineCodes.map(code => (
+                      <tr key={code} className="hover:bg-indigo-50/40">
+                        <td className="px-5 py-3 font-medium text-gray-700">{code}</td>
+                        {retryAttemptCols.map(n => {
+                          const s = retryByAttempt.get(`${code}|${n}`)
+                          const rate = retryRate(s)
+                          return (
+                            <td key={n} className="px-3 py-3 text-right text-gray-600">
+                              {s ? <>{rate}% <span className="text-gray-400">({s.succeeded}/{s.attempted})</span></> : <span className="text-gray-300">—</span>}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900">Recovery rate by position within the payday window</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Placebo check: insufficient_funds clustering near the 1st/15th while other codes stay flat would support the payday theory.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
+                      <th className="px-5 py-3 font-medium">Decline code</th>
+                      {retryWindowPositions.map(p => <th key={p} className="px-3 py-3 font-medium text-right">{p}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {retryDeclineCodes.length === 0 ? (
+                      <tr><td colSpan={retryWindowPositions.length + 1} className="px-5 py-8 text-center text-gray-400">No retry attempts logged yet.</td></tr>
+                    ) : retryDeclineCodes.map(code => (
+                      <tr key={code} className="hover:bg-indigo-50/40">
+                        <td className="px-5 py-3 font-medium text-gray-700">{code}</td>
+                        {retryWindowPositions.map(p => {
+                          const s = retryByWindowPos.get(`${code}|${p}`)
+                          const rate = retryRate(s)
+                          return (
+                            <td key={p} className="px-3 py-3 text-right text-gray-600">
+                              {s ? <>{rate}% <span className="text-gray-400">({s.succeeded}/{s.attempted})</span></> : <span className="text-gray-300">—</span>}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

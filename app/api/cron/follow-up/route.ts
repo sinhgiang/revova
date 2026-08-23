@@ -243,22 +243,43 @@ export async function GET(request: NextRequest) {
       // twice for the same day (overlapping invocation, manual re-run), Stripe
       // returns the cached first response instead of charging the card again.
       const idempotencyKey = `retry-${payment.id}-${now.toISOString().slice(0, 10)}`
+      const attemptNumber = attemptsSoFar + 1
+      let succeeded = false
       try {
         const stripe = new Stripe(account.access_token)
         await stripe.invoices.pay(payment.stripe_invoice_id, {}, { idempotencyKey })
-        try {
-          await db.from('failed_payments').update({ retry_attempts: attemptsSoFar + 1 }).eq('id', payment.id)
-        } catch { /* non-critical — counter column may not exist yet */ }
+        succeeded = true
+      } catch {
+        succeeded = false
+      }
+
+      try {
+        await db.from('failed_payments').update({ retry_attempts: attemptNumber }).eq('id', payment.id)
+      } catch { /* non-critical — counter column may not exist yet */ }
+
+      // One row per attempt — feeds the admin "Retry analysis" report (recovery
+      // rate by attempt number / by day-of-month, stratified by decline_code).
+      // See 20260823_retry_attempt_log.sql for why this exists separately from
+      // the running retry_attempts counter above.
+      try {
+        await db.from('retry_attempt_log').insert({
+          failed_payment_id: payment.id,
+          user_id: payment.user_id,
+          attempt_number: attemptNumber,
+          decline_code: payment.decline_code,
+          advice_code: payment.advice_code ?? null,
+          day_of_month: now.getDate(),
+          succeeded,
+        })
+      } catch { /* non-critical — table may not exist yet on older deployments */ }
+
+      if (succeeded) {
         await handleRecoverySuccess(payment, account)
         recovered++
         console.log(`[Cron] ✓ Auto-retry succeeded → ${payment.customer_email}`)
         continue // recovered — no email needed
-      } catch {
-        // Retry failed — count the attempt, then fall through to the email sequence
-        try {
-          await db.from('failed_payments').update({ retry_attempts: attemptsSoFar + 1 }).eq('id', payment.id)
-        } catch { /* non-critical — counter column may not exist yet */ }
       }
+      // Retry failed — fall through to the email sequence
     }
 
     // Payments that have exhausted their email sequence are retry-only from here.

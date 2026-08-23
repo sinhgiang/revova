@@ -58,6 +58,21 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['email_logs']['Row'], 'id' | 'sent_at'>
         Update: Partial<Database['public']['Tables']['email_logs']['Insert']>
       }
+      retry_attempt_log: {
+        Row: {
+          id: string
+          failed_payment_id: string
+          user_id: string
+          attempt_number: number
+          decline_code: string | null
+          advice_code: string | null
+          day_of_month: number
+          succeeded: boolean
+          attempted_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['retry_attempt_log']['Row'], 'id' | 'attempted_at'>
+        Update: Partial<Database['public']['Tables']['retry_attempt_log']['Insert']>
+      }
     }
   }
 }
