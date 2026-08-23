@@ -3,7 +3,7 @@ import { stripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
 import { generateRecoveryEmail } from '@/lib/ai/email-generator'
 import { sendRecoveryEmail } from '@/lib/email/resend'
-import { DeclineCode } from '@/types'
+import { AdviceCode, DeclineCode } from '@/types'
 import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const chargeObj = (invoice as any).charge as Stripe.Charge | null
     const declineCode = (chargeObj?.failure_code ?? 'generic_decline') as DeclineCode
+    // See app/api/webhook/[userId]/route.ts for why this is captured separately
+    // from decline_code.
+    const adviceCode = (chargeObj?.outcome?.advice_code ?? null) as AdviceCode | null
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db = supabase as any
@@ -47,6 +50,7 @@ export async function POST(request: NextRequest) {
         amount: invoice.amount_due,
         currency: invoice.currency,
         decline_code: declineCode,
+        advice_code: adviceCode,
         status: 'pending',
         stripe_customer_id: invoice.customer as string,
         country: null,

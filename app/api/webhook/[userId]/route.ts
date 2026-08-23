@@ -8,7 +8,7 @@ import { sendSlackNotification } from '@/lib/slack'
 import { sendTelegramNotification } from '@/lib/telegram'
 import { sendMerchantRecoveryNotification } from '@/lib/email/notifications'
 import { resolvePlan, monthlyRecoveryCount } from '@/lib/plan'
-import { DeclineCode } from '@/types'
+import { AdviceCode, DeclineCode } from '@/types'
 
 export async function POST(
   request: NextRequest,
@@ -54,6 +54,10 @@ export async function POST(
     const invoice = event.data.object as Stripe.Invoice
     const chargeObj = (invoice as any).charge as Stripe.Charge | null
     let declineCode = (chargeObj?.failure_code ?? 'generic_decline') as DeclineCode
+    // Stripe's own "should this be retried" signal — separate from decline_code,
+    // which only explains why. Used to override the decline_code-based retry
+    // list below (do_not_try_again always blocks; try_again_later always allows).
+    const adviceCode = (chargeObj?.outcome?.advice_code ?? null) as AdviceCode | null
 
     // Detect 3-D Secure / SCA authentication failures. These frequently have NO
     // failed charge (so no failure_code) — the PaymentIntent is just left needing
@@ -116,6 +120,7 @@ export async function POST(
         amount: invoice.amount_due,
         currency: invoice.currency,
         decline_code: declineCode,
+        advice_code: adviceCode,
         status: 'pending',
         stripe_customer_id: invoice.customer as string,
         country: null,

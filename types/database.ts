@@ -30,6 +30,7 @@ export interface Database {
           amount: number
           currency: string
           decline_code: string | null
+          advice_code: string | null
           status: string
           stripe_customer_id: string
           stripe_payment_intent_id: string | null

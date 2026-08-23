@@ -12,17 +12,36 @@ import { resolvePlan, monthlyRecoveryCount, STARTER_MONTHLY_RECOVERY_LIMIT } fro
 import { isAuthorizedCron } from '@/lib/cron-auth'
 import { DeclineCode } from '@/types'
 
-// Decline codes where auto-retrying the charge is worth attempting.
-// card_velocity_exceeded is deliberately excluded: it's the issuer's own
-// fraud/velocity system blocking the charge, not a funds/timing issue. Stripe's
-// guidance is "customer contacts their issuer" — silently re-charging the same
-// card looks like card-testing to the issuer and risks getting it flagged. It's
-// routed to the hard-decline email track instead (see getDeclineClass).
+// Decline codes where auto-retrying the charge is worth attempting, used as a
+// FALLBACK when Stripe hasn't given us a direct instruction (see advice_code
+// below). card_velocity_exceeded is deliberately excluded: it's the issuer's
+// own fraud/velocity system blocking the charge, not a funds/timing issue.
+// Stripe's guidance is "customer contacts their issuer" — silently re-charging
+// the same card looks like card-testing to the issuer and risks getting it
+// flagged. It's routed to the hard-decline email track instead (see getDeclineClass).
 const RETRYABLE_CODES = new Set([
   'insufficient_funds',
   'processing_error',
   'generic_decline',
+  // The issuer's own message is literally "retry later" — this was previously
+  // missing here despite our own decline-codes guide telling merchants to
+  // retry it (caught via github.com/IvanSFlowGit/advice-code-check).
+  'try_again_later',
 ])
+
+// Stripe's outcome.advice_code is a purpose-built "should this be retried"
+// signal, distinct from decline_code (which only explains why it failed) —
+// see https://docs.stripe.com/declines#retrying-issuer-declines. When present
+// it overrides the decline_code-based RETRYABLE_CODES fallback above:
+// do_not_try_again always blocks a retry (even for an otherwise-retryable
+// decline_code), and try_again_later always allows one (even for a
+// decline_code we wouldn't otherwise retry). confirm_card_data isn't a retry
+// signal at all — falls through to the decline_code fallback.
+function isRetryEligible(payment: { decline_code: string | null; advice_code?: string | null }): boolean {
+  if (payment.advice_code === 'do_not_try_again') return false
+  if (payment.advice_code === 'try_again_later') return true
+  return RETRYABLE_CODES.has(payment.decline_code ?? '')
+}
 
 // Default days to wait after the PREVIOUS email
 const DEFAULT_DAYS_AFTER_PREV: Record<number, number> = {
@@ -219,7 +238,7 @@ export async function GET(request: NextRequest) {
     const retryToday = isPaydayWindow(now)
     const attemptsSoFar: number = payment.retry_attempts ?? 0
     const underAttemptCap = attemptsSoFar < MAX_RETRY_ATTEMPTS
-    if (isStripe && retryToday && underAttemptCap && RETRYABLE_CODES.has(payment.decline_code)) {
+    if (isStripe && retryToday && underAttemptCap && isRetryEligible(payment)) {
       // One retry attempt per payment per calendar day: if the cron ever runs
       // twice for the same day (overlapping invocation, manual re-run), Stripe
       // returns the cached first response instead of charging the card again.

@@ -10,6 +10,13 @@ export type DeclineCode =
   | 'stolen_card'
   | 'generic_decline'
   | 'authentication_required'
+  | 'try_again_later'
+  | 'processing_error'
+
+// Stripe's outcome.advice_code — a purpose-built "should this be retried"
+// signal, distinct from DeclineCode (which only explains why it was
+// declined). See RETRYABLE_CODES in app/api/cron/follow-up/route.ts.
+export type AdviceCode = 'confirm_card_data' | 'do_not_try_again' | 'try_again_later'
 
 export interface FailedPayment {
   id: string
@@ -21,6 +28,7 @@ export interface FailedPayment {
   amount: number
   currency: string
   decline_code: DeclineCode | null
+  advice_code: AdviceCode | null
   status: FailedPaymentStatus
   stripe_customer_id: string
   stripe_payment_intent_id: string | null

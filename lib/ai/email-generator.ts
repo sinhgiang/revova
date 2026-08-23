@@ -11,6 +11,11 @@ const DECLINE_CONTEXT: Record<string, string> = {
   lost_card: 'The card has been reported as lost.',
   stolen_card: 'The card has been reported as stolen.',
   generic_decline: 'The card was declined for an unspecified reason.',
+  // The issuer's own message is literally "retry later" — a temporary hold,
+  // not a reason to ask for a new card. Auto-retried like insufficient_funds
+  // (see RETRYABLE_CODES in app/api/cron/follow-up/route.ts).
+  try_again_later: 'The bank asked for the transaction to be retried later, without giving a more specific reason.',
+  processing_error: 'A temporary processing error occurred on the bank or network side.',
   // Not a lack of funds — the bank needs the customer to verify the payment
   // (3-D Secure / Strong Customer Authentication). Common in the EU/UK. The fix
   // is to CONFIRM the payment, not to replace the card.
