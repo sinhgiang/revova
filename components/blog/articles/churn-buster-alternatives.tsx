@@ -167,7 +167,7 @@ export default function Article() {
 
       <H3>1. Revova — best overall value and broadest processor coverage</H3>
       <P>
-        Revova runs the core of what a modern recovery stack needs — smart daily retries, an AI-written
+        Revova runs the core of what a modern recovery stack needs — payday-timed smart retries, an AI-written
         dunning sequence branched by hard versus soft decline, and pre-dunning — at a flat{' '}
         <A href="/pricing">$29–$79/month</A>, with no pricing that scales against your recovery volume. It
         connects read-only to five processors (Stripe, Paddle, Braintree, Chargebee, Recurly), and its free

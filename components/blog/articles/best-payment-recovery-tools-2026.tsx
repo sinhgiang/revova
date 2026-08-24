@@ -327,7 +327,7 @@ export default function Article() {
       <P>
         Revova (that&apos;s us — and we&apos;ll keep this fair) was built for the founders the premium
         tools price out: indie hackers, solo founders, and small-to-mid SaaS teams. It delivers the
-        core of what the expensive suites do — AI-personalized dunning emails, smart daily retries,
+        core of what the expensive suites do — AI-personalized dunning emails, payday-timed smart retries,
         pre-dunning, and an in-app cancel flow — at a flat <A href="/pricing">$29–$79/month</A> with no
         commission on recovered revenue.
       </P>

@@ -14,7 +14,7 @@ const STARTER_FEATURES = [
   'Up to 50 failed payment recoveries/mo',
   'Lost Revenue Finder — scan + win back 90 days',
   'AI-personalized 4-email sequence (Day 1→3→7→14)',
-  'Daily smart payment auto-retry',
+  'Payday-timed smart payment auto-retry',
   'Pre-dunning expiry alerts',
   'Works with 5 payment processors',
   'Slack & Telegram alerts + in-app banner',

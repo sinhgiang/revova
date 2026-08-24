@@ -448,7 +448,7 @@ export default function LandingPage() {
               { icon: RotateCcw, title: 'Winback campaigns for cancellations', desc: 'When a customer cancels, Revova automatically sends AI-personalized re-engagement emails on Day 3, 14, and 30.', badge: 'Pro feature' },
               { icon: MessageSquare, title: 'SMS recovery when email is ignored', desc: 'If a customer ignores your emails, Revova texts them a card-update link from your own number. SMS gets ~98% open rates.', badge: 'SMS · Pro' },
               { icon: CreditCard, title: 'Pre-dunning before cards expire', desc: 'Revova spots cards expiring this month or next and emails customers proactively — stopping the failed payment before it ever happens.', badge: 'Proactive' },
-              { icon: RefreshCw, title: 'Daily smart-retry for up to 30 days', desc: 'For recoverable declines like insufficient funds, Revova re-attempts the charge every single day — not just on email days — across your whole recovery window.', badge: 'Adaptive retry' },
+              { icon: RefreshCw, title: 'Payday-timed smart-retry for up to 30 days', desc: 'For recoverable declines like insufficient funds, Revova concentrates retries on the days a customer\'s bank balance is statistically likely to have refilled — not a blind daily hit — across your whole recovery window.', badge: 'Adaptive retry' },
               { icon: BarChart3, title: 'Weekly recovery digest', desc: 'Every Monday, get a clean summary: failures, recoveries, revenue saved, and your week-over-week rate.', badge: 'Auto-reports' },
               { icon: TrendingUp, title: 'At-risk customer alerts', desc: 'Dashboard flags customers who\'ve received 3+ emails without resolving — so you know when to reach out personally.', badge: 'Live dashboard' },
               { icon: BarChart3, title: 'Email open & click analytics', desc: 'See open rate and click rate for every email in your sequence. Know exactly which email drives the most payments back.', badge: 'Email analytics' },
@@ -533,7 +533,7 @@ export default function LandingPage() {
             {[
               { step: '1', title: 'Connect in 3 minutes', body: 'Paste your payment processor key — read-only access, no code, no engineers. Works with Stripe, Paddle, Braintree, Chargebee and Recurly.' },
               { step: '2', title: 'See what you already lost', body: 'The scan surfaces failed charges from the last 30 days up to 12 months — a real number pulled from your own account, not an estimate.' },
-              { step: '3', title: 'Recover it on autopilot', body: 'Turn on AI recovery emails and daily smart-retries. Not happy within 30 days? We refund you in full — no questions asked.' },
+              { step: '3', title: 'Recover it on autopilot', body: 'Turn on AI recovery emails and payday-timed smart-retries. Not happy within 30 days? We refund you in full — no questions asked.' },
             ].map(({ step, title, body }) => (
               <div key={step} className="bg-white/6 border border-white/10 rounded-2xl p-7">
                 <div className="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-300 text-sm font-bold mb-4">{step}</div>
@@ -604,7 +604,7 @@ export default function LandingPage() {
                   { feature: 'Auto spam/bounce suppression', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'GDPR data export & deletion', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Smart payment retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
-                  { feature: 'Daily retry for 30 days', revova: true, churnkey: false, stunning: false, churnbuster: true },
+                  { feature: 'Up to 8 retry attempts over 30 days', revova: true, churnkey: false, stunning: false, churnbuster: true },
                   { feature: 'SMS recovery (text message)', revova: true, churnkey: false, stunning: true, churnbuster: true },
                   { feature: 'LTV-based retention offers', revova: true, churnkey: true, stunning: false, churnbuster: true },
                   { feature: 'In-app cancel flow (modal)', revova: true, churnkey: true, stunning: false, churnbuster: false },

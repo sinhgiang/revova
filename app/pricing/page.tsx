@@ -87,7 +87,7 @@ export default function PricingPage() {
                   { feature: 'AI-personalized emails', revova: true, churnkey: true, stunning: false, churnbuster: true },
                   { feature: 'Works with 5 payment processors', revova: true, churnkey: false, stunning: false, churnbuster: false },
                   { feature: 'Smart payment auto-retry', revova: true, churnkey: true, stunning: true, churnbuster: true },
-                  { feature: 'Daily retry for 30 days', revova: true, churnkey: false, stunning: false, churnbuster: true },
+                  { feature: 'Payday-timed retry for up to 30 days', revova: true, churnkey: false, stunning: false, churnbuster: true },
                   { feature: 'SMS recovery (text message)', revova: 'Pro', churnkey: false, stunning: true, churnbuster: true },
                   { feature: 'Pre-dunning (expiry alerts)', revova: true, churnkey: true, stunning: false, churnbuster: false },
                   { feature: 'Hard vs. soft decline routing', revova: 'Pro', churnkey: false, stunning: false, churnbuster: false },
