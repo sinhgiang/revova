@@ -6,6 +6,7 @@ import { posts, getPost, sortedPosts, AUTHOR, type BlogPost } from '@/lib/blog'
 import { JsonLd } from '@/components/json-ld'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { PreferredSourceButton } from '@/components/blog/preferred-source-button'
 import { blogPostingSchema, breadcrumbSchema, faqPageSchema, type Faq } from '@/lib/seo'
 import BestPaymentRecoveryTools2026, { faqs as bestToolsFaqs } from '@/components/blog/articles/best-payment-recovery-tools-2026'
 import HowToRecoverFailedStripePayments, { faqs as stripeFaqs } from '@/components/blog/articles/how-to-recover-failed-stripe-payments'
@@ -247,6 +248,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <article className="pt-8">
           <Body />
         </article>
+
+        <PreferredSourceButton />
 
         <div className="mt-16 pt-10 border-t border-gray-100">
           <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Keep reading</h2>
